@@ -1,7 +1,13 @@
 import PaymentModal from "@/components/PaymentModal";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, BadgeCheck, Download, Printer } from "lucide-react";
+import {
+  ArrowLeft,
+  BadgeCheck,
+  Download,
+  FileImage,
+  Printer,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import type {
   ContactInfo,
@@ -93,7 +99,7 @@ const DEFAULT: SavedData = {
     email: "",
     address: "१२३, शांती नगर, पुणे - ४११०२१",
   },
-  template: "traditional",
+  template: "single",
   photoPreview: null,
 };
 
@@ -114,1544 +120,476 @@ function parseSiblings(raw: string): SiblingEntry[] | null {
   return null;
 }
 
-function InfoRow({
+// ─── Single Professional Template ─────────────────────────────────────────────
+const maroon = "#8B1A1A";
+const maroonLight = "#f5e8e8";
+
+function SectionHeader({ title }: { title: string }) {
+  return (
+    <div
+      style={{
+        borderBottom: `2px solid ${maroon}`,
+        marginBottom: 10,
+        marginTop: 18,
+        paddingBottom: 4,
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+      }}
+    >
+      <span
+        style={{
+          display: "inline-block",
+          width: 4,
+          height: 18,
+          background: maroon,
+          borderRadius: 2,
+          flexShrink: 0,
+        }}
+      />
+      <span
+        style={{
+          color: maroon,
+          fontWeight: 700,
+          fontSize: 14,
+          fontFamily: "inherit",
+          letterSpacing: "0.03em",
+        }}
+      >
+        {title}
+      </span>
+    </div>
+  );
+}
+
+function Row({
   label,
   value,
-}: { label: string; value: string | boolean | undefined | null }) {
-  const display =
-    value === undefined || value === null || value === ""
-      ? null
-      : typeof value === "boolean"
-        ? value
-          ? "होय"
-          : "नाही"
-        : value;
-  if (display === null) return null;
+}: { label: string; value?: string | boolean | null }) {
+  if (value === undefined || value === null || value === "") return null;
+  const display = typeof value === "boolean" ? (value ? "होय" : "नाही") : value;
   return (
-    <div className="flex gap-2 text-sm mb-1.5">
-      <span className="font-devanagari text-gray-500 min-w-[130px] shrink-0">
-        {label}:
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "140px 1fr",
+        gap: "4px 12px",
+        marginBottom: 5,
+        alignItems: "start",
+      }}
+    >
+      <span
+        style={{
+          color: "#666",
+          fontSize: 12,
+          fontFamily: "inherit",
+          paddingTop: 1,
+        }}
+      >
+        {label}
       </span>
-      <span className="font-devanagari font-semibold text-gray-900">
+      <span
+        style={{
+          color: "#1a1a1a",
+          fontSize: 12,
+          fontWeight: 600,
+          fontFamily: "inherit",
+        }}
+      >
         {display}
       </span>
     </div>
   );
 }
 
-function PhotoBox({
-  src,
-  size,
-  shape,
-}: { src: string | null; size: string; shape: string }) {
-  if (src) {
-    return (
-      <img
-        src={src}
-        alt="Profile"
-        className={`${size} ${shape} object-cover`}
-      />
-    );
-  }
-  return (
-    <div
-      className={`${size} ${shape} bg-gray-100 border-2 border-gray-300 flex items-center justify-center text-4xl`}
-    >
-      👤
-    </div>
-  );
-}
-
-// ─── TEMPLATE 1: Traditional (पारंपारिक) ────────────────────────────────────
-function TemplateTraditional({
+export function TemplateSingle({
   data,
   hidden,
 }: { data: SavedData; hidden: Set<string> }) {
   const sibs = parseSiblings(data.family.siblingsInfo);
+  const hasPlanetary = data.horoscope.planetaryPositions?.some(
+    (p) => p.trim() !== "",
+  );
+
+  // Format date
+  let dob = data.personal.dateOfBirth;
+  if (dob) {
+    try {
+      const d = new Date(dob);
+      dob = d.toLocaleDateString("mr-IN", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    } catch {
+      /* keep original */
+    }
+  }
+
   return (
-    <div className="border-4 border-double border-amber-800 bg-amber-50 font-devanagari">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-red-900 to-red-800 p-5 text-center">
-        <p className="font-serif-devanagari text-amber-200 text-xs tracking-widest mb-1">
+    <div
+      style={{
+        background: "#fff",
+        fontFamily: "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
+        maxWidth: 794,
+        margin: "0 auto",
+        padding: "32px 36px",
+        boxSizing: "border-box" as const,
+        minHeight: 1123,
+        position: "relative" as const,
+      }}
+    >
+      {/* Top mantra */}
+      <div style={{ textAlign: "center", marginBottom: 8 }}>
+        <span
+          style={{
+            color: maroon,
+            fontSize: 11,
+            letterSpacing: "0.2em",
+            fontWeight: 500,
+          }}
+        >
           ॥ श्री गणेशाय नमः ॥
-        </p>
-        <h1 className="font-serif-devanagari font-bold text-2xl text-amber-100">
-          ✦ विवाह बायोडाटा ✦
-        </h1>
-        <p className="text-amber-300 text-xs mt-1">Vivah Biodata</p>
+        </span>
       </div>
-      {/* Name + Photo */}
-      <div className="flex items-center gap-5 px-6 pt-5 pb-3 border-b-2 border-amber-700">
-        <div className="flex-1">
-          <h2 className="font-serif-devanagari font-bold text-2xl text-red-900">
+
+      {/* Title */}
+      <div
+        style={{
+          textAlign: "center",
+          borderTop: `3px solid ${maroon}`,
+          borderBottom: `3px solid ${maroon}`,
+          padding: "10px 0",
+          marginBottom: 20,
+          background: maroonLight,
+        }}
+      >
+        <h1
+          style={{
+            color: maroon,
+            fontSize: 22,
+            fontWeight: 800,
+            margin: 0,
+            letterSpacing: "0.08em",
+            fontFamily: "inherit",
+          }}
+        >
+          विवाह बायोडाटा
+        </h1>
+      </div>
+
+      {/* Name + Photo row */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 20,
+          paddingBottom: 16,
+          borderBottom: "1px solid #e2c8c8",
+        }}
+      >
+        <div>
+          <h2
+            style={{
+              color: "#1a1a1a",
+              fontSize: 24,
+              fontWeight: 800,
+              margin: 0,
+              fontFamily: "inherit",
+            }}
+          >
             {data.personal.name}
           </h2>
-          <p className="text-sm text-gray-600 mt-1">
-            {!hidden.has("manglikStatus") && (
-              <>
-                मांगलिक: <b>
-                  {data.personal.manglikStatus ? "होय" : "नाही"}
-                </b>{" "}
-              </>
-            )}
-            {!hidden.has("religion") && (
-              <>
-                धर्म: <b>{data.personal.religion}</b>{" "}
-              </>
-            )}
-            {!hidden.has("caste") && (
-              <>
-                जात: <b>{data.personal.caste}</b>
-              </>
-            )}
-          </p>
-        </div>
-        <PhotoBox
-          src={data.photoPreview}
-          size="w-24 h-28"
-          shape="rounded-xl border-4 border-amber-700 shadow"
-        />
-      </div>
-      {/* Two-column body */}
-      <div className="grid md:grid-cols-2 gap-0 divide-x divide-amber-300">
-        <div className="p-5">
-          <p className="font-serif-devanagari font-bold text-red-900 border-b border-amber-700 pb-1 mb-3">
-            ✦ वैयक्तिक माहिती
-          </p>
-          <InfoRow label="जन्म तारीख" value={data.personal.dateOfBirth} />
-          {!hidden.has("timeOfBirth") && (
-            <InfoRow label="जन्म वेळ" value={data.personal.timeOfBirth} />
-          )}
-          <InfoRow label="जन्म ठिकाण" value={data.personal.placeOfBirth} />
-          <InfoRow label="उंची" value={data.personal.height} />
-          {!hidden.has("complexion") && (
-            <InfoRow label="रंग" value={data.personal.complexion} />
-          )}
-          <InfoRow label="शिक्षण" value={data.personal.education} />
-          <InfoRow label="व्यवसाय" value={data.personal.occupation} />
-          {!hidden.has("income") && (
-            <InfoRow label="मासिक उत्पन्न" value={data.personal.income} />
-          )}
-          {!hidden.has("gotra") && (
-            <InfoRow label="गोत्र" value={data.personal.gotra} />
-          )}
-        </div>
-        <div className="p-5">
-          <p className="font-serif-devanagari font-bold text-red-900 border-b border-amber-700 pb-1 mb-3">
-            ✦ कौटुंबिक माहिती
-          </p>
-          <InfoRow label="वडिलांचे नाव" value={data.family.fatherName} />
-          {!hidden.has("fatherOccupation") && (
-            <InfoRow
-              label="वडिलांचा व्यवसाय"
-              value={data.family.fatherOccupation}
-            />
-          )}
-          <InfoRow label="आईचे नाव" value={data.family.motherName} />
-          {!hidden.has("motherOccupation") && (
-            <InfoRow label="आईचा व्यवसाय" value={data.family.motherOccupation} />
-          )}
-          {!hidden.has("siblingsInfo") && sibs
-            ? sibs.map((s, i) => (
-                // biome-ignore lint/suspicious/noArrayIndexKey: stable preview
-                <InfoRow
-                  key={s.name || i}
-                  label={i === 0 ? "भाऊ-बहीण" : ""}
-                  value={`${s.type}: ${s.name} — ${s.maritalStatus}${s.occupation ? `, ${s.occupation}` : ""}`}
-                />
-              ))
-            : !hidden.has("siblingsInfo") && (
-                <InfoRow label="भाऊ-बहीण" value={data.family.siblingsInfo} />
-              )}
-          {!hidden.has("familyType") && (
-            <InfoRow label="कुटुंब प्रकार" value={data.family.familyType} />
-          )}
-          {!hidden.has("nativePlace") && (
-            <InfoRow label="मूळ गाव" value={data.family.nativePlace} />
-          )}
-        </div>
-      </div>
-      {/* Horoscope */}
-      <div className="px-5 pb-2 pt-1">
-        <p className="font-serif-devanagari font-bold text-red-900 border-b border-amber-700 pb-1 mb-3">
-          ✦ कुंडली / जन्मपत्रिका
-        </p>
-        <div className="grid grid-cols-5 gap-2 mb-3">
-          {(["राशी", "नक्षत्र", "गण", "नाडी", "चरण"] as const).map((lbl, i) => {
-            const keys = [null, null, "gan", "nadi", "charan"];
-            const vals = [
-              data.horoscope.rashi,
-              data.horoscope.nakshatra,
-              data.horoscope.gan,
-              data.horoscope.nadi,
-              data.horoscope.charan,
-            ];
-            if (keys[i] && hidden.has(keys[i] as string)) return null;
-            return (
-              <div
-                key={lbl}
-                className="text-center bg-white border border-amber-400 rounded p-1.5"
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              marginTop: 6,
+              flexWrap: "wrap" as const,
+            }}
+          >
+            {!hidden.has("religion") && data.personal.religion && (
+              <span
+                style={{
+                  background: maroonLight,
+                  color: maroon,
+                  fontSize: 10,
+                  padding: "2px 10px",
+                  borderRadius: 99,
+                  border: "1px solid #e2c8c8",
+                  fontWeight: 600,
+                }}
               >
-                <div className="text-[10px] text-gray-500">{lbl}</div>
-                <div className="font-bold text-sm text-red-900">
-                  {vals[i] || "—"}
-                </div>
+                {data.personal.religion}
+              </span>
+            )}
+            {!hidden.has("caste") && data.personal.caste && (
+              <span
+                style={{
+                  background: maroonLight,
+                  color: maroon,
+                  fontSize: 10,
+                  padding: "2px 10px",
+                  borderRadius: 99,
+                  border: "1px solid #e2c8c8",
+                  fontWeight: 600,
+                }}
+              >
+                {data.personal.caste}
+              </span>
+            )}
+          </div>
+        </div>
+        {data.photoPreview && (
+          <img
+            src={data.photoPreview}
+            alt="Profile"
+            style={{
+              width: 90,
+              height: 110,
+              objectFit: "cover" as const,
+              border: `3px solid ${maroon}`,
+              borderRadius: 6,
+            }}
+          />
+        )}
+        {!data.photoPreview && (
+          <div
+            style={{
+              width: 90,
+              height: 110,
+              background: maroonLight,
+              border: "3px solid #e2c8c8",
+              borderRadius: 6,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 32,
+              color: "#ccc",
+            }}
+          >
+            👤
+          </div>
+        )}
+      </div>
+
+      {/* Personal Info */}
+      <SectionHeader title="वैयक्तिक माहिती" />
+      <div style={{ columns: 2, columnGap: 24 }}>
+        {!hidden.has("dateOfBirth") && <Row label="जन्म तारीख" value={dob} />}
+        {!hidden.has("timeOfBirth") && (
+          <Row label="जन्म वेळ" value={data.personal.timeOfBirth} />
+        )}
+        {!hidden.has("placeOfBirth") && (
+          <Row label="जन्म ठिकाण" value={data.personal.placeOfBirth} />
+        )}
+        {!hidden.has("height") && (
+          <Row label="उंची" value={data.personal.height} />
+        )}
+        {!hidden.has("complexion") && (
+          <Row label="रंग" value={data.personal.complexion} />
+        )}
+        {!hidden.has("education") && (
+          <Row label="शिक्षण" value={data.personal.education} />
+        )}
+        {!hidden.has("occupation") && (
+          <Row label="व्यवसाय" value={data.personal.occupation} />
+        )}
+        {!hidden.has("income") && (
+          <Row label="मासिक उत्पन्न" value={data.personal.income} />
+        )}
+        {!hidden.has("gotra") && (
+          <Row label="गोत्र" value={data.personal.gotra} />
+        )}
+        {!hidden.has("manglikStatus") && (
+          <Row label="मांगलिक" value={data.personal.manglikStatus} />
+        )}
+      </div>
+
+      {/* Family Info */}
+      <SectionHeader title="कौटुंबिक माहिती" />
+      <div style={{ columns: 2, columnGap: 24 }}>
+        {!hidden.has("fatherName") && (
+          <Row label="वडिलांचे नाव" value={data.family.fatherName} />
+        )}
+        {!hidden.has("fatherOccupation") && (
+          <Row label="वडिलांचा व्यवसाय" value={data.family.fatherOccupation} />
+        )}
+        {!hidden.has("motherName") && (
+          <Row label="आईचे नाव" value={data.family.motherName} />
+        )}
+        {!hidden.has("motherOccupation") && (
+          <Row label="आईचा व्यवसाय" value={data.family.motherOccupation} />
+        )}
+        {!hidden.has("familyType") && (
+          <Row label="कुटुंब प्रकार" value={data.family.familyType} />
+        )}
+        {!hidden.has("nativePlace") && (
+          <Row label="मूळ गाव" value={data.family.nativePlace} />
+        )}
+      </div>
+      {!hidden.has("siblingsInfo") && sibs && sibs.length > 0 && (
+        <div style={{ marginTop: 8 }}>
+          <span
+            style={{
+              color: "#666",
+              fontSize: 12,
+              display: "block",
+              marginBottom: 6,
+            }}
+          >
+            भाऊ-बहीण:
+          </span>
+          <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
+            {sibs.map((s, i) => (
+              <div
+                // biome-ignore lint/suspicious/noArrayIndexKey: stable order
+                key={`sib-${i}`}
+                style={{
+                  background: maroonLight,
+                  border: "1px solid #e2c8c8",
+                  borderRadius: 6,
+                  padding: "6px 12px",
+                  fontSize: 11,
+                  fontFamily: "inherit",
+                }}
+              >
+                <span style={{ fontWeight: 700, color: maroon }}>
+                  {s.type}:{" "}
+                </span>
+                <span style={{ color: "#1a1a1a" }}>{s.name}</span>
+                {s.maritalStatus && (
+                  <span style={{ color: "#666" }}> · {s.maritalStatus}</span>
+                )}
+                {s.occupation && (
+                  <span style={{ color: "#666" }}> · {s.occupation}</span>
+                )}
               </div>
-            );
-          })}
+            ))}
+          </div>
         </div>
-        {!hidden.has("planetaryPositions") && (
-          <div className="grid grid-cols-4 gap-1.5">
-            {HOUSES_MR.map((house, i) => (
+      )}
+      {!hidden.has("siblingsInfo") && !sibs && data.family.siblingsInfo && (
+        <Row label="भाऊ-बहीण" value={data.family.siblingsInfo} />
+      )}
+
+      {/* Horoscope */}
+      <SectionHeader title="कुंडली / जन्मपत्रिका" />
+      <div style={{ columns: 2, columnGap: 24, marginBottom: 10 }}>
+        {!hidden.has("rashi") && (
+          <Row label="राशी" value={data.horoscope.rashi} />
+        )}
+        {!hidden.has("nakshatra") && (
+          <Row label="नक्षत्र" value={data.horoscope.nakshatra} />
+        )}
+        {!hidden.has("gan") && <Row label="गण" value={data.horoscope.gan} />}
+        {!hidden.has("nadi") && (
+          <Row label="नाडी" value={data.horoscope.nadi} />
+        )}
+        {!hidden.has("charan") && (
+          <Row label="चरण" value={data.horoscope.charan} />
+        )}
+      </div>
+
+      {!hidden.has("planetaryPositions") && hasPlanetary && (
+        <div style={{ marginTop: 8 }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(4, 1fr)",
+              border: "1px solid #ccc",
+              borderRadius: 6,
+              overflow: "hidden",
+              fontSize: 11,
+            }}
+          >
+            {data.horoscope.planetaryPositions.map((planet, i) => (
               <div
-                key={house}
-                className="rounded border border-amber-400 bg-white/70 p-1.5"
+                // biome-ignore lint/suspicious/noArrayIndexKey: stable house positions
+                key={`house-${i}`}
+                style={{
+                  borderRight: i % 4 !== 3 ? "1px solid #ccc" : "none",
+                  borderBottom: i < 8 ? "1px solid #ccc" : "none",
+                  padding: "6px 8px",
+                  minHeight: 40,
+                  background: i % 2 === 0 ? "#fafafa" : "#fff",
+                }}
               >
-                <div className="text-[9px] text-gray-500">
-                  {i + 1}. {house}
+                <div
+                  style={{
+                    color: "#999",
+                    fontSize: 9,
+                    marginBottom: 2,
+                    fontFamily: "inherit",
+                  }}
+                >
+                  {HOUSES_MR[i]}
                 </div>
-                <div className="text-xs font-semibold text-red-900">
-                  {data.horoscope.planetaryPositions[i] || "—"}
+                <div
+                  style={{
+                    color: "#1a1a1a",
+                    fontWeight: 600,
+                    fontFamily: "inherit",
+                  }}
+                >
+                  {planet}
                 </div>
               </div>
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
       {/* Contact */}
-      <div className="px-5 pb-4 pt-2">
-        <p className="font-serif-devanagari font-bold text-red-900 border-b border-amber-700 pb-1 mb-3">
-          ✦ संपर्क माहिती
-        </p>
-        {data.contact.phone && (
-          <InfoRow label="फोन" value={data.contact.phone} />
+      <SectionHeader title="संपर्क माहिती" />
+      <div style={{ columns: 2, columnGap: 24 }}>
+        {!hidden.has("phone") && data.contact.phone && (
+          <Row label="फोन" value={data.contact.phone} />
         )}
         {!hidden.has("email") && data.contact.email && (
-          <InfoRow label="ईमेल" value={data.contact.email} />
+          <Row label="ईमेल" value={data.contact.email} />
         )}
         {!hidden.has("address") && (
-          <InfoRow label="पत्ता" value={data.contact.address} />
+          <Row label="पत्ता" value={data.contact.address} />
         )}
       </div>
-      <div className="text-center py-3 bg-gradient-to-r from-amber-100 to-amber-200 border-t-2 border-amber-700">
-        <span className="font-serif-devanagari text-sm text-red-900 font-semibold">
-          ✦ लग्नसेतू — LagnaSetu ✦
-        </span>
-      </div>
-    </div>
-  );
-}
 
-// ─── TEMPLATE 2: Modern (आधुनिक) ─────────────────────────────────────────────
-function TemplateModern({
-  data,
-  hidden,
-}: { data: SavedData; hidden: Set<string> }) {
-  const sibs = parseSiblings(data.family.siblingsInfo);
-  return (
-    <div className="border-2 border-amber-400 bg-white">
-      {/* Header */}
-      <div className="bg-slate-800 px-6 py-5 flex items-center gap-5">
-        <PhotoBox
-          src={data.photoPreview}
-          size="w-20 h-24"
-          shape="rounded-lg border-2 border-amber-400"
-        />
-        <div className="flex-1">
-          <h1 className="font-serif-devanagari font-bold text-2xl text-white">
-            {data.personal.name}
-          </h1>
-          <p className="text-amber-300 text-xs uppercase tracking-widest mt-1">
-            Vivah Biodata — LagnaSetu
-          </p>
-          <div className="flex gap-2 mt-2 flex-wrap">
-            {!hidden.has("manglikStatus") && (
-              <span className="text-xs bg-amber-400/20 text-amber-300 border border-amber-400/40 rounded px-2 py-0.5">
-                मांगलिक: {data.personal.manglikStatus ? "होय" : "नाही"}
-              </span>
-            )}
-            {!hidden.has("religion") && (
-              <span className="text-xs bg-slate-700 text-slate-300 rounded px-2 py-0.5">
-                {data.personal.religion}
-              </span>
-            )}
-            {!hidden.has("caste") && (
-              <span className="text-xs bg-slate-700 text-slate-300 rounded px-2 py-0.5">
-                {data.personal.caste}
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-      <div className="h-0.5 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400" />
-      {/* Body */}
-      <div className="grid md:grid-cols-2 gap-6 p-6">
-        <div>
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 border-b border-slate-200 pb-1">
-            Personal Information
-          </p>
-          <InfoRow label="जन्म तारीख" value={data.personal.dateOfBirth} />
-          {!hidden.has("timeOfBirth") && (
-            <InfoRow label="जन्म वेळ" value={data.personal.timeOfBirth} />
-          )}
-          <InfoRow label="जन्म ठिकाण" value={data.personal.placeOfBirth} />
-          <InfoRow label="उंची" value={data.personal.height} />
-          {!hidden.has("complexion") && (
-            <InfoRow label="रंग" value={data.personal.complexion} />
-          )}
-          <InfoRow label="शिक्षण" value={data.personal.education} />
-          <InfoRow label="व्यवसाय" value={data.personal.occupation} />
-          {!hidden.has("income") && (
-            <InfoRow label="मासिक उत्पन्न" value={data.personal.income} />
-          )}
-          {!hidden.has("gotra") && (
-            <InfoRow label="गोत्र" value={data.personal.gotra} />
-          )}
-        </div>
-        <div>
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 border-b border-slate-200 pb-1">
-            Family
-          </p>
-          <InfoRow label="वडिलांचे नाव" value={data.family.fatherName} />
-          {!hidden.has("fatherOccupation") && (
-            <InfoRow
-              label="वडिलांचा व्यवसाय"
-              value={data.family.fatherOccupation}
-            />
-          )}
-          <InfoRow label="आईचे नाव" value={data.family.motherName} />
-          {!hidden.has("motherOccupation") && (
-            <InfoRow label="आईचा व्यवसाय" value={data.family.motherOccupation} />
-          )}
-          {!hidden.has("siblingsInfo") && sibs
-            ? sibs.map((s, i) => (
-                // biome-ignore lint/suspicious/noArrayIndexKey: stable preview
-                <InfoRow
-                  key={s.name || i}
-                  label={i === 0 ? "भाऊ-बहीण" : ""}
-                  value={`${s.type}: ${s.name} — ${s.maritalStatus}${s.occupation ? `, ${s.occupation}` : ""}`}
-                />
-              ))
-            : !hidden.has("siblingsInfo") && (
-                <InfoRow label="भाऊ-बहीण" value={data.family.siblingsInfo} />
-              )}
-          {!hidden.has("familyType") && (
-            <InfoRow label="कुटुंब प्रकार" value={data.family.familyType} />
-          )}
-          {!hidden.has("nativePlace") && (
-            <InfoRow label="मूळ गाव" value={data.family.nativePlace} />
-          )}
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-4 mb-3 border-b border-slate-200 pb-1">
-            Horoscope
-          </p>
-          <div className="flex gap-2 flex-wrap">
-            {(["राशी", "नक्षत्र", "गण", "नाडी", "चरण"] as const).map((lbl, i) => {
-              const keys = [null, null, "gan", "nadi", "charan"];
-              const vals = [
-                data.horoscope.rashi,
-                data.horoscope.nakshatra,
-                data.horoscope.gan,
-                data.horoscope.nadi,
-                data.horoscope.charan,
-              ];
-              if (keys[i] && hidden.has(keys[i] as string)) return null;
-              return (
-                <span
-                  key={lbl}
-                  className="text-xs bg-slate-100 border border-slate-200 rounded-full px-2.5 py-1 text-slate-700"
-                >
-                  {lbl}: <b>{vals[i] || "—"}</b>
-                </span>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-      {/* Contact */}
-      {(data.contact.phone ||
-        (!hidden.has("email") && data.contact.email) ||
-        !hidden.has("address")) && (
-        <div className="px-6 pb-5">
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 border-b border-slate-200 pb-1">
-            Contact
-          </p>
-          {data.contact.phone && (
-            <InfoRow label="फोन" value={data.contact.phone} />
-          )}
-          {!hidden.has("email") && data.contact.email && (
-            <InfoRow label="ईमेल" value={data.contact.email} />
-          )}
-          {!hidden.has("address") && (
-            <InfoRow label="पत्ता" value={data.contact.address} />
-          )}
-        </div>
-      )}
-      <div className="text-center py-2.5 bg-slate-800">
-        <span className="text-amber-400 text-xs uppercase tracking-widest font-semibold">
-          ✦ LAGNASETU.IN ✦
-        </span>
-      </div>
-    </div>
-  );
-}
-
-// ─── TEMPLATE 3: Royal (राजेशाही) ────────────────────────────────────────────
-function TemplateRoyal({
-  data,
-  hidden,
-}: { data: SavedData; hidden: Set<string> }) {
-  const sibs = parseSiblings(data.family.siblingsInfo);
-  return (
-    <div className="border-4 border-yellow-700 bg-yellow-50 font-devanagari">
+      {/* Footer */}
       <div
         style={{
-          background: "linear-gradient(135deg, #78350f, #92400e, #78350f)",
+          position: "absolute" as const,
+          bottom: 24,
+          left: 0,
+          right: 0,
+          textAlign: "center",
+          borderTop: "1px solid #e2c8c8",
+          paddingTop: 10,
+          margin: "0 36px",
         }}
-        className="px-6 py-5 text-center"
       >
-        <p className="text-yellow-300 text-xs tracking-widest mb-1">
-          ॥ शुभ विवाह ॥
-        </p>
-        <h1 className="font-serif-devanagari font-bold text-3xl text-yellow-100">
-          ✦ विवाह बायोडाटा ✦
-        </h1>
-      </div>
-      {/* Centered photo + name */}
-      <div className="flex flex-col items-center py-5 border-b-2 border-yellow-600">
-        <PhotoBox
-          src={data.photoPreview}
-          size="w-28 h-32"
-          shape="rounded-2xl border-4 border-yellow-600 shadow-lg"
-        />
-        <h2 className="font-serif-devanagari font-bold text-2xl text-yellow-900 mt-3">
-          {data.personal.name}
-        </h2>
-        <div className="flex gap-3 mt-2 flex-wrap justify-center">
-          {!hidden.has("religion") && (
-            <span className="text-xs bg-yellow-200 text-yellow-900 border border-yellow-500 rounded-full px-3 py-0.5">
-              {data.personal.religion}
-            </span>
-          )}
-          {!hidden.has("caste") && (
-            <span className="text-xs bg-yellow-200 text-yellow-900 border border-yellow-500 rounded-full px-3 py-0.5">
-              {data.personal.caste}
-            </span>
-          )}
-          {!hidden.has("manglikStatus") && (
-            <span className="text-xs bg-yellow-200 text-yellow-900 border border-yellow-500 rounded-full px-3 py-0.5">
-              मांगलिक: {data.personal.manglikStatus ? "होय" : "नाही"}
-            </span>
-          )}
-        </div>
-      </div>
-      {/* Data cards */}
-      <div className="grid md:grid-cols-2 gap-4 p-5">
-        <div className="bg-white border border-yellow-400 rounded-xl p-4 shadow-sm">
-          <p className="font-serif-devanagari font-bold text-yellow-900 text-base mb-3 pb-1 border-b border-yellow-300">
-            वैयक्तिक माहिती
-          </p>
-          <InfoRow label="जन्म तारीख" value={data.personal.dateOfBirth} />
-          {!hidden.has("timeOfBirth") && (
-            <InfoRow label="जन्म वेळ" value={data.personal.timeOfBirth} />
-          )}
-          <InfoRow label="जन्म ठिकाण" value={data.personal.placeOfBirth} />
-          <InfoRow label="उंची" value={data.personal.height} />
-          {!hidden.has("complexion") && (
-            <InfoRow label="रंग" value={data.personal.complexion} />
-          )}
-          <InfoRow label="शिक्षण" value={data.personal.education} />
-          <InfoRow label="व्यवसाय" value={data.personal.occupation} />
-          {!hidden.has("income") && (
-            <InfoRow label="मासिक उत्पन्न" value={data.personal.income} />
-          )}
-          {!hidden.has("gotra") && (
-            <InfoRow label="गोत्र" value={data.personal.gotra} />
-          )}
-        </div>
-        <div className="flex flex-col gap-4">
-          <div className="bg-white border border-yellow-400 rounded-xl p-4 shadow-sm">
-            <p className="font-serif-devanagari font-bold text-yellow-900 text-base mb-3 pb-1 border-b border-yellow-300">
-              कौटुंबिक माहिती
-            </p>
-            <InfoRow label="वडिलांचे नाव" value={data.family.fatherName} />
-            {!hidden.has("fatherOccupation") && (
-              <InfoRow
-                label="वडिलांचा व्यवसाय"
-                value={data.family.fatherOccupation}
-              />
-            )}
-            <InfoRow label="आईचे नाव" value={data.family.motherName} />
-            {!hidden.has("motherOccupation") && (
-              <InfoRow
-                label="आईचा व्यवसाय"
-                value={data.family.motherOccupation}
-              />
-            )}
-            {!hidden.has("siblingsInfo") && sibs
-              ? sibs.map((s, i) => (
-                  // biome-ignore lint/suspicious/noArrayIndexKey: stable preview
-                  <InfoRow
-                    key={s.name || i}
-                    label={i === 0 ? "भाऊ-बहीण" : ""}
-                    value={`${s.type}: ${s.name} — ${s.maritalStatus}${s.occupation ? `, ${s.occupation}` : ""}`}
-                  />
-                ))
-              : !hidden.has("siblingsInfo") && (
-                  <InfoRow label="भाऊ-बहीण" value={data.family.siblingsInfo} />
-                )}
-            {!hidden.has("familyType") && (
-              <InfoRow label="कुटुंब प्रकार" value={data.family.familyType} />
-            )}
-            {!hidden.has("nativePlace") && (
-              <InfoRow label="मूळ गाव" value={data.family.nativePlace} />
-            )}
-          </div>
-          <div className="bg-yellow-100 border-2 border-yellow-500 rounded-xl p-4 shadow-sm">
-            <p className="font-serif-devanagari font-bold text-yellow-900 text-base mb-3 pb-1 border-b border-yellow-400">
-              कुंडली माहिती
-            </p>
-            <div className="grid grid-cols-2 gap-1.5">
-              {(["राशी", "नक्षत्र", "गण", "नाडी", "चरण"] as const).map(
-                (lbl, i) => {
-                  const keys = [null, null, "gan", "nadi", "charan"];
-                  const vals = [
-                    data.horoscope.rashi,
-                    data.horoscope.nakshatra,
-                    data.horoscope.gan,
-                    data.horoscope.nadi,
-                    data.horoscope.charan,
-                  ];
-                  if (keys[i] && hidden.has(keys[i] as string)) return null;
-                  return (
-                    <div
-                      key={lbl}
-                      className="bg-white rounded-lg p-1.5 border border-yellow-300 text-center"
-                    >
-                      <div className="text-[10px] text-gray-500">{lbl}</div>
-                      <div className="font-bold text-sm text-yellow-900">
-                        {vals[i] || "—"}
-                      </div>
-                    </div>
-                  );
-                },
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* Contact */}
-      {(data.contact.phone ||
-        (!hidden.has("email") && data.contact.email) ||
-        !hidden.has("address")) && (
-        <div className="mx-5 mb-4 bg-white border border-yellow-400 rounded-xl p-4 shadow-sm">
-          <p className="font-serif-devanagari font-bold text-yellow-900 text-base mb-3 pb-1 border-b border-yellow-300">
-            संपर्क माहिती
-          </p>
-          {data.contact.phone && (
-            <InfoRow label="फोन" value={data.contact.phone} />
-          )}
-          {!hidden.has("email") && data.contact.email && (
-            <InfoRow label="ईमेल" value={data.contact.email} />
-          )}
-          {!hidden.has("address") && (
-            <InfoRow label="पत्ता" value={data.contact.address} />
-          )}
-        </div>
-      )}
-      <div className="text-center py-3 border-t-2 border-yellow-600">
-        <span className="font-serif-devanagari text-sm text-yellow-900 font-semibold">
-          ✦ लग्नसेतू — LagnaSetu ✦
-        </span>
-      </div>
-    </div>
-  );
-}
-
-// ─── TEMPLATE 4: Floral (पुष्पलता) ───────────────────────────────────────────
-function TemplateFloral({
-  data,
-  hidden,
-}: { data: SavedData; hidden: Set<string> }) {
-  const sibs = parseSiblings(data.family.siblingsInfo);
-  return (
-    <div className="border-2 border-pink-400 bg-pink-50 font-devanagari">
-      <div className="bg-gradient-to-r from-rose-700 to-pink-600 px-6 py-4 text-center">
-        <p className="text-pink-200 text-xs tracking-widest">
-          🌸 विवाह बायोडाटा 🌸
-        </p>
-        <p className="text-white text-xs mt-0.5">Vivah Biodata</p>
-      </div>
-      {/* Photo + Personal side by side */}
-      <div className="flex items-start gap-5 p-5 border-b border-pink-300">
-        <div className="shrink-0 flex flex-col items-center gap-2">
-          <PhotoBox
-            src={data.photoPreview}
-            size="w-28 h-32"
-            shape="rounded-full border-4 border-pink-400 shadow-lg"
-          />
-          {!hidden.has("manglikStatus") && (
-            <span className="text-[10px] bg-pink-200 text-pink-900 border border-pink-400 rounded-full px-2.5 py-0.5 font-semibold">
-              मांगलिक: {data.personal.manglikStatus ? "होय" : "नाही"}
-            </span>
-          )}
-        </div>
-        <div className="flex-1">
-          <h2 className="font-serif-devanagari font-bold text-2xl text-rose-800 mb-1">
-            {data.personal.name}
-          </h2>
-          <div className="flex gap-2 mb-3 flex-wrap">
-            {!hidden.has("religion") && (
-              <span className="text-xs bg-rose-100 text-rose-800 border border-rose-300 rounded-full px-2 py-0.5">
-                {data.personal.religion}
-              </span>
-            )}
-            {!hidden.has("caste") && (
-              <span className="text-xs bg-rose-100 text-rose-800 border border-rose-300 rounded-full px-2 py-0.5">
-                {data.personal.caste}
-              </span>
-            )}
-          </div>
-          <InfoRow label="जन्म तारीख" value={data.personal.dateOfBirth} />
-          {!hidden.has("timeOfBirth") && (
-            <InfoRow label="जन्म वेळ" value={data.personal.timeOfBirth} />
-          )}
-          <InfoRow label="जन्म ठिकाण" value={data.personal.placeOfBirth} />
-          <InfoRow label="उंची" value={data.personal.height} />
-          {!hidden.has("complexion") && (
-            <InfoRow label="रंग" value={data.personal.complexion} />
-          )}
-          <InfoRow label="शिक्षण" value={data.personal.education} />
-          <InfoRow label="व्यवसाय" value={data.personal.occupation} />
-          {!hidden.has("income") && (
-            <InfoRow label="मासिक उत्पन्न" value={data.personal.income} />
-          )}
-          {!hidden.has("gotra") && (
-            <InfoRow label="गोत्र" value={data.personal.gotra} />
-          )}
-        </div>
-      </div>
-      {/* Family + Horoscope cards */}
-      <div className="grid md:grid-cols-2 gap-4 p-5">
-        <div className="bg-white border border-pink-300 rounded-2xl p-4 shadow-sm">
-          <p className="font-serif-devanagari font-bold text-rose-800 mb-3 pb-1 border-b border-pink-300">
-            🌺 कौटुंबिक माहिती
-          </p>
-          <InfoRow label="वडिलांचे नाव" value={data.family.fatherName} />
-          {!hidden.has("fatherOccupation") && (
-            <InfoRow
-              label="वडिलांचा व्यवसाय"
-              value={data.family.fatherOccupation}
-            />
-          )}
-          <InfoRow label="आईचे नाव" value={data.family.motherName} />
-          {!hidden.has("motherOccupation") && (
-            <InfoRow label="आईचा व्यवसाय" value={data.family.motherOccupation} />
-          )}
-          {!hidden.has("siblingsInfo") && sibs
-            ? sibs.map((s, i) => (
-                // biome-ignore lint/suspicious/noArrayIndexKey: stable preview
-                <InfoRow
-                  key={s.name || i}
-                  label={i === 0 ? "भाऊ-बहीण" : ""}
-                  value={`${s.type}: ${s.name} — ${s.maritalStatus}${s.occupation ? `, ${s.occupation}` : ""}`}
-                />
-              ))
-            : !hidden.has("siblingsInfo") && (
-                <InfoRow label="भाऊ-बहीण" value={data.family.siblingsInfo} />
-              )}
-          {!hidden.has("familyType") && (
-            <InfoRow label="कुटुंब प्रकार" value={data.family.familyType} />
-          )}
-          {!hidden.has("nativePlace") && (
-            <InfoRow label="मूळ गाव" value={data.family.nativePlace} />
-          )}
-        </div>
-        <div className="bg-white border border-pink-300 rounded-2xl p-4 shadow-sm">
-          <p className="font-serif-devanagari font-bold text-rose-800 mb-3 pb-1 border-b border-pink-300">
-            🌸 कुंडली माहिती
-          </p>
-          <div className="grid grid-cols-3 gap-2">
-            {(["राशी", "नक्षत्र", "गण", "नाडी", "चरण"] as const).map((lbl, i) => {
-              const keys = [null, null, "gan", "nadi", "charan"];
-              const vals = [
-                data.horoscope.rashi,
-                data.horoscope.nakshatra,
-                data.horoscope.gan,
-                data.horoscope.nadi,
-                data.horoscope.charan,
-              ];
-              if (keys[i] && hidden.has(keys[i] as string)) return null;
-              return (
-                <div
-                  key={lbl}
-                  className="text-center bg-pink-50 rounded-lg p-2 border border-pink-200"
-                >
-                  <div className="text-[10px] text-gray-500">{lbl}</div>
-                  <div className="font-bold text-sm text-rose-800">
-                    {vals[i] || "—"}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          {(data.contact.phone ||
-            (!hidden.has("email") && data.contact.email) ||
-            !hidden.has("address")) && (
-            <div className="mt-3 pt-3 border-t border-pink-200">
-              <p className="font-serif-devanagari font-bold text-rose-800 mb-2 text-sm">
-                🌺 संपर्क
-              </p>
-              {data.contact.phone && (
-                <InfoRow label="फोन" value={data.contact.phone} />
-              )}
-              {!hidden.has("email") && data.contact.email && (
-                <InfoRow label="ईमेल" value={data.contact.email} />
-              )}
-              {!hidden.has("address") && (
-                <InfoRow label="पत्ता" value={data.contact.address} />
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-      <div className="text-center py-3 bg-gradient-to-r from-rose-100 to-pink-100 border-t border-pink-300">
-        <span className="font-serif-devanagari text-sm text-rose-800 font-semibold">
-          🌸 लग्नसेतू — LagnaSetu 🌸
-        </span>
-      </div>
-    </div>
-  );
-}
-
-// ─── TEMPLATE 5: Elegant (श्रेष्ठ) — PREMIUM ────────────────────────────────
-// Two-column: narrow left sidebar (photo + key stats) | wider right content
-// Palette: ivory background, muted gold accents, clean serif headings
-function TemplateElegant({
-  data,
-  hidden,
-}: { data: SavedData; hidden: Set<string> }) {
-  const sibs = parseSiblings(data.family.siblingsInfo);
-  const gold = "#8B6914";
-  const goldLight = "#f5e9c8";
-
-  const SectionHeading = ({ title }: { title: string }) => (
-    <div className="mb-3">
-      <p
-        className="text-[11px] font-bold uppercase tracking-[0.15em]"
-        style={{ color: gold }}
-      >
-        {title}
-      </p>
-      <div
-        style={{ height: 1, background: gold, opacity: 0.35, marginTop: 4 }}
-      />
-    </div>
-  );
-
-  const ElegantRow = ({
-    label,
-    value,
-  }: { label: string; value: string | boolean | undefined | null }) => {
-    const display =
-      value === undefined || value === null || value === ""
-        ? null
-        : typeof value === "boolean"
-          ? value
-            ? "होय"
-            : "नाही"
-          : value;
-    if (display === null) return null;
-    return (
-      <div
-        className="flex gap-2 text-sm mb-2 pl-3"
-        style={{ borderLeft: `2px solid ${goldLight}` }}
-      >
-        <span className="text-gray-500 shrink-0" style={{ minWidth: 120 }}>
-          {label}
-        </span>
-        <span className="font-semibold text-gray-800">{display}</span>
-      </div>
-    );
-  };
-
-  return (
-    <div
-      style={{
-        background: "#fdfaf4",
-        border: `1px solid ${goldLight}`,
-        fontFamily: "inherit",
-      }}
-    >
-      {/* Top gold rule */}
-      <div style={{ height: 3, background: gold }} />
-
-      {/* Header */}
-      <div
-        className="px-8 py-5 text-center"
-        style={{ borderBottom: `1px solid ${goldLight}` }}
-      >
-        <p
-          className="text-xs tracking-[0.2em] uppercase mb-1"
-          style={{ color: gold }}
-        >
-          विवाह बायोडाटा
-        </p>
-        <h1 className="font-serif-devanagari font-bold text-2xl text-gray-900">
-          {data.personal.name}
-        </h1>
-        <div
-          className="mx-auto mt-2"
-          style={{ width: 48, height: 1, background: gold }}
-        />
-      </div>
-
-      {/* Body: sidebar + main */}
-      <div className="flex">
-        {/* Left sidebar */}
-        <div
-          className="w-40 shrink-0 flex flex-col items-center gap-4 py-6 px-4"
-          style={{ background: goldLight, borderRight: "1px solid #e8d9a8" }}
-        >
-          <PhotoBox
-            src={data.photoPreview}
-            size="w-24 h-28"
-            shape="rounded object-cover"
-          />
-          <div className="w-full flex flex-col gap-2">
-            {[
-              ["राशी", data.horoscope.rashi],
-              ["नक्षत्र", data.horoscope.nakshatra],
-              ...(!hidden.has("gan") ? [["गण", data.horoscope.gan]] : []),
-              ...(!hidden.has("nadi") ? [["नाडी", data.horoscope.nadi]] : []),
-            ].map(([lbl, val]) =>
-              val ? (
-                <div key={lbl} className="w-full">
-                  <div className="text-[9px] uppercase tracking-wider text-gray-500">
-                    {lbl}
-                  </div>
-                  <div
-                    className="text-sm font-semibold"
-                    style={{ color: gold }}
-                  >
-                    {val}
-                  </div>
-                </div>
-              ) : null,
-            )}
-            {!hidden.has("manglikStatus") && (
-              <div className="w-full">
-                <div className="text-[9px] uppercase tracking-wider text-gray-500">
-                  मांगलिक
-                </div>
-                <div className="text-sm font-semibold" style={{ color: gold }}>
-                  {data.personal.manglikStatus ? "होय" : "नाही"}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right content */}
-        <div className="flex-1 p-6 grid md:grid-cols-2 gap-6">
-          {/* Personal */}
-          <div>
-            <SectionHeading title="वैयक्तिक माहिती" />
-            <ElegantRow label="जन्म तारीख" value={data.personal.dateOfBirth} />
-            {!hidden.has("timeOfBirth") && (
-              <ElegantRow label="जन्म वेळ" value={data.personal.timeOfBirth} />
-            )}
-            <ElegantRow label="जन्म ठिकाण" value={data.personal.placeOfBirth} />
-            <ElegantRow label="उंची" value={data.personal.height} />
-            {!hidden.has("complexion") && (
-              <ElegantRow label="रंग" value={data.personal.complexion} />
-            )}
-            <ElegantRow label="शिक्षण" value={data.personal.education} />
-            <ElegantRow label="व्यवसाय" value={data.personal.occupation} />
-            {!hidden.has("income") && (
-              <ElegantRow label="मासिक उत्पन्न" value={data.personal.income} />
-            )}
-            {!hidden.has("religion") && (
-              <ElegantRow label="धर्म" value={data.personal.religion} />
-            )}
-            {!hidden.has("caste") && (
-              <ElegantRow label="जात" value={data.personal.caste} />
-            )}
-            {!hidden.has("gotra") && (
-              <ElegantRow label="गोत्र" value={data.personal.gotra} />
-            )}
-          </div>
-
-          {/* Family + Contact */}
-          <div>
-            <SectionHeading title="कौटुंबिक माहिती" />
-            <ElegantRow label="वडिलांचे नाव" value={data.family.fatherName} />
-            {!hidden.has("fatherOccupation") && (
-              <ElegantRow
-                label="वडिलांचा व्यवसाय"
-                value={data.family.fatherOccupation}
-              />
-            )}
-            <ElegantRow label="आईचे नाव" value={data.family.motherName} />
-            {!hidden.has("motherOccupation") && (
-              <ElegantRow
-                label="आईचा व्यवसाय"
-                value={data.family.motherOccupation}
-              />
-            )}
-            {!hidden.has("siblingsInfo") &&
-              (sibs
-                ? sibs.map((s, i) => (
-                    // biome-ignore lint/suspicious/noArrayIndexKey: stable preview
-                    <ElegantRow
-                      key={s.name || i}
-                      label={i === 0 ? "भाऊ-बहीण" : ""}
-                      value={`${s.type}: ${s.name} — ${s.maritalStatus}${s.occupation ? `, ${s.occupation}` : ""}`}
-                    />
-                  ))
-                : data.family.siblingsInfo && (
-                    <ElegantRow
-                      label="भाऊ-बहीण"
-                      value={data.family.siblingsInfo}
-                    />
-                  ))}
-            {!hidden.has("familyType") && (
-              <ElegantRow label="कुटुंब प्रकार" value={data.family.familyType} />
-            )}
-            {!hidden.has("nativePlace") && (
-              <ElegantRow label="मूळ गाव" value={data.family.nativePlace} />
-            )}
-
-            {(data.contact.phone ||
-              (!hidden.has("email") && data.contact.email) ||
-              !hidden.has("address")) && (
-              <>
-                <div className="mt-4">
-                  <SectionHeading title="संपर्क माहिती" />
-                </div>
-                {data.contact.phone && (
-                  <ElegantRow label="फोन" value={data.contact.phone} />
-                )}
-                {!hidden.has("email") && data.contact.email && (
-                  <ElegantRow label="ईमेल" value={data.contact.email} />
-                )}
-                {!hidden.has("address") && (
-                  <ElegantRow label="पत्ता" value={data.contact.address} />
-                )}
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Footer rule */}
-      <div style={{ height: 3, background: gold }} />
-    </div>
-  );
-}
-
-// ─── TEMPLATE 6: Divine (दैवी) — PREMIUM ─────────────────────────────────────
-// Single layout: large name header, then two-column info below
-// Palette: white bg, deep indigo (#4C3B8A) accents, ALL-CAPS section labels
-function TemplateDivine({
-  data,
-  hidden,
-}: { data: SavedData; hidden: Set<string> }) {
-  const sibs = parseSiblings(data.family.siblingsInfo);
-  const indigo = "#4C3B8A";
-  const indigoLight = "#ede9ff";
-
-  const DivineLabel = ({ title }: { title: string }) => (
-    <div className="mb-3">
-      <p
-        className="text-[10px] font-bold tracking-[0.18em] uppercase"
-        style={{ color: indigo }}
-      >
-        {title}
-      </p>
-      <div style={{ height: 2, width: 32, background: indigo, marginTop: 3 }} />
-    </div>
-  );
-
-  const DivineRow = ({
-    label,
-    value,
-  }: { label: string; value: string | boolean | undefined | null }) => {
-    const display =
-      value === undefined || value === null || value === ""
-        ? null
-        : typeof value === "boolean"
-          ? value
-            ? "होय"
-            : "नाही"
-          : value;
-    if (display === null) return null;
-    return (
-      <div className="flex gap-2 text-sm mb-2">
         <span
-          className="shrink-0 font-medium"
-          style={{ color: indigo, minWidth: 130 }}
+          style={{
+            color: maroon,
+            fontSize: 11,
+            letterSpacing: "0.15em",
+            fontWeight: 500,
+          }}
         >
-          {label}
+          ॥ शुभमंगल सावधान ॥
         </span>
-        <span className="text-gray-800">{display}</span>
-      </div>
-    );
-  };
-
-  return (
-    <div style={{ background: "#ffffff", fontFamily: "inherit" }}>
-      {/* Header bar */}
-      <div className="px-8 py-6" style={{ background: indigo }}>
-        <p
-          className="text-xs tracking-[0.2em] uppercase mb-1"
-          style={{ color: "#c4b8ff" }}
-        >
-          विवाह बायोडाटा
-        </p>
-        <h1 className="font-serif-devanagari font-bold text-3xl text-white">
-          {data.personal.name}
-        </h1>
-        <div className="flex gap-4 mt-3 flex-wrap">
-          {!hidden.has("religion") && data.personal.religion && (
-            <span className="text-sm" style={{ color: "#c4b8ff" }}>
-              {data.personal.religion}
-            </span>
-          )}
-          {!hidden.has("caste") && data.personal.caste && (
-            <span className="text-sm" style={{ color: "#c4b8ff" }}>
-              {data.personal.caste}
-            </span>
-          )}
-          {data.personal.education && (
-            <span className="text-sm" style={{ color: "#c4b8ff" }}>
-              {data.personal.education}
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Photo + key info strip */}
-      <div
-        className="flex items-center gap-6 px-8 py-4"
-        style={{ background: indigoLight, borderBottom: "1px solid #d4caff" }}
-      >
-        <PhotoBox
-          src={data.photoPreview}
-          size="w-20 h-24"
-          shape="rounded object-cover"
-        />
-        <div className="flex gap-8 flex-wrap">
-          {[
-            ["राशी", data.horoscope.rashi],
-            ["नक्षत्र", data.horoscope.nakshatra],
-            ...(!hidden.has("gan") ? [["गण", data.horoscope.gan]] : []),
-            ...(!hidden.has("nadi") ? [["नाडी", data.horoscope.nadi]] : []),
-            ...(!hidden.has("manglikStatus")
-              ? [["मांगलिक", data.personal.manglikStatus ? "होय" : "नाही"]]
-              : []),
-          ].map(([lbl, val]) =>
-            val ? (
-              <div key={lbl}>
-                <div
-                  className="text-[9px] uppercase tracking-wider"
-                  style={{ color: indigo }}
-                >
-                  {lbl}
-                </div>
-                <div className="font-bold text-gray-900 text-sm">{val}</div>
-              </div>
-            ) : null,
-          )}
-        </div>
-      </div>
-
-      {/* Two-column content */}
-      <div className="grid md:grid-cols-2 gap-8 p-8">
-        <div>
-          <DivineLabel title="वैयक्तिक माहिती" />
-          <DivineRow label="जन्म तारीख" value={data.personal.dateOfBirth} />
-          {!hidden.has("timeOfBirth") && (
-            <DivineRow label="जन्म वेळ" value={data.personal.timeOfBirth} />
-          )}
-          <DivineRow label="जन्म ठिकाण" value={data.personal.placeOfBirth} />
-          <DivineRow label="उंची" value={data.personal.height} />
-          {!hidden.has("complexion") && (
-            <DivineRow label="रंग" value={data.personal.complexion} />
-          )}
-          <DivineRow label="व्यवसाय" value={data.personal.occupation} />
-          {!hidden.has("income") && (
-            <DivineRow label="मासिक उत्पन्न" value={data.personal.income} />
-          )}
-          {!hidden.has("gotra") && (
-            <DivineRow label="गोत्र" value={data.personal.gotra} />
-          )}
-
-          <div className="mt-6">
-            <DivineLabel title="कुंडली माहिती" />
-            {!hidden.has("charan") && (
-              <DivineRow label="चरण" value={data.horoscope.charan} />
-            )}
-          </div>
-        </div>
-
-        <div>
-          <DivineLabel title="कौटुंबिक माहिती" />
-          <DivineRow label="वडिलांचे नाव" value={data.family.fatherName} />
-          {!hidden.has("fatherOccupation") && (
-            <DivineRow
-              label="वडिलांचा व्यवसाय"
-              value={data.family.fatherOccupation}
-            />
-          )}
-          <DivineRow label="आईचे नाव" value={data.family.motherName} />
-          {!hidden.has("motherOccupation") && (
-            <DivineRow
-              label="आईचा व्यवसाय"
-              value={data.family.motherOccupation}
-            />
-          )}
-          {!hidden.has("siblingsInfo") &&
-            (sibs
-              ? sibs.map((s, i) => (
-                  // biome-ignore lint/suspicious/noArrayIndexKey: stable preview
-                  <DivineRow
-                    key={s.name || i}
-                    label={i === 0 ? "भाऊ-बहीण" : ""}
-                    value={`${s.type}: ${s.name} — ${s.maritalStatus}${s.occupation ? `, ${s.occupation}` : ""}`}
-                  />
-                ))
-              : data.family.siblingsInfo && (
-                  <DivineRow
-                    label="भाऊ-बहीण"
-                    value={data.family.siblingsInfo}
-                  />
-                ))}
-          {!hidden.has("familyType") && (
-            <DivineRow label="कुटुंब प्रकार" value={data.family.familyType} />
-          )}
-          {!hidden.has("nativePlace") && (
-            <DivineRow label="मूळ गाव" value={data.family.nativePlace} />
-          )}
-
-          {(data.contact.phone ||
-            (!hidden.has("email") && data.contact.email) ||
-            !hidden.has("address")) && (
-            <div className="mt-6">
-              <DivineLabel title="संपर्क माहिती" />
-              {data.contact.phone && (
-                <DivineRow label="फोन" value={data.contact.phone} />
-              )}
-              {!hidden.has("email") && data.contact.email && (
-                <DivineRow label="ईमेल" value={data.contact.email} />
-              )}
-              {!hidden.has("address") && (
-                <DivineRow label="पत्ता" value={data.contact.address} />
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div
-        className="text-center py-2 text-xs tracking-widest"
-        style={{ background: indigo, color: "#c4b8ff" }}
-      >
-        LagnaSetu — लग्नसेतू
       </div>
     </div>
   );
 }
 
-// ─── TEMPLATE 7: Vibrant (उत्सव) — PREMIUM ───────────────────────────────────
-// Photo centered top, name below, then three-column info grid
-// Palette: white bg, teal (#0D9488) accents, card sections
-function TemplateVibrant({
-  data,
-  hidden,
-}: { data: SavedData; hidden: Set<string> }) {
-  const sibs = parseSiblings(data.family.siblingsInfo);
-  const teal = "#0D9488";
-  const tealLight = "#f0fdfa";
-
-  const VibrantSection = ({
-    title,
-    children,
-  }: { title: string; children: React.ReactNode }) => (
-    <div
-      className="rounded-lg p-4"
-      style={{ background: tealLight, border: "1px solid #99f6e4" }}
-    >
-      <p
-        className="text-[11px] font-bold uppercase tracking-widest mb-3"
-        style={{ color: teal }}
-      >
-        {title}
-      </p>
-      {children}
-    </div>
-  );
-
-  const VibrantRow = ({
-    label,
-    value,
-  }: { label: string; value: string | boolean | undefined | null }) => {
-    const display =
-      value === undefined || value === null || value === ""
-        ? null
-        : typeof value === "boolean"
-          ? value
-            ? "होय"
-            : "नाही"
-          : value;
-    if (display === null) return null;
-    return (
-      <div className="text-sm mb-1.5">
-        <span className="text-gray-500 text-xs">{label}: </span>
-        <span className="font-semibold text-gray-800">{display}</span>
-      </div>
-    );
-  };
-
-  return (
-    <div style={{ background: "#ffffff", fontFamily: "inherit" }}>
-      <div style={{ height: 4, background: teal }} />
-
-      {/* Centered photo + name */}
-      <div
-        className="flex flex-col items-center py-6"
-        style={{ borderBottom: "1px solid #ccfbf1" }}
-      >
-        <PhotoBox
-          src={data.photoPreview}
-          size="w-24 h-28"
-          shape="rounded-full border-4 object-cover"
-        />
-        <h1 className="font-serif-devanagari font-bold text-2xl text-gray-900 mt-3">
-          {data.personal.name}
-        </h1>
-        <p className="text-sm mt-1" style={{ color: teal }}>
-          {data.personal.education}
-          {data.personal.occupation ? ` · ${data.personal.occupation}` : ""}
-        </p>
-      </div>
-
-      {/* Three-column grid */}
-      <div className="grid md:grid-cols-3 gap-3 p-5">
-        {/* Column 1: Personal */}
-        <VibrantSection title="वैयक्तिक">
-          <VibrantRow label="जन्म तारीख" value={data.personal.dateOfBirth} />
-          {!hidden.has("timeOfBirth") && (
-            <VibrantRow label="जन्म वेळ" value={data.personal.timeOfBirth} />
-          )}
-          <VibrantRow label="जन्म ठिकाण" value={data.personal.placeOfBirth} />
-          <VibrantRow label="उंची" value={data.personal.height} />
-          {!hidden.has("complexion") && (
-            <VibrantRow label="रंग" value={data.personal.complexion} />
-          )}
-          {!hidden.has("income") && (
-            <VibrantRow label="मासिक उत्पन्न" value={data.personal.income} />
-          )}
-          {!hidden.has("religion") && (
-            <VibrantRow label="धर्म" value={data.personal.religion} />
-          )}
-          {!hidden.has("caste") && (
-            <VibrantRow label="जात" value={data.personal.caste} />
-          )}
-          {!hidden.has("gotra") && (
-            <VibrantRow label="गोत्र" value={data.personal.gotra} />
-          )}
-        </VibrantSection>
-
-        {/* Column 2: Family */}
-        <VibrantSection title="कौटुंबिक">
-          <VibrantRow label="वडिलांचे नाव" value={data.family.fatherName} />
-          {!hidden.has("fatherOccupation") && (
-            <VibrantRow
-              label="वडिलांचा व्यवसाय"
-              value={data.family.fatherOccupation}
-            />
-          )}
-          <VibrantRow label="आईचे नाव" value={data.family.motherName} />
-          {!hidden.has("motherOccupation") && (
-            <VibrantRow
-              label="आईचा व्यवसाय"
-              value={data.family.motherOccupation}
-            />
-          )}
-          {!hidden.has("siblingsInfo") &&
-            (sibs
-              ? sibs.map((s, i) => (
-                  // biome-ignore lint/suspicious/noArrayIndexKey: stable preview
-                  <VibrantRow
-                    key={s.name || i}
-                    label={i === 0 ? "भाऊ-बहीण" : ""}
-                    value={`${s.type}: ${s.name} — ${s.maritalStatus}${s.occupation ? `, ${s.occupation}` : ""}`}
-                  />
-                ))
-              : data.family.siblingsInfo && (
-                  <VibrantRow
-                    label="भाऊ-बहीण"
-                    value={data.family.siblingsInfo}
-                  />
-                ))}
-          {!hidden.has("familyType") && (
-            <VibrantRow label="कुटुंब प्रकार" value={data.family.familyType} />
-          )}
-          {!hidden.has("nativePlace") && (
-            <VibrantRow label="मूळ गाव" value={data.family.nativePlace} />
-          )}
-        </VibrantSection>
-
-        {/* Column 3: Horoscope + Contact */}
-        <div className="flex flex-col gap-3">
-          <VibrantSection title="कुंडली">
-            <VibrantRow label="राशी" value={data.horoscope.rashi} />
-            <VibrantRow label="नक्षत्र" value={data.horoscope.nakshatra} />
-            {!hidden.has("gan") && (
-              <VibrantRow label="गण" value={data.horoscope.gan} />
-            )}
-            {!hidden.has("nadi") && (
-              <VibrantRow label="नाडी" value={data.horoscope.nadi} />
-            )}
-            {!hidden.has("charan") && (
-              <VibrantRow label="चरण" value={data.horoscope.charan} />
-            )}
-            {!hidden.has("manglikStatus") && (
-              <VibrantRow
-                label="मांगलिक"
-                value={data.personal.manglikStatus ? "होय" : "नाही"}
-              />
-            )}
-          </VibrantSection>
-
-          {(data.contact.phone ||
-            (!hidden.has("email") && data.contact.email) ||
-            !hidden.has("address")) && (
-            <VibrantSection title="संपर्क">
-              {data.contact.phone && (
-                <VibrantRow label="फोन" value={data.contact.phone} />
-              )}
-              {!hidden.has("email") && data.contact.email && (
-                <VibrantRow label="ईमेल" value={data.contact.email} />
-              )}
-              {!hidden.has("address") && (
-                <VibrantRow label="पत्ता" value={data.contact.address} />
-              )}
-            </VibrantSection>
-          )}
-        </div>
-      </div>
-
-      <div style={{ height: 4, background: teal }} />
-    </div>
-  );
-}
-
-// ─── TEMPLATE 8: Shubh (शुभ) — PREMIUM ──────────────────────────────────────
-// Traditional feel, clean layout: saffron header, sections with left border
-// Palette: saffron (#D97706), warm amber background
-function TemplateShubh({
-  data,
-  hidden,
-}: { data: SavedData; hidden: Set<string> }) {
-  const sibs = parseSiblings(data.family.siblingsInfo);
-  const saffron = "#D97706";
-
-  const ShubhSection = ({
-    title,
-    children,
-  }: { title: string; children: React.ReactNode }) => (
-    <div className="mb-5 pl-4" style={{ borderLeft: `3px solid ${saffron}` }}>
-      <p
-        className="font-serif-devanagari font-bold text-base mb-3"
-        style={{ color: saffron }}
-      >
-        {title}
-      </p>
-      {children}
-    </div>
-  );
-
-  return (
-    <div
-      style={{
-        background: "#fffbeb",
-        fontFamily: "inherit",
-        border: "1px solid #fde68a",
-      }}
-    >
-      {/* Saffron header */}
-      <div className="px-8 py-5" style={{ background: saffron }}>
-        <p className="text-xs tracking-[0.2em] uppercase mb-1 text-amber-200">
-          शुभ विवाह — विवाह बायोडाटा
-        </p>
-        <h1 className="font-serif-devanagari font-bold text-2xl text-white">
-          {data.personal.name}
-        </h1>
-      </div>
-
-      {/* Photo + highlights */}
-      <div
-        className="flex items-center gap-5 px-8 py-4"
-        style={{ background: "#fef3c7", borderBottom: "1px solid #fde68a" }}
-      >
-        <PhotoBox
-          src={data.photoPreview}
-          size="w-20 h-24"
-          shape="rounded object-cover"
-        />
-        <div className="grid grid-cols-2 gap-x-8 gap-y-0.5">
-          <InfoRow label="जन्म तारीख" value={data.personal.dateOfBirth} />
-          <InfoRow label="उंची" value={data.personal.height} />
-          <InfoRow label="शिक्षण" value={data.personal.education} />
-          <InfoRow label="व्यवसाय" value={data.personal.occupation} />
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="p-8">
-        <div className="grid md:grid-cols-2 gap-8">
-          <div>
-            <ShubhSection title="वैयक्तिक माहिती">
-              {!hidden.has("timeOfBirth") && (
-                <InfoRow label="जन्म वेळ" value={data.personal.timeOfBirth} />
-              )}
-              <InfoRow label="जन्म ठिकाण" value={data.personal.placeOfBirth} />
-              {!hidden.has("complexion") && (
-                <InfoRow label="रंग" value={data.personal.complexion} />
-              )}
-              {!hidden.has("income") && (
-                <InfoRow label="मासिक उत्पन्न" value={data.personal.income} />
-              )}
-              {!hidden.has("religion") && (
-                <InfoRow label="धर्म" value={data.personal.religion} />
-              )}
-              {!hidden.has("caste") && (
-                <InfoRow label="जात" value={data.personal.caste} />
-              )}
-              {!hidden.has("gotra") && (
-                <InfoRow label="गोत्र" value={data.personal.gotra} />
-              )}
-            </ShubhSection>
-
-            <ShubhSection title="कुंडली माहिती">
-              <InfoRow label="राशी" value={data.horoscope.rashi} />
-              <InfoRow label="नक्षत्र" value={data.horoscope.nakshatra} />
-              {!hidden.has("gan") && (
-                <InfoRow label="गण" value={data.horoscope.gan} />
-              )}
-              {!hidden.has("nadi") && (
-                <InfoRow label="नाडी" value={data.horoscope.nadi} />
-              )}
-              {!hidden.has("charan") && (
-                <InfoRow label="चरण" value={data.horoscope.charan} />
-              )}
-              {!hidden.has("manglikStatus") && (
-                <InfoRow
-                  label="मांगलिक"
-                  value={data.personal.manglikStatus ? "होय" : "नाही"}
-                />
-              )}
-            </ShubhSection>
-          </div>
-
-          <div>
-            <ShubhSection title="कौटुंबिक माहिती">
-              <InfoRow label="वडिलांचे नाव" value={data.family.fatherName} />
-              {!hidden.has("fatherOccupation") && (
-                <InfoRow
-                  label="वडिलांचा व्यवसाय"
-                  value={data.family.fatherOccupation}
-                />
-              )}
-              <InfoRow label="आईचे नाव" value={data.family.motherName} />
-              {!hidden.has("motherOccupation") && (
-                <InfoRow
-                  label="आईचा व्यवसाय"
-                  value={data.family.motherOccupation}
-                />
-              )}
-              {!hidden.has("siblingsInfo") &&
-                (sibs
-                  ? sibs.map((s, i) => (
-                      // biome-ignore lint/suspicious/noArrayIndexKey: stable preview
-                      <InfoRow
-                        key={s.name || i}
-                        label={i === 0 ? "भाऊ-बहीण" : ""}
-                        value={`${s.type}: ${s.name} — ${s.maritalStatus}${s.occupation ? `, ${s.occupation}` : ""}`}
-                      />
-                    ))
-                  : data.family.siblingsInfo && (
-                      <InfoRow
-                        label="भाऊ-बहीण"
-                        value={data.family.siblingsInfo}
-                      />
-                    ))}
-              {!hidden.has("familyType") && (
-                <InfoRow label="कुटुंब प्रकार" value={data.family.familyType} />
-              )}
-              {!hidden.has("nativePlace") && (
-                <InfoRow label="मूळ गाव" value={data.family.nativePlace} />
-              )}
-            </ShubhSection>
-
-            {(data.contact.phone ||
-              (!hidden.has("email") && data.contact.email) ||
-              !hidden.has("address")) && (
-              <ShubhSection title="संपर्क माहिती">
-                {data.contact.phone && (
-                  <InfoRow label="फोन" value={data.contact.phone} />
-                )}
-                {!hidden.has("email") && data.contact.email && (
-                  <InfoRow label="ईमेल" value={data.contact.email} />
-                )}
-                {!hidden.has("address") && (
-                  <InfoRow label="पत्ता" value={data.contact.address} />
-                )}
-              </ShubhSection>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div
-        className="text-center py-2 text-xs"
-        style={{ background: "#fde68a", color: saffron }}
-      >
-        लग्नसेतू — LagnaSetu
-      </div>
-    </div>
-  );
-}
-
-function renderTemplate(data: SavedData, hidden: Set<string>) {
-  switch (data.template) {
-    case "traditional":
-      return <TemplateTraditional data={data} hidden={hidden} />;
-    case "modern":
-      return <TemplateModern data={data} hidden={hidden} />;
-    case "royal":
-      return <TemplateRoyal data={data} hidden={hidden} />;
-    case "floral":
-      return <TemplateFloral data={data} hidden={hidden} />;
-    case "elegant":
-      return <TemplateElegant data={data} hidden={hidden} />;
-    case "divine":
-      return <TemplateDivine data={data} hidden={hidden} />;
-    case "vibrant":
-      return <TemplateVibrant data={data} hidden={hidden} />;
-    case "shubh":
-      return <TemplateShubh data={data} hidden={hidden} />;
-    default:
-      return <TemplateTraditional data={data} hidden={hidden} />;
-  }
-}
-
+// ─── Main Component ───────────────────────────────────────────────────────────
 export default function BiodataPreview() {
   const [data, setData] = useState<SavedData>(DEFAULT);
   const [showPayment, setShowPayment] = useState(false);
   const [paidPlan, setPaidPlan] = useState<string | null>(null);
   const [hiddenFields, setHiddenFields] = useState<Set<string>>(new Set());
+  const [jpgLoading, setJpgLoading] = useState(false);
 
   useEffect(() => {
     const stored = sessionStorage.getItem("biodataFormData");
@@ -1674,11 +612,47 @@ export default function BiodataPreview() {
     }
   }, []);
 
-  function handleDownloadClick() {
+  function handleDownloadPDFClick() {
     if (paidPlan) {
       window.print();
     } else {
       setShowPayment(true);
+    }
+  }
+
+  async function handleDownloadJPG() {
+    if (!paidPlan) {
+      setShowPayment(true);
+      return;
+    }
+    setJpgLoading(true);
+    try {
+      // Dynamically load html2canvas from CDN
+      const script = document.createElement("script");
+      script.src =
+        "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+      await new Promise((resolve, reject) => {
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+      const el = document.getElementById("biodata-print-area");
+      if (!el) return;
+      // biome-ignore lint/suspicious/noExplicitAny: dynamic CDN load
+      const h2c = (window as any).html2canvas;
+      const canvas = await h2c(el, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+      });
+      const link = document.createElement("a");
+      link.download = "biodata.jpg";
+      link.href = canvas.toDataURL("image/jpeg", 0.95);
+      link.click();
+    } catch {
+      window.print();
+    } finally {
+      setJpgLoading(false);
     }
   }
 
@@ -1689,13 +663,13 @@ export default function BiodataPreview() {
 
   return (
     <div className="min-h-screen bg-background py-8 px-4">
-      <div className="no-print max-w-3xl mx-auto mb-6 flex items-center justify-between">
+      <div className="no-print max-w-3xl mx-auto mb-6 flex items-center justify-between flex-wrap gap-3">
         <Link to="/form" data-ocid="preview.back.link">
           <Button variant="outline" className="font-devanagari gap-2">
             <ArrowLeft className="w-4 h-4" /> बायोडाटा संपादित करा
           </Button>
         </Link>
-        <div className="flex gap-3 items-center">
+        <div className="flex gap-2 items-center flex-wrap">
           {paidPlan && (
             <span className="inline-flex items-center gap-1 font-devanagari text-xs font-semibold text-green-700 bg-green-50 border border-green-200 px-3 py-1 rounded-full">
               <BadgeCheck className="w-3.5 h-3.5" /> भरले आहे
@@ -1703,24 +677,37 @@ export default function BiodataPreview() {
           )}
           <Button
             onClick={() => window.print()}
-            className="font-devanagari gap-2 bg-maroon text-amber-50 hover:opacity-90"
+            className="font-devanagari gap-2"
+            variant="outline"
             data-ocid="preview.print.button"
           >
             <Printer className="w-4 h-4" /> प्रिंट करा
           </Button>
           <Button
-            onClick={handleDownloadClick}
-            variant="outline"
-            className="font-devanagari gap-2 border-maroon text-maroon"
-            data-ocid="preview.download.button"
+            onClick={handleDownloadPDFClick}
+            className="font-devanagari gap-2 bg-red-800 text-white hover:bg-red-900"
+            data-ocid="preview.pdf.download.button"
           >
-            <Download className="w-4 h-4" /> डाउनलोड
+            <Download className="w-4 h-4" /> PDF डाउनलोड
+          </Button>
+          <Button
+            onClick={handleDownloadJPG}
+            disabled={jpgLoading}
+            variant="outline"
+            className="font-devanagari gap-2 border-orange-500 text-orange-600 hover:bg-orange-50"
+            data-ocid="preview.jpg.download.button"
+          >
+            <FileImage className="w-4 h-4" />
+            {jpgLoading ? "तयार होत आहे..." : "JPG डाउनलोड"}
           </Button>
         </div>
       </div>
 
-      <div className="print-area max-w-3xl mx-auto rounded-2xl overflow-hidden shadow-card-hover">
-        {renderTemplate(data, hiddenFields)}
+      <div
+        id="biodata-print-area"
+        className="print-area max-w-3xl mx-auto rounded-2xl overflow-hidden shadow-card-hover"
+      >
+        <TemplateSingle data={data} hidden={hiddenFields} />
       </div>
 
       <PaymentModal

@@ -19,7 +19,6 @@ import {
   ChevronRight,
   ChevronUp,
   Flower2,
-  Lock,
   Upload,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
@@ -46,37 +45,25 @@ const PLANS = [
     id: "basic",
     name: "बेसिक",
     price: "₹29",
-    templates: ["traditional", "modern"],
-    features: ["२ टेम्पलेट्स", "PDF डाउनलोड", "सर्व माहिती"],
+    features: ["PDF डाउनलोड", "सर्व माहिती", "कस्टम बायोडाटा"],
   },
   {
     id: "standard",
     name: "स्टँडर्ड",
     price: "₹69",
-    templates: ["traditional", "modern", "royal", "floral"],
-    features: ["४ टेम्पलेट्स", "PDF डाउनलोड", "सर्व माहिती", "कस्टम फील्ड्स"],
+    features: ["PDF डाउनलोड", "JPG डाउनलोड", "सर्व माहिती", "कस्टम फील्ड्स"],
     popular: true,
   },
   {
     id: "premium",
     name: "प्रीमियम",
     price: "₹149",
-    templates: [
-      "traditional",
-      "modern",
-      "royal",
-      "floral",
-      "elegant",
-      "divine",
-      "vibrant",
-      "shubh",
-    ],
     features: [
-      "सर्व ८ टेम्पलेट्स",
       "PDF डाउनलोड",
+      "JPG डाउनलोड",
       "सर्व माहिती",
       "कस्टम फील्ड्स",
-      "एक्सक्लुसिव्ह डिझाइन्स",
+      "प्राधान्य सेवा",
     ],
     highlight: true,
   },
@@ -141,17 +128,6 @@ const HOUSES = [
   "लाभ",
   "व्यय",
 ];
-const TEMPLATES_LIST = [
-  { id: "traditional", label: "पारंपारिक" },
-  { id: "modern", label: "आधुनिक" },
-  { id: "royal", label: "राजेशाही" },
-  { id: "floral", label: "पुष्पलता" },
-  { id: "elegant", label: "श्रेष्ठ" },
-  { id: "divine", label: "दैवी" },
-  { id: "vibrant", label: "उत्सव" },
-  { id: "shubh", label: "शुभ" },
-];
-
 // Optional fields config per step
 const OPTIONAL_FIELDS: Record<number, { key: string; label: string }[]> = {
   1: [
@@ -234,7 +210,7 @@ const defaultState: FormState = {
     planetaryPositions: Array(12).fill(""),
   },
   contact: { email: "", phone: "", address: "" },
-  template: "traditional",
+  template: "single",
   photoFile: null,
   photoPreview: null,
 };
@@ -387,10 +363,6 @@ export default function BiodataForm() {
       photoPreview: URL.createObjectURL(file),
     }));
   }
-
-  const planTemplates = PLANS.find((p) => p.id === selectedPlan)?.templates || [
-    "traditional",
-  ];
 
   async function handleSubmit() {
     sessionStorage.setItem("selectedPlan", selectedPlan || "basic");
@@ -1186,49 +1158,6 @@ export default function BiodataForm() {
                         onChange={handlePhoto}
                         data-ocid="contact.upload_button"
                       />
-                    </div>
-                    <div className="space-y-2">
-                      <FL mr="टेम्पलेट निवडा" en="Choose Template" />
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        {TEMPLATES_LIST.map((tmpl) => {
-                          const isLocked = !planTemplates.includes(tmpl.id);
-                          return (
-                            <button
-                              type="button"
-                              key={tmpl.id}
-                              onClick={() => {
-                                if (!isLocked)
-                                  setForm((f) => ({ ...f, template: tmpl.id }));
-                              }}
-                              className={`relative rounded-xl border-2 p-2 text-center transition-all ${
-                                isLocked
-                                  ? "border-border opacity-60 cursor-not-allowed"
-                                  : form.template === tmpl.id
-                                    ? "border-maroon bg-maroon/5"
-                                    : "border-border hover:border-maroon/50"
-                              }`}
-                              data-ocid={`template.select.${tmpl.id}`}
-                            >
-                              <img
-                                src={`/assets/generated/template-${tmpl.id}.dim_400x560.jpg`}
-                                alt={tmpl.label}
-                                className="w-full aspect-[3/4] object-cover rounded-lg mb-1"
-                              />
-                              <span className="font-devanagari text-xs font-semibold text-foreground">
-                                {tmpl.label}
-                              </span>
-                              {isLocked && (
-                                <div className="absolute inset-0 rounded-xl bg-black/30 flex flex-col items-center justify-center gap-1">
-                                  <Lock className="w-5 h-5 text-white" />
-                                  <span className="font-devanagari text-[10px] text-white font-semibold">
-                                    प्रीमियम आवश्यक
-                                  </span>
-                                </div>
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
                     </div>
                   </div>
                 )}
