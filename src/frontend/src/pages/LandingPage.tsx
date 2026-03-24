@@ -2,7 +2,15 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "@tanstack/react-router";
-import { CheckCircle, ChevronRight, Download, Edit3, Star } from "lucide-react";
+import {
+  CheckCircle,
+  ChevronRight,
+  Crown,
+  Download,
+  Edit3,
+  Star,
+  Zap,
+} from "lucide-react";
 import { motion } from "motion/react";
 
 const STEPS = [
@@ -32,26 +40,67 @@ const TEMPLATES = [
     eng: "Traditional",
     img: "/assets/generated/template-traditional.dim_400x560.jpg",
     id: "traditional",
+    plan: "basic",
   },
   {
     name: "आधुनिक",
     eng: "Modern",
     img: "/assets/generated/template-modern.dim_400x560.jpg",
     id: "modern",
+    plan: "basic",
   },
   {
     name: "राजेशाही",
     eng: "Royal",
     img: "/assets/generated/template-royal.dim_400x560.jpg",
     id: "royal",
+    plan: "standard",
   },
   {
     name: "पुष्पलता",
     eng: "Floral",
     img: "/assets/generated/template-floral.dim_400x560.jpg",
     id: "floral",
+    plan: "standard",
+  },
+  {
+    name: "श्रेष्ठ",
+    eng: "Elegant",
+    img: "/assets/generated/template-elegant.dim_400x560.jpg",
+    id: "elegant",
+    plan: "premium",
+  },
+  {
+    name: "दैवी",
+    eng: "Divine",
+    img: "/assets/generated/template-divine.dim_400x560.jpg",
+    id: "divine",
+    plan: "premium",
+  },
+  {
+    name: "उत्सव",
+    eng: "Vibrant",
+    img: "/assets/generated/template-vibrant.dim_400x560.jpg",
+    id: "vibrant",
+    plan: "premium",
+  },
+  {
+    name: "शुभ",
+    eng: "Shubh",
+    img: "/assets/generated/template-shubh.dim_400x560.jpg",
+    id: "shubh",
+    plan: "premium",
   },
 ];
+
+const PLAN_LABELS: Record<string, { label: string; color: string }> = {
+  basic: { label: "Basic", color: "bg-slate-200 text-slate-700" },
+  standard: { label: "Standard", color: "bg-amber-200 text-amber-800" },
+  premium: {
+    label: "Premium ✦",
+    color: "bg-gradient-to-r from-yellow-400 to-amber-500 text-white",
+  },
+};
 
 const TESTIMONIALS = [
   {
@@ -80,18 +129,27 @@ const PRICING_PLANS = [
     id: "basic",
     name: "बेसिक",
     nameEng: "Basic",
-    price: 20,
-    features: ["पारंपारिक टेम्पलेट", "बायोडाटा डाउनलोड", "प्रिंट सुविधा"],
+    price: 29,
+    icon: <Zap className="w-5 h-5" />,
+    features: [
+      "२ टेम्पलेट्स",
+      "पारंपारिक डिझाइन",
+      "आधुनिक डिझाइन",
+      "बायोडाटा डाउनलोड",
+      "प्रिंट सुविधा",
+    ],
     popular: false,
   },
   {
     id: "standard",
     name: "स्टँडर्ड",
     nameEng: "Standard",
-    price: 50,
+    price: 69,
+    icon: <Star className="w-5 h-5" />,
     features: [
-      "पारंपारिक टेम्पलेट",
-      "आधुनिक टेम्पलेट",
+      "४ टेम्पलेट्स",
+      "पारंपारिक + आधुनिक",
+      "राजेशाही + पुष्पलता",
       "बायोडाटा डाउनलोड",
       "प्रिंट सुविधा",
     ],
@@ -101,15 +159,18 @@ const PRICING_PLANS = [
     id: "premium",
     name: "प्रीमियम",
     nameEng: "Premium",
-    price: 90,
+    price: 149,
+    icon: <Crown className="w-5 h-5" />,
     features: [
-      "सर्व ४ टेम्पलेट्स",
-      "पारंपारिक + आधुनिक",
-      "राजेशाही + पुष्पलता",
+      "सर्व ८ टेम्पलेट्स ✦",
+      "श्रेष्ठ + दैवी + उत्सव + शुभ",
+      "सर्व Standard सुविधा",
+      "एक्सक्लुसिव्ह प्रीमियम डिझाइन्स",
       "बायोडाटा डाउनलोड",
       "प्रिंट सुविधा",
     ],
     popular: false,
+    highlight: true,
   },
 ];
 
@@ -198,7 +259,6 @@ export default function LandingPage() {
                         {[
                           "वडिलांचे नाव: सुरेश देशपांडे",
                           "राशी: कर्क | नक्षत्र: पुष्य",
-                          "संपर्क: +91 98765 43210",
                         ].map((t) => (
                           <div
                             key={t}
@@ -288,47 +348,58 @@ export default function LandingPage() {
               className="font-serif-devanagari font-bold text-amber-50"
               style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)" }}
             >
-              आमचे लोकप्रिय डिझाइन्स
+              ८ सुंदर टेम्पलेट्स
             </h2>
+            <p className="font-devanagari text-amber-200/70 mt-2 text-sm">
+              प्रीमियम प्लानमध्ये सर्व एक्सक्लुसिव्ह डिझाइन्स उपलब्ध
+            </p>
           </motion.div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-            {TEMPLATES.map((tmpl, i) => (
-              <motion.div
-                key={tmpl.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="group"
-                data-ocid={`templates.item.${i + 1}`}
-              >
-                <div className="relative overflow-hidden rounded-xl shadow-lg mb-3 aspect-[5/7]">
-                  <img
-                    src={tmpl.img}
-                    alt={`${tmpl.name} बायोडाटा टेम्पलेट`}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-maroon/0 group-hover:bg-maroon/20 transition-colors duration-300 rounded-xl" />
-                </div>
-                <div className="text-center">
-                  <div className="font-serif-devanagari font-semibold text-amber-100 text-sm mb-1">
-                    {tmpl.name}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+            {TEMPLATES.map((tmpl, i) => {
+              const planInfo = PLAN_LABELS[tmpl.plan];
+              return (
+                <motion.div
+                  key={tmpl.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.07 }}
+                  className="group"
+                  data-ocid={`templates.item.${i + 1}`}
+                >
+                  <div className="relative overflow-hidden rounded-xl shadow-lg mb-3 aspect-[5/7]">
+                    <img
+                      src={tmpl.img}
+                      alt={`${tmpl.name} बायोडाटा टेम्पलेट`}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-maroon/0 group-hover:bg-maroon/20 transition-colors duration-300 rounded-xl" />
+                    <div
+                      className={`absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${planInfo.color}`}
+                    >
+                      {planInfo.label}
+                    </div>
                   </div>
-                  <div className="text-amber-200/60 text-xs font-display mb-3">
-                    {tmpl.eng}
+                  <div className="text-center">
+                    <div className="font-serif-devanagari font-semibold text-amber-100 text-sm mb-1">
+                      {tmpl.name}
+                    </div>
+                    <div className="text-amber-200/60 text-xs font-display mb-3">
+                      {tmpl.eng}
+                    </div>
+                    <Link
+                      to="/form"
+                      className="inline-flex items-center justify-center px-4 py-2 rounded-lg text-xs font-devanagari font-semibold text-white hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: "oklch(var(--gold))" }}
+                      data-ocid={`templates.button.${i + 1}`}
+                    >
+                      हे निवडा
+                    </Link>
                   </div>
-                  <Link
-                    to="/form"
-                    className="inline-flex items-center justify-center px-4 py-2 rounded-lg text-xs font-devanagari font-semibold text-white hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: "oklch(var(--gold))" }}
-                    data-ocid={`templates.button.${i + 1}`}
-                  >
-                    हे निवडा
-                  </Link>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -417,7 +488,7 @@ export default function LandingPage() {
             </p>
           </motion.div>
 
-          <div className="grid sm:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-3 gap-8 items-stretch">
             {PRICING_PLANS.map((plan, i) => (
               <motion.div
                 key={plan.id}
@@ -426,29 +497,55 @@ export default function LandingPage() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.12 }}
                 className={`relative rounded-2xl border-2 p-7 flex flex-col gap-4 ${
-                  plan.popular
-                    ? "border-maroon bg-white shadow-card-hover"
-                    : "border-border bg-card shadow-card"
+                  (plan as any).highlight
+                    ? "border-yellow-500 bg-gradient-to-b from-yellow-50 to-amber-50 shadow-xl ring-2 ring-yellow-400/40"
+                    : plan.popular
+                      ? "border-maroon bg-white shadow-card-hover"
+                      : "border-border bg-card shadow-card"
                 }`}
                 data-ocid={`pricing.${plan.id}.card`}
               >
-                {plan.popular && (
+                {(plan as any).highlight && (
+                  <Badge className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-500 to-amber-600 text-white font-devanagari text-xs px-4 py-1 shadow-lg border-0">
+                    👑 सर्वोत्तम प्लान
+                  </Badge>
+                )}
+                {plan.popular && !(plan as any).highlight && (
                   <Badge className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-maroon text-amber-50 font-devanagari text-xs px-4 py-1 shadow">
                     ⭐ सर्वात लोकप्रिय
                   </Badge>
                 )}
 
-                <div>
-                  <div className="font-serif-devanagari font-bold text-maroon text-xl mb-0.5">
-                    {plan.name}
-                  </div>
-                  <div className="font-display text-xs text-muted-foreground">
-                    {plan.nameEng}
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                      (plan as any).highlight
+                        ? "bg-gradient-to-br from-yellow-400 to-amber-500 text-white"
+                        : plan.popular
+                          ? "bg-maroon text-amber-50"
+                          : "bg-maroon/10 text-maroon"
+                    }`}
+                  >
+                    {plan.icon}
+                  </span>
+                  <div>
+                    <div className="font-serif-devanagari font-bold text-maroon text-xl leading-tight">
+                      {plan.name}
+                    </div>
+                    <div className="font-display text-xs text-muted-foreground">
+                      {plan.nameEng}
+                    </div>
                   </div>
                 </div>
 
                 <div className="flex items-end gap-1">
-                  <span className="font-display text-4xl font-bold text-maroon">
+                  <span
+                    className={`font-display text-4xl font-bold ${
+                      (plan as any).highlight
+                        ? "text-yellow-700"
+                        : "text-maroon"
+                    }`}
+                  >
                     ₹{plan.price}
                   </span>
                   <span className="font-devanagari text-sm text-muted-foreground mb-1">
@@ -459,7 +556,13 @@ export default function LandingPage() {
                 <ul className="flex flex-col gap-2 flex-1">
                   {plan.features.map((f) => (
                     <li key={f} className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-maroon shrink-0" />
+                      <CheckCircle
+                        className={`w-4 h-4 shrink-0 ${
+                          (plan as any).highlight
+                            ? "text-yellow-600"
+                            : "text-maroon"
+                        }`}
+                      />
                       <span className="font-devanagari text-sm text-foreground/80">
                         {f}
                       </span>
@@ -470,9 +573,11 @@ export default function LandingPage() {
                 <Link
                   to="/form"
                   className={`mt-2 w-full inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 font-devanagari font-semibold text-sm transition-all ${
-                    plan.popular
-                      ? "bg-maroon text-amber-50 hover:opacity-90 shadow-card"
-                      : "border-2 border-maroon text-maroon bg-transparent hover:bg-maroon/5"
+                    (plan as any).highlight
+                      ? "bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:opacity-90 shadow-lg"
+                      : plan.popular
+                        ? "bg-maroon text-amber-50 hover:opacity-90 shadow-card"
+                        : "border-2 border-maroon text-maroon bg-transparent hover:bg-maroon/5"
                   }`}
                   data-ocid={`pricing.${plan.id}.button`}
                 >

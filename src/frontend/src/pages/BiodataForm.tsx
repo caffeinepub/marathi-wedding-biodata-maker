@@ -45,30 +45,40 @@ const PLANS = [
   {
     id: "basic",
     name: "बेसिक",
-    price: "₹20",
-    templates: ["traditional"],
-    features: ["पारंपारिक टेम्पलेट", "PDF डाउनलोड", "सर्व माहिती"],
+    price: "₹29",
+    templates: ["traditional", "modern"],
+    features: ["२ टेम्पलेट्स", "PDF डाउनलोड", "सर्व माहिती"],
   },
   {
     id: "standard",
     name: "स्टँडर्ड",
-    price: "₹50",
-    templates: ["traditional", "modern"],
-    features: ["२ टेम्पलेट्स", "PDF डाउनलोड", "सर्व माहिती", "कस्टम फील्ड्स"],
+    price: "₹69",
+    templates: ["traditional", "modern", "royal", "floral"],
+    features: ["४ टेम्पलेट्स", "PDF डाउनलोड", "सर्व माहिती", "कस्टम फील्ड्स"],
     popular: true,
   },
   {
     id: "premium",
     name: "प्रीमियम",
-    price: "₹90",
-    templates: ["traditional", "modern", "royal", "floral"],
+    price: "₹149",
+    templates: [
+      "traditional",
+      "modern",
+      "royal",
+      "floral",
+      "elegant",
+      "divine",
+      "vibrant",
+      "shubh",
+    ],
     features: [
-      "सर्व ४ टेम्पलेट्स",
+      "सर्व ८ टेम्पलेट्स",
       "PDF डाउनलोड",
       "सर्व माहिती",
       "कस्टम फील्ड्स",
-      "प्राधान्य सहाय्य",
+      "एक्सक्लुसिव्ह डिझाइन्स",
     ],
+    highlight: true,
   },
 ];
 
@@ -136,6 +146,10 @@ const TEMPLATES_LIST = [
   { id: "modern", label: "आधुनिक" },
   { id: "royal", label: "राजेशाही" },
   { id: "floral", label: "पुष्पलता" },
+  { id: "elegant", label: "श्रेष्ठ" },
+  { id: "divine", label: "दैवी" },
+  { id: "vibrant", label: "उत्सव" },
+  { id: "shubh", label: "शुभ" },
 ];
 
 // Optional fields config per step
@@ -167,6 +181,14 @@ const OPTIONAL_FIELDS: Record<number, { key: string; label: string }[]> = {
     { key: "address", label: "पत्ता" },
   ],
 };
+
+interface SiblingEntry {
+  id: string;
+  type: "भाऊ" | "बहीण";
+  name: string;
+  maritalStatus: "विवाहित" | "अविवाहित";
+  occupation: string;
+}
 
 interface FormState {
   personal: PersonalInfo;
@@ -290,6 +312,44 @@ export default function BiodataForm() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(defaultState);
   const [hiddenFields, setHiddenFields] = useState<Set<string>>(new Set());
+  const [siblings, setSiblings] = useState<SiblingEntry[]>(() => {
+    try {
+      const parsed = JSON.parse(form.family.siblingsInfo || "[]");
+      if (Array.isArray(parsed)) return parsed;
+    } catch {}
+    return [];
+  });
+
+  const addSibling = () => {
+    const newSib: SiblingEntry = {
+      id: Date.now().toString(),
+      type: "भाऊ",
+      name: "",
+      maritalStatus: "अविवाहित",
+      occupation: "",
+    };
+    const updated = [...siblings, newSib];
+    setSiblings(updated);
+    upF("siblingsInfo", JSON.stringify(updated));
+  };
+
+  const removeSibling = (id: string) => {
+    const updated = siblings.filter((s) => s.id !== id);
+    setSiblings(updated);
+    upF("siblingsInfo", JSON.stringify(updated));
+  };
+
+  const updateSibling = (
+    id: string,
+    field: keyof SiblingEntry,
+    value: string,
+  ) => {
+    const updated = siblings.map((s) =>
+      s.id === id ? { ...s, [field]: value } : s,
+    );
+    setSiblings(updated);
+    upF("siblingsInfo", JSON.stringify(updated));
+  };
   const fileRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const mutation = useCreateOrUpdateBiodata();
@@ -727,15 +787,136 @@ export default function BiodataForm() {
                       )}
                     </div>
                     {!hiddenFields.has("siblingsInfo") && (
-                      <div className="space-y-1.5">
-                        <FL mr="भाऊ-बहीण माहिती" en="Siblings Info" />
-                        <Textarea
-                          placeholder="उदा. एक मोठा भाऊ - विवाहित, एक लहान बहीण - अविवाहित"
-                          value={form.family.siblingsInfo}
-                          onChange={(e) => upF("siblingsInfo", e.target.value)}
-                          rows={3}
-                          data-ocid="family.siblings.textarea"
-                        />
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <FL mr="भाऊ-बहीण माहिती" en="Siblings Info" />
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={addSibling}
+                            data-ocid="family.siblings.button"
+                            className="text-xs h-7 px-2"
+                          >
+                            ➕ भाऊ/बहीण जोडा
+                          </Button>
+                        </div>
+                        {siblings.length === 0 && (
+                          <p
+                            className="text-sm text-muted-foreground italic"
+                            data-ocid="family.siblings.empty_state"
+                          >
+                            भाऊ/बहिणींची माहिती जोडण्यासाठी वरील बटण दाबा
+                          </p>
+                        )}
+                        <div className="space-y-3">
+                          {siblings.map((sib, idx) => (
+                            <div
+                              key={sib.id}
+                              className="border rounded-lg p-3 bg-muted/30 space-y-2"
+                              data-ocid={`family.siblings.item.${idx + 1}`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-muted-foreground">
+                                  क्र. {idx + 1}
+                                </span>
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => removeSibling(sib.id)}
+                                  data-ocid={`family.siblings.delete_button.${idx + 1}`}
+                                  className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                                >
+                                  ✕
+                                </Button>
+                              </div>
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                <div className="space-y-1">
+                                  <span className="text-xs text-muted-foreground">
+                                    प्रकार
+                                  </span>
+                                  <div className="flex gap-1">
+                                    {(["भाऊ", "बहीण"] as const).map((t) => (
+                                      <button
+                                        key={t}
+                                        type="button"
+                                        onClick={() =>
+                                          updateSibling(sib.id, "type", t)
+                                        }
+                                        className={`flex-1 text-xs py-1 px-2 rounded border transition-colors ${sib.type === t ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border hover:bg-muted"}`}
+                                      >
+                                        {t}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                                <div className="space-y-1">
+                                  <span className="text-xs text-muted-foreground">
+                                    नाव
+                                  </span>
+                                  <Input
+                                    placeholder="नाव"
+                                    value={sib.name}
+                                    onChange={(e) =>
+                                      updateSibling(
+                                        sib.id,
+                                        "name",
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="h-8 text-sm"
+                                    data-ocid={`family.siblings.input.${idx + 1}`}
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <span className="text-xs text-muted-foreground">
+                                    वैवाहिक स्थिती
+                                  </span>
+                                  <Select
+                                    value={sib.maritalStatus}
+                                    onValueChange={(v) =>
+                                      updateSibling(sib.id, "maritalStatus", v)
+                                    }
+                                  >
+                                    <SelectTrigger
+                                      className="h-8 text-sm"
+                                      data-ocid={`family.siblings.select.${idx + 1}`}
+                                    >
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="अविवाहित">
+                                        अविवाहित
+                                      </SelectItem>
+                                      <SelectItem value="विवाहित">
+                                        विवाहित
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="space-y-1">
+                                  <span className="text-xs text-muted-foreground">
+                                    काम/पोस्ट
+                                  </span>
+                                  <Input
+                                    placeholder="व्यवसाय"
+                                    value={sib.occupation}
+                                    onChange={(e) =>
+                                      updateSibling(
+                                        sib.id,
+                                        "occupation",
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="h-8 text-sm"
+                                    data-ocid={`family.siblings.input.${idx + 1}`}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                     <div className="grid sm:grid-cols-2 gap-5">
@@ -933,7 +1114,7 @@ export default function BiodataForm() {
                     <div className="space-y-1.5">
                       <FL mr="फोन नंबर" en="Phone" />
                       <Input
-                        placeholder="उदा. 9876543210"
+                        placeholder="फोन नंबर टाका"
                         value={form.contact.phone}
                         onChange={(e) => upC("phone", e.target.value)}
                         data-ocid="contact.phone.input"

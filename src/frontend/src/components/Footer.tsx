@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Flower2, Heart, Mail, Phone } from "lucide-react";
+import { Flower2, Heart, Mail } from "lucide-react";
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -65,10 +65,6 @@ export default function Footer() {
               <li className="flex items-center gap-2 text-sm text-amber-100/70">
                 <Mail className="w-4 h-4" />
                 <span>help@lagnasetu.in</span>
-              </li>
-              <li className="flex items-center gap-2 text-sm text-amber-100/70">
-                <Phone className="w-4 h-4" />
-                <span>+91 98765 43210</span>
               </li>
             </ul>
           </div>
