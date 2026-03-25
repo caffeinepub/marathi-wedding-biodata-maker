@@ -117,8 +117,11 @@
     border-radius: 0 !important;
     box-shadow: none !important;
   }
-  .print-section {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
+}
+
+#biodata-print-area * {
+  text-decoration: none !important;
+}
+a {
+  text-decoration: none !important;
 }

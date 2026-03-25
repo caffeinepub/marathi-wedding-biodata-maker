@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, Download, FileImage, Printer } from "lucide-react";
+import { ArrowLeft, Download, FileImage } from "lucide-react";
+import type React from "react";
 import { useEffect, useState } from "react";
 import type {
   ContactInfo,
@@ -152,6 +153,7 @@ function InfoRow({
           fontSize: 11.5,
           fontFamily: "inherit",
           paddingTop: 1,
+          textDecoration: "none",
         }}
       >
         {label}
@@ -162,6 +164,7 @@ function InfoRow({
           fontSize: 11.5,
           fontWeight: 600,
           fontFamily: "inherit",
+          textDecoration: "none",
         }}
       >
         {display}
@@ -672,14 +675,12 @@ export function TemplateClassic({
       <BiodataContent data={data} hidden={hidden} theme={classicTheme} />
       <div
         style={{
-          position: "absolute" as const,
-          bottom: 20,
-          left: 0,
-          right: 0,
+          position: "relative" as const,
           textAlign: "center",
           borderTop: "1px solid #e2c8c8",
           paddingTop: 8,
-          margin: "0 40px",
+          marginTop: 16,
+          margin: "16px 40px 0",
         }}
       >
         <span
@@ -806,13 +807,11 @@ function TemplateFloral({
       <BiodataContent data={data} hidden={hidden} theme={floralTheme} />
       <div
         style={{
-          position: "absolute" as const,
-          bottom: 18,
-          left: 0,
-          right: 0,
+          position: "relative" as const,
           textAlign: "center",
           paddingTop: 8,
-          margin: "0 44px",
+          marginTop: 16,
+          margin: "16px 44px 0",
           borderTop: "1px solid #C8956A",
         }}
       >
@@ -1439,7 +1438,7 @@ const templateMap: Record<
   single: TemplateClassic,
 };
 
-const TEMPLATE_LIST = [
+const _TEMPLATE_LIST = [
   {
     id: "classic",
     name: "क्लासिक",
@@ -1474,9 +1473,11 @@ const TEMPLATE_LIST = [
 ];
 
 // ─── Main Component ───────────────────────────────────────────────────────────
+const _WATERMARK_KEYS = Array.from({ length: 30 }, (_, i) => `wm-tile-${i}`);
+
 export default function BiodataPreview() {
   const [data, setData] = useState<SavedData>(DEFAULT);
-  const [hiddenFields, setHiddenFields] = useState<Set<string>>(new Set());
+  const [_hiddenFields, setHiddenFields] = useState<Set<string>>(new Set());
   const [jpgLoading, setJpgLoading] = useState(false);
   const [activeTemplate, setActiveTemplate] = useState<string>("classic");
 
@@ -1509,11 +1510,26 @@ export default function BiodataPreview() {
   }
 
   function handleDownloadPDFClick() {
+    const el = document.getElementById("biodata-print-area");
+    if (el) {
+      const a4HeightPx = 1123;
+      const contentHeight = el.scrollHeight;
+      if (contentHeight > a4HeightPx) {
+        const scale = a4HeightPx / contentHeight;
+        el.style.transform = `scale(${scale})`;
+        el.style.transformOrigin = "top center";
+        el.style.marginBottom = `-${contentHeight - a4HeightPx}px`;
+      }
+    }
     window.print();
-  }
-
-  function handlePrintClick() {
-    window.print();
+    setTimeout(() => {
+      const el2 = document.getElementById("biodata-print-area");
+      if (el2) {
+        el2.style.transform = "";
+        el2.style.transformOrigin = "";
+        el2.style.marginBottom = "";
+      }
+    }, 500);
   }
 
   async function handleDownloadJPG() {
@@ -1558,6 +1574,91 @@ export default function BiodataPreview() {
     }
   }
 
+  async function handleWhatsAppShare() {
+    setJpgLoading(true);
+    try {
+      const script = document.createElement("script");
+      script.src =
+        "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+      if (!(window as any).html2canvas) {
+        await new Promise((resolve, reject) => {
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      }
+      const jsPDFScript = document.createElement("script");
+      jsPDFScript.src =
+        "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+      if (!(window as any).jspdf) {
+        await new Promise((resolve, reject) => {
+          jsPDFScript.onload = resolve;
+          jsPDFScript.onerror = reject;
+          document.head.appendChild(jsPDFScript);
+        });
+      }
+      const el = document.getElementById("biodata-print-area");
+      if (!el) return;
+      const h2c = (window as any).html2canvas;
+      const { jsPDF } = (window as any).jspdf;
+      const a4Width = 794;
+      const actualHeight = Math.max(1123, el.scrollHeight);
+      const origWidth = el.style.width;
+      const origMinHeight = el.style.minHeight;
+      el.style.width = `${a4Width}px`;
+      el.style.minHeight = `${actualHeight}px`;
+      const canvas = await h2c(el, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        width: a4Width,
+        height: actualHeight,
+      });
+      el.style.width = origWidth;
+      el.style.minHeight = origMinHeight;
+      const imgData = canvas.toDataURL("image/jpeg", 0.95);
+      const mmPerPx = 0.2646;
+      const pdfWidthMm = 210;
+      const pdfHeightMm = (canvas.height / canvas.width) * pdfWidthMm;
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: [pdfWidthMm, pdfHeightMm],
+      });
+      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidthMm, pdfHeightMm);
+      void mmPerPx;
+      const pdfBlob = pdf.output("blob");
+      const pdfFile = new File([pdfBlob], "biodata.pdf", {
+        type: "application/pdf",
+      });
+
+      if (navigator.canShare?.({ files: [pdfFile] })) {
+        await navigator.share({
+          files: [pdfFile],
+          title: "विवाह बायोडाटा",
+          text: "माझा विवाह बायोडाटा",
+        });
+      } else {
+        alert(
+          "WhatsApp PDF share: PDF डाउनलोड होत आहे. ती WhatsApp वर share करा.",
+        );
+        const url = URL.createObjectURL(pdfBlob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "biodata.pdf";
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    } catch (err) {
+      console.error("WhatsApp share error", err);
+      alert(
+        "PDF share करताना त्रुटी आली. PDF डाउनलोड करा आणि WhatsApp वर share करा.",
+      );
+    } finally {
+      setJpgLoading(false);
+    }
+  }
+
   const TemplateToRender = templateMap[activeTemplate] || TemplateClassic;
 
   return (
@@ -1569,14 +1670,6 @@ export default function BiodataPreview() {
           </Button>
         </Link>
         <div className="flex gap-2 items-center flex-wrap">
-          <Button
-            onClick={handlePrintClick}
-            className="font-devanagari gap-2"
-            variant="outline"
-            data-ocid="preview.print.button"
-          >
-            <Printer className="w-4 h-4" /> प्रिंट करा
-          </Button>
           <Button
             onClick={handleDownloadPDFClick}
             className="font-devanagari gap-2 bg-red-800 text-white hover:bg-red-900"
@@ -1594,57 +1687,133 @@ export default function BiodataPreview() {
             <FileImage className="w-4 h-4" />
             {jpgLoading ? "तयार होत आहे..." : "JPG डाउनलोड"}
           </Button>
+          <Button
+            onClick={handleWhatsAppShare}
+            className="font-devanagari gap-2 bg-green-600 text-white hover:bg-green-700"
+            data-ocid="preview.whatsapp.share.button"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="w-4 h-4 fill-current"
+              role="img"
+              aria-label="WhatsApp"
+            >
+              <title>WhatsApp</title>
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+            </svg>
+            WhatsApp Share
+          </Button>
         </div>
       </div>
 
       {/* Template Selector */}
-      <div className="no-print max-w-3xl mx-auto mb-4">
-        <div
-          className="flex gap-2 flex-wrap justify-center"
-          data-ocid="preview.template.panel"
-        >
-          {TEMPLATE_LIST.map((t) => {
-            const isActive = activeTemplate === t.id;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => handleTemplateSelect(t.id)}
-                data-ocid={`preview.template.${t.id}.tab`}
-                className={`flex items-center gap-2 px-3 py-2 rounded-xl border-2 text-sm font-devanagari transition-all ${
-                  isActive
-                    ? "border-current shadow-md scale-105"
-                    : "border-border hover:border-gray-400"
-                }`}
-                style={{ borderColor: isActive ? t.color : undefined }}
-                title={t.name}
-              >
-                <span
-                  style={{
-                    width: 14,
-                    height: 14,
-                    borderRadius: 3,
-                    background: t.color,
-                    display: "inline-block",
-                    flexShrink: 0,
-                  }}
-                />
-                <span>
-                  {t.emoji} {t.name}
-                </span>
-              </button>
-            );
-          })}
+      <div className="no-print max-w-3xl mx-auto mb-6">
+        <p className="text-sm font-devanagari text-muted-foreground mb-2">
+          टेम्प्लेट निवडा:
+        </p>
+        <div className="flex gap-2 flex-wrap">
+          {_TEMPLATE_LIST.map((t) => (
+            <button
+              type="button"
+              key={t.id}
+              onClick={() => handleTemplateSelect(t.id)}
+              data-ocid={`preview.template.${t.id}.tab`}
+              className={`px-3 py-1.5 rounded-full text-sm font-devanagari border transition-colors ${
+                activeTemplate === t.id
+                  ? "bg-red-800 text-white border-red-800"
+                  : "bg-white text-gray-700 border-gray-300 hover:border-red-400"
+              }`}
+            >
+              {t.name}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="relative max-w-3xl mx-auto">
+      {/* Watermark preview notice */}
+      <div className="no-print max-w-3xl mx-auto mb-4 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2 text-sm font-devanagari text-amber-800">
+        हे नमुना बायोडाटा आहे. PDF / JPG डाउनलोड करण्यासाठी खालील बटण वापरा.
+      </div>
+
+      {/* Biodata Print Area */}
+      <div
+        className="max-w-3xl mx-auto"
+        onContextMenu={(e) => e.preventDefault()}
+        onDragStart={(e) => e.preventDefault()}
+        style={
+          {
+            userSelect: "none",
+            WebkitUserSelect: "none",
+          } as React.CSSProperties
+        }
+      >
         <div
           id="biodata-print-area"
-          className="print-area rounded-2xl overflow-hidden shadow-card-hover"
+          style={{
+            width: "794px",
+            maxWidth: "100%",
+            margin: "0 auto",
+            background: "#fff",
+            boxShadow: "0 2px 16px rgba(0,0,0,0.10)",
+            borderRadius: 8,
+            position: "relative",
+            userSelect: "none",
+          }}
         >
-          <TemplateToRender data={data} hidden={hiddenFields} />
+          {/* Tiled Watermark Overlay */}
+          <div
+            className="no-print"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              zIndex: 10,
+              pointerEvents: "none",
+              userSelect: "none",
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "flex-start",
+              justifyContent: "flex-start",
+              overflow: "hidden",
+            }}
+          >
+            {_WATERMARK_KEYS.map((k) => (
+              <span
+                key={k}
+                style={{
+                  display: "inline-block",
+                  width: "33.33%",
+                  textAlign: "center",
+                  padding: "28px 4px",
+                  transform: "rotate(-30deg)",
+                  fontSize: 22,
+                  fontWeight: 900,
+                  color: "rgba(180,0,0,0.13)",
+                  whiteSpace: "nowrap",
+                  userSelect: "none",
+                  letterSpacing: 2,
+                }}
+              >
+                नमुना बायोडाटा
+              </span>
+            ))}
+          </div>
+          <TemplateToRender data={data} hidden={new Set<string>()} />
         </div>
+      </div>
+
+      <div className="no-print max-w-3xl mx-auto mt-6 text-center text-xs text-muted-foreground font-devanagari">
+        © {new Date().getFullYear()}. Built with love using{" "}
+        <a
+          href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline"
+        >
+          caffeine.ai
+        </a>
       </div>
     </div>
   );
