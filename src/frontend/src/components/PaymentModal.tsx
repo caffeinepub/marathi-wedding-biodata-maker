@@ -15,7 +15,7 @@ interface PaymentModalProps {
   onSuccess: (planId: string) => void;
 }
 
-const FEATURES = ["सर्व ६ टेम्पलेट्स", "PDF + JPG डाउनलोड", "प्रिंट सुविधा"];
+const FEATURES = ["सर्व ६ टेम्पलेट्स", "PDF डाउनलोड"];
 
 export default function PaymentModal({
   open,
@@ -27,7 +27,7 @@ export default function PaymentModal({
   function handlePay() {
     openCheckout({
       key: "rzp_live_SUfWmP0Lx3pBvd",
-      amount: 29 * 100,
+      amount: 49 * 100,
       currency: "INR",
       name: "लग्नसेतू - बायोडाटा",
       description: "विवाह बायोडाटा डाउनलोड",
@@ -57,7 +57,7 @@ export default function PaymentModal({
         <div className="rounded-2xl border-2 border-maroon bg-maroon/5 p-6 flex flex-col gap-4 mt-2">
           <div className="text-center">
             <span className="text-5xl font-bold text-maroon font-display">
-              ₹29
+              ₹49
             </span>
             <span className="text-sm text-muted-foreground ml-1 font-devanagari">
               /एकदा

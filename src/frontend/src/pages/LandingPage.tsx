@@ -278,7 +278,7 @@ export default function LandingPage() {
               आमचे टेम्प्लेट्स
             </h2>
             <p className="font-devanagari text-muted-foreground mt-3 text-sm">
-              ₹२९ मध्ये सर्व ६ सुंदर डिझाइन्स उपलब्ध
+              ₹४९ मध्ये सर्व ६ सुंदर डिझाइन्स उपलब्ध
             </p>
           </motion.div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
@@ -508,7 +508,7 @@ export default function LandingPage() {
             >
               <div className="text-center">
                 <div className="font-display text-5xl font-bold text-maroon mb-1">
-                  ₹२९
+                  ₹४९
                 </div>
                 <div className="font-devanagari text-sm text-muted-foreground">
                   एकदाच पेमेंट - सर्व ६ टेम्प्लेट्स
