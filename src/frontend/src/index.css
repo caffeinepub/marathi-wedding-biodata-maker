@@ -117,10 +117,6 @@
     border-radius: 0 !important;
     box-shadow: none !important;
   }
-  .print-area * {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
   .print-section {
     page-break-inside: avoid;
     break-inside: avoid;

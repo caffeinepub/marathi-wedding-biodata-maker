@@ -1,14 +1,6 @@
-import PaymentModal from "@/components/PaymentModal";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  BadgeCheck,
-  Download,
-  FileImage,
-  Lock,
-  Printer,
-} from "lucide-react";
+import { ArrowLeft, Download, FileImage, Printer } from "lucide-react";
 import { useEffect, useState } from "react";
 import type {
   ContactInfo,
@@ -204,6 +196,7 @@ function BiodataContent({ data, hidden, theme }: ContentProps) {
   function SH({ title }: { title: string }) {
     return (
       <div
+        className="print-section"
         style={{
           borderBottom: `2px solid ${sectionColor}`,
           marginBottom: 8,
@@ -248,6 +241,7 @@ function BiodataContent({ data, hidden, theme }: ContentProps) {
     >
       {/* Name + Photo */}
       <div
+        className="print-section"
         style={{
           display: "flex",
           justifyContent: "space-between",
@@ -342,183 +336,195 @@ function BiodataContent({ data, hidden, theme }: ContentProps) {
       </div>
 
       {/* Personal */}
-      <SH title="वैयक्तिक माहिती" />
-      <div style={{ columns: 2, columnGap: 20 }}>
-        {!hidden.has("dateOfBirth") && <R label="जन्म तारीख" value={dob} />}
-        {!hidden.has("timeOfBirth") && (
-          <R label="जन्म वेळ" value={data.personal.timeOfBirth} />
-        )}
-        {!hidden.has("placeOfBirth") && (
-          <R label="जन्म ठिकाण" value={data.personal.placeOfBirth} />
-        )}
-        {!hidden.has("height") && (
-          <R label="उंची" value={data.personal.height} />
-        )}
-        {!hidden.has("complexion") && (
-          <R label="रंग" value={data.personal.complexion} />
-        )}
-        {!hidden.has("education") && (
-          <R label="शिक्षण" value={data.personal.education} />
-        )}
-        {!hidden.has("occupation") && (
-          <R label="व्यवसाय" value={data.personal.occupation} />
-        )}
-        {!hidden.has("income") && (
-          <R label="मासिक उत्पन्न" value={data.personal.income} />
-        )}
-        {!hidden.has("gotra") && <R label="गोत्र" value={data.personal.gotra} />}
-        {!hidden.has("manglikStatus") && (
-          <R label="मांगलिक" value={data.personal.manglikStatus} />
-        )}
+      <div className="print-section">
+        <SH title="वैयक्तिक माहिती" />
+        <div style={{ columns: 2, columnGap: 20 }}>
+          {!hidden.has("dateOfBirth") && <R label="जन्म तारीख" value={dob} />}
+          {!hidden.has("timeOfBirth") && (
+            <R label="जन्म वेळ" value={data.personal.timeOfBirth} />
+          )}
+          {!hidden.has("placeOfBirth") && (
+            <R label="जन्म ठिकाण" value={data.personal.placeOfBirth} />
+          )}
+          {!hidden.has("height") && (
+            <R label="उंची" value={data.personal.height} />
+          )}
+          {!hidden.has("complexion") && (
+            <R label="रंग" value={data.personal.complexion} />
+          )}
+          {!hidden.has("education") && (
+            <R label="शिक्षण" value={data.personal.education} />
+          )}
+          {!hidden.has("occupation") && (
+            <R label="व्यवसाय" value={data.personal.occupation} />
+          )}
+          {!hidden.has("income") && (
+            <R label="मासिक उत्पन्न" value={data.personal.income} />
+          )}
+          {!hidden.has("gotra") && (
+            <R label="गोत्र" value={data.personal.gotra} />
+          )}
+          {!hidden.has("manglikStatus") && (
+            <R label="मांगलिक" value={data.personal.manglikStatus} />
+          )}
+        </div>
       </div>
 
       {/* Family */}
-      <SH title="कौटुंबिक माहिती" />
-      <div style={{ columns: 2, columnGap: 20 }}>
-        {!hidden.has("fatherName") && (
-          <R label="वडिलांचे नाव" value={data.family.fatherName} />
+      <div className="print-section">
+        <SH title="कौटुंबिक माहिती" />
+        <div style={{ columns: 2, columnGap: 20 }}>
+          {!hidden.has("fatherName") && (
+            <R label="वडिलांचे नाव" value={data.family.fatherName} />
+          )}
+          {!hidden.has("fatherOccupation") && (
+            <R label="वडिलांचा व्यवसाय" value={data.family.fatherOccupation} />
+          )}
+          {!hidden.has("motherName") && (
+            <R label="आईचे नाव" value={data.family.motherName} />
+          )}
+          {!hidden.has("motherOccupation") && (
+            <R label="आईचा व्यवसाय" value={data.family.motherOccupation} />
+          )}
+          {!hidden.has("familyType") && (
+            <R label="कुटुंब प्रकार" value={data.family.familyType} />
+          )}
+          {!hidden.has("nativePlace") && (
+            <R label="मूळ गाव" value={data.family.nativePlace} />
+          )}
+        </div>
+        {!hidden.has("siblingsInfo") && sibs && sibs.length > 0 && (
+          <div style={{ marginTop: 6 }}>
+            <span
+              style={{
+                color: labelColor,
+                fontSize: 11.5,
+                display: "block",
+                marginBottom: 5,
+              }}
+            >
+              भाऊ-बहीण:
+            </span>
+            <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 6 }}>
+              {sibs.map((s, i) => (
+                <div
+                  // biome-ignore lint/suspicious/noArrayIndexKey: stable sibling order
+                  key={`sib-${i}`}
+                  style={{
+                    background: accentBg,
+                    border: `1px solid ${borderColor}`,
+                    borderRadius: 6,
+                    padding: "4px 10px",
+                    fontSize: 11,
+                    fontFamily: "inherit",
+                  }}
+                >
+                  <span style={{ fontWeight: 700, color: sectionColor }}>
+                    {s.type}:{" "}
+                  </span>
+                  <span style={{ color: textColor }}>{s.name}</span>
+                  {s.maritalStatus && (
+                    <span style={{ color: labelColor }}>
+                      {" "}
+                      · {s.maritalStatus}
+                    </span>
+                  )}
+                  {s.occupation && (
+                    <span style={{ color: labelColor }}> · {s.occupation}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
         )}
-        {!hidden.has("fatherOccupation") && (
-          <R label="वडिलांचा व्यवसाय" value={data.family.fatherOccupation} />
-        )}
-        {!hidden.has("motherName") && (
-          <R label="आईचे नाव" value={data.family.motherName} />
-        )}
-        {!hidden.has("motherOccupation") && (
-          <R label="आईचा व्यवसाय" value={data.family.motherOccupation} />
-        )}
-        {!hidden.has("familyType") && (
-          <R label="कुटुंब प्रकार" value={data.family.familyType} />
-        )}
-        {!hidden.has("nativePlace") && (
-          <R label="मूळ गाव" value={data.family.nativePlace} />
+        {!hidden.has("siblingsInfo") && !sibs && data.family.siblingsInfo && (
+          <R label="भाऊ-बहीण" value={data.family.siblingsInfo} />
         )}
       </div>
-      {!hidden.has("siblingsInfo") && sibs && sibs.length > 0 && (
-        <div style={{ marginTop: 6 }}>
-          <span
-            style={{
-              color: labelColor,
-              fontSize: 11.5,
-              display: "block",
-              marginBottom: 5,
-            }}
-          >
-            भाऊ-बहीण:
-          </span>
-          <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 6 }}>
-            {sibs.map((s, i) => (
-              <div
-                // biome-ignore lint/suspicious/noArrayIndexKey: stable sibling order
-                key={`sib-${i}`}
-                style={{
-                  background: accentBg,
-                  border: `1px solid ${borderColor}`,
-                  borderRadius: 6,
-                  padding: "4px 10px",
-                  fontSize: 11,
-                  fontFamily: "inherit",
-                }}
-              >
-                <span style={{ fontWeight: 700, color: sectionColor }}>
-                  {s.type}:{" "}
-                </span>
-                <span style={{ color: textColor }}>{s.name}</span>
-                {s.maritalStatus && (
-                  <span style={{ color: labelColor }}>
-                    {" "}
-                    · {s.maritalStatus}
-                  </span>
-                )}
-                {s.occupation && (
-                  <span style={{ color: labelColor }}> · {s.occupation}</span>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-      {!hidden.has("siblingsInfo") && !sibs && data.family.siblingsInfo && (
-        <R label="भाऊ-बहीण" value={data.family.siblingsInfo} />
-      )}
 
       {/* Horoscope */}
-      <SH title="कुंडली / जन्मपत्रिका" />
-      <div style={{ columns: 2, columnGap: 20, marginBottom: 8 }}>
-        {!hidden.has("rashi") && (
-          <R label="राशी" value={data.horoscope.rashi} />
-        )}
-        {!hidden.has("nakshatra") && (
-          <R label="नक्षत्र" value={data.horoscope.nakshatra} />
-        )}
-        {!hidden.has("gan") && <R label="गण" value={data.horoscope.gan} />}
-        {!hidden.has("nadi") && <R label="नाडी" value={data.horoscope.nadi} />}
-        {!hidden.has("charan") && (
-          <R label="चरण" value={data.horoscope.charan} />
+      <div className="print-section">
+        <SH title="कुंडली / जन्मपत्रिका" />
+        <div style={{ columns: 2, columnGap: 20, marginBottom: 8 }}>
+          {!hidden.has("rashi") && (
+            <R label="राशी" value={data.horoscope.rashi} />
+          )}
+          {!hidden.has("nakshatra") && (
+            <R label="नक्षत्र" value={data.horoscope.nakshatra} />
+          )}
+          {!hidden.has("gan") && <R label="गण" value={data.horoscope.gan} />}
+          {!hidden.has("nadi") && (
+            <R label="नाडी" value={data.horoscope.nadi} />
+          )}
+          {!hidden.has("charan") && (
+            <R label="चरण" value={data.horoscope.charan} />
+          )}
+        </div>
+        {!hidden.has("planetaryPositions") && hasPlanetary && (
+          <div style={{ marginTop: 6 }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(4, 1fr)",
+                border: `1px solid ${borderColor}`,
+                borderRadius: 5,
+                overflow: "hidden",
+                fontSize: 10.5,
+              }}
+            >
+              {data.horoscope.planetaryPositions.map((planet, i) => (
+                <div
+                  // biome-ignore lint/suspicious/noArrayIndexKey: stable house positions
+                  key={`house-${i}`}
+                  style={{
+                    borderRight:
+                      i % 4 !== 3 ? `1px solid ${borderColor}` : "none",
+                    borderBottom: i < 8 ? `1px solid ${borderColor}` : "none",
+                    padding: "5px 7px",
+                    minHeight: 38,
+                    background: i % 2 === 0 ? accentBg : "transparent",
+                  }}
+                >
+                  <div
+                    style={{
+                      color: labelColor,
+                      fontSize: 9,
+                      marginBottom: 2,
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    {HOUSES_MR[i]}
+                  </div>
+                  <div
+                    style={{
+                      color: textColor,
+                      fontWeight: 600,
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    {planet}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
       </div>
-      {!hidden.has("planetaryPositions") && hasPlanetary && (
-        <div style={{ marginTop: 6 }}>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
-              border: `1px solid ${borderColor}`,
-              borderRadius: 5,
-              overflow: "hidden",
-              fontSize: 10.5,
-            }}
-          >
-            {data.horoscope.planetaryPositions.map((planet, i) => (
-              <div
-                // biome-ignore lint/suspicious/noArrayIndexKey: stable house positions
-                key={`house-${i}`}
-                style={{
-                  borderRight:
-                    i % 4 !== 3 ? `1px solid ${borderColor}` : "none",
-                  borderBottom: i < 8 ? `1px solid ${borderColor}` : "none",
-                  padding: "5px 7px",
-                  minHeight: 38,
-                  background: i % 2 === 0 ? accentBg : "transparent",
-                }}
-              >
-                <div
-                  style={{
-                    color: labelColor,
-                    fontSize: 9,
-                    marginBottom: 2,
-                    fontFamily: "inherit",
-                  }}
-                >
-                  {HOUSES_MR[i]}
-                </div>
-                <div
-                  style={{
-                    color: textColor,
-                    fontWeight: 600,
-                    fontFamily: "inherit",
-                  }}
-                >
-                  {planet}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Contact */}
-      <SH title="संपर्क माहिती" />
-      <div style={{ columns: 2, columnGap: 20 }}>
-        {!hidden.has("phone") && data.contact.phone && (
-          <R label="फोन" value={data.contact.phone} />
-        )}
-        {!hidden.has("email") && data.contact.email && (
-          <R label="ईमेल" value={data.contact.email} />
-        )}
-        {!hidden.has("address") && (
-          <R label="पत्ता" value={data.contact.address} />
-        )}
+      <div className="print-section">
+        <SH title="संपर्क माहिती" />
+        <div style={{ columns: 2, columnGap: 20 }}>
+          {!hidden.has("phone") && data.contact.phone && (
+            <R label="फोन" value={data.contact.phone} />
+          )}
+          {!hidden.has("email") && data.contact.email && (
+            <R label="ईमेल" value={data.contact.email} />
+          )}
+          {!hidden.has("address") && (
+            <R label="पत्ता" value={data.contact.address} />
+          )}
+        </div>
       </div>
     </div>
   );
@@ -611,9 +617,8 @@ export function TemplateClassic({
         fontFamily: "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
         maxWidth: 794,
         margin: "0 auto",
-        padding: "36px 40px",
+        padding: "24px 28px",
         boxSizing: "border-box" as const,
-        minHeight: 1123,
         position: "relative" as const,
       }}
     >
@@ -727,9 +732,8 @@ function TemplateFloral({
         fontFamily: "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
         maxWidth: 794,
         margin: "0 auto",
-        padding: "44px 44px 40px",
+        padding: "28px 30px 24px",
         boxSizing: "border-box" as const,
-        minHeight: 1123,
         position: "relative" as const,
       }}
     >
@@ -849,9 +853,8 @@ function TemplateRajeshahi({
         fontFamily: "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
         maxWidth: 794,
         margin: "0 auto",
-        padding: "20px",
+        padding: "14px",
         boxSizing: "border-box" as const,
-        minHeight: 1123,
         position: "relative" as const,
       }}
     >
@@ -913,9 +916,8 @@ function TemplateRajeshahi({
         style={{
           background: "#fffaf8",
           borderRadius: 8,
-          padding: "28px 32px",
+          padding: "18px 22px",
           border: "1px solid #d4aaaa",
-          minHeight: 1050,
         }}
       >
         <div style={{ textAlign: "center", marginBottom: 6 }}>
@@ -999,16 +1001,16 @@ function TemplateAadhunik({
         maxWidth: 794,
         margin: "0 auto",
         boxSizing: "border-box" as const,
-        minHeight: 1123,
         position: "relative" as const,
         display: "flex",
       }}
     >
       {/* Left stripe */}
       <div style={{ width: 8, background: "#1a1a2e", flexShrink: 0 }} />
-      <div style={{ flex: 1, padding: "32px 36px 40px 28px" }}>
+      <div style={{ flex: 1, padding: "20px 24px 28px 18px" }}>
         {/* Header */}
         <div
+          className="print-section"
           style={{
             display: "flex",
             justifyContent: "space-between",
@@ -1201,9 +1203,8 @@ function TemplateShreshtha({
         fontFamily: "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
         maxWidth: 794,
         margin: "0 auto",
-        padding: "40px 44px",
+        padding: "24px 28px",
         boxSizing: "border-box" as const,
-        minHeight: 1123,
         position: "relative" as const,
       }}
     >
@@ -1272,40 +1273,6 @@ function TemplateShreshtha({
           </div>
         )}
       </div>
-      {/* Photo centered */}
-      <div style={{ textAlign: "center", marginBottom: 16 }}>
-        {data.photoPreview ? (
-          <img
-            src={data.photoPreview}
-            alt="Profile"
-            style={{
-              width: 90,
-              height: 108,
-              objectFit: "cover" as const,
-              border: "4px solid #C9A84C",
-              borderRadius: 6,
-              display: "inline-block",
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              width: 90,
-              height: 90,
-              borderRadius: 6,
-              background: "#fdf5dc",
-              border: "4px solid #C9A84C",
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 28,
-              color: "#ccc",
-            }}
-          >
-            👤
-          </div>
-        )}
-      </div>
       <BiodataContent data={data} hidden={hidden} theme={shresthaTheme} />
       <div
         style={{
@@ -1355,18 +1322,16 @@ function TemplateDaivi({
         fontFamily: "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
         maxWidth: 794,
         margin: "0 auto",
-        padding: "20px",
+        padding: "14px",
         boxSizing: "border-box" as const,
-        minHeight: 1123,
       }}
     >
       <div
         style={{
           background: "#0D1F3C",
           borderRadius: 8,
-          padding: "28px 32px",
+          padding: "18px 22px",
           border: "1px solid rgba(240,217,128,0.25)",
-          minHeight: 1050,
           position: "relative" as const,
           overflow: "hidden",
         }}
@@ -1480,44 +1445,37 @@ const TEMPLATE_LIST = [
     name: "क्लासिक",
     emoji: "📜",
     color: "#8B1A1A",
-    plan: "basic",
   },
   {
     id: "aadhunik",
     name: "आधुनिक",
     emoji: "🔵",
     color: "#1a1a2e",
-    plan: "basic",
   },
   {
     id: "floral",
     name: "फुलांचा",
     emoji: "🌸",
     color: "#9B4400",
-    plan: "standard",
   },
   {
     id: "rajeshahi",
     name: "राजेशाही",
     emoji: "♛",
     color: "#8B0000",
-    plan: "standard",
   },
   {
     id: "shreshtha",
     name: "श्रेष्ठ",
     emoji: "✨",
     color: "#8B6914",
-    plan: "premium",
   },
-  { id: "daivi", name: "दैवी", emoji: "🕉️", color: "#0A1628", plan: "premium" },
+  { id: "daivi", name: "दैवी", emoji: "🕉️", color: "#0A1628" },
 ];
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function BiodataPreview() {
   const [data, setData] = useState<SavedData>(DEFAULT);
-  const [showPayment, setShowPayment] = useState(false);
-  const [paidPlan, setPaidPlan] = useState<string | null>(null);
   const [hiddenFields, setHiddenFields] = useState<Set<string>>(new Set());
   const [jpgLoading, setJpgLoading] = useState(false);
   const [activeTemplate, setActiveTemplate] = useState<string>("classic");
@@ -1533,8 +1491,6 @@ export default function BiodataPreview() {
         /* use default */
       }
     }
-    const plan = sessionStorage.getItem("biodataPaidPlan");
-    if (plan) setPaidPlan(plan);
     const hf = sessionStorage.getItem("hiddenFields");
     if (hf) {
       try {
@@ -1553,26 +1509,14 @@ export default function BiodataPreview() {
   }
 
   function handleDownloadPDFClick() {
-    if (paidPlan) {
-      window.print();
-    } else {
-      setShowPayment(true);
-    }
+    window.print();
   }
 
   function handlePrintClick() {
-    if (paidPlan) {
-      window.print();
-    } else {
-      setShowPayment(true);
-    }
+    window.print();
   }
 
   async function handleDownloadJPG() {
-    if (!paidPlan) {
-      setShowPayment(true);
-      return;
-    }
     setJpgLoading(true);
     try {
       const script = document.createElement("script");
@@ -1586,22 +1530,22 @@ export default function BiodataPreview() {
       const el = document.getElementById("biodata-print-area");
       if (!el) return;
       const h2c = (window as any).html2canvas; // eslint-disable-line
-      // A4 at 96dpi: 794x1123px; scale 2 for high quality
+      // A4 at 96dpi: 794px wide; capture full height if content is taller
       const a4Width = 794;
-      const a4Height = 1123;
+      const actualHeight = Math.max(1123, el.scrollHeight);
       const origWidth = el.style.width;
-      const origHeight = el.style.height;
+      const origMinHeight = el.style.minHeight;
       el.style.width = `${a4Width}px`;
-      el.style.minHeight = `${a4Height}px`;
+      el.style.minHeight = `${actualHeight}px`;
       const canvas = await h2c(el, {
         scale: 2,
         useCORS: true,
         backgroundColor: "#ffffff",
         width: a4Width,
-        height: a4Height,
+        height: actualHeight,
       });
       el.style.width = origWidth;
-      el.style.minHeight = origHeight;
+      el.style.minHeight = origMinHeight;
       const link = document.createElement("a");
       link.download = "biodata.jpg";
       link.href = canvas.toDataURL("image/jpeg", 0.95);
@@ -1612,12 +1556,6 @@ export default function BiodataPreview() {
     } finally {
       setJpgLoading(false);
     }
-  }
-
-  function handlePaymentSuccess(planId: string) {
-    setPaidPlan(planId);
-    sessionStorage.setItem("biodataPaidPlan", planId);
-    setShowPayment(false);
   }
 
   const TemplateToRender = templateMap[activeTemplate] || TemplateClassic;
@@ -1631,11 +1569,6 @@ export default function BiodataPreview() {
           </Button>
         </Link>
         <div className="flex gap-2 items-center flex-wrap">
-          {paidPlan && (
-            <span className="inline-flex items-center gap-1 font-devanagari text-xs font-semibold text-green-700 bg-green-50 border border-green-200 px-3 py-1 rounded-full">
-              <BadgeCheck className="w-3.5 h-3.5" /> भरले आहे
-            </span>
-          )}
           <Button
             onClick={handlePrintClick}
             className="font-devanagari gap-2"
@@ -1712,31 +1645,7 @@ export default function BiodataPreview() {
         >
           <TemplateToRender data={data} hidden={hiddenFields} />
         </div>
-        {!paidPlan && (
-          <div
-            className="no-print absolute inset-0 flex items-center justify-center pointer-events-none"
-            style={{ zIndex: 10 }}
-          >
-            <div
-              className="font-devanagari text-5xl font-black select-none"
-              style={{
-                color: "rgba(139,0,0,0.18)",
-                transform: "rotate(-35deg)",
-                whiteSpace: "nowrap",
-                letterSpacing: "0.05em",
-              }}
-            >
-              नमुना बायोडाटा
-            </div>
-          </div>
-        )}
       </div>
-
-      <PaymentModal
-        open={showPayment}
-        onOpenChange={setShowPayment}
-        onSuccess={handlePaymentSuccess}
-      />
     </div>
   );
 }
