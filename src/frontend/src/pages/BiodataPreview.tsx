@@ -1560,6 +1560,14 @@ export default function BiodataPreview() {
     }
   }
 
+  function handlePrintClick() {
+    if (paidPlan) {
+      window.print();
+    } else {
+      setShowPayment(true);
+    }
+  }
+
   async function handleDownloadJPG() {
     if (!paidPlan) {
       setShowPayment(true);
@@ -1578,11 +1586,22 @@ export default function BiodataPreview() {
       const el = document.getElementById("biodata-print-area");
       if (!el) return;
       const h2c = (window as any).html2canvas; // eslint-disable-line
+      // A4 at 96dpi: 794x1123px; scale 2 for high quality
+      const a4Width = 794;
+      const a4Height = 1123;
+      const origWidth = el.style.width;
+      const origHeight = el.style.height;
+      el.style.width = `${a4Width}px`;
+      el.style.minHeight = `${a4Height}px`;
       const canvas = await h2c(el, {
         scale: 2,
         useCORS: true,
         backgroundColor: "#ffffff",
+        width: a4Width,
+        height: a4Height,
       });
+      el.style.width = origWidth;
+      el.style.minHeight = origHeight;
       const link = document.createElement("a");
       link.download = "biodata.jpg";
       link.href = canvas.toDataURL("image/jpeg", 0.95);
@@ -1618,7 +1637,7 @@ export default function BiodataPreview() {
             </span>
           )}
           <Button
-            onClick={() => window.print()}
+            onClick={handlePrintClick}
             className="font-devanagari gap-2"
             variant="outline"
             data-ocid="preview.print.button"
