@@ -37,7 +37,7 @@ export default function PaymentModal({
         onOpenChange(false);
         onSuccess("basic");
       },
-      prefill: { name: "", email: "" },
+      prefill: { name: "", email: "", contact: "" },
       theme: { color: "#7B1C1C" },
     });
   }

@@ -32,6 +32,13 @@ import type {
   PersonalInfo,
 } from "../backend";
 
+interface ExtFamilyInfo extends FamilyInfo {
+  mamaInfo: string;
+  kakaInfo: string;
+  atyaInfo: string;
+  pahuneInfo: string;
+}
+
 const STEP_TITLES = [
   { mr: "प्लान निवडा", en: "Select Plan" },
   { mr: "वैयक्तिक माहिती", en: "Personal Info" },
@@ -165,6 +172,10 @@ const OPTIONAL_FIELDS: Record<number, { key: string; label: string }[]> = {
     { key: "fatherOccupation", label: "वडिलांचा व्यवसाय" },
     { key: "motherOccupation", label: "आईचा व्यवसाय" },
     { key: "siblingsInfo", label: "भाऊ-बहीण माहिती" },
+    { key: "mamaInfo", label: "मामा" },
+    { key: "kakaInfo", label: "काका" },
+    { key: "atyaInfo", label: "आत्या" },
+    { key: "pahuneInfo", label: "पाहुणे" },
     { key: "familyType", label: "कुटुंब प्रकार" },
     { key: "nativePlace", label: "मूळ गाव" },
   ],
@@ -190,7 +201,7 @@ interface SiblingEntry {
 
 interface FormState {
   personal: PersonalInfo;
-  family: FamilyInfo;
+  family: ExtFamilyInfo;
   horoscope: Horoscope;
   contact: ContactInfo;
   template: string;
@@ -220,6 +231,10 @@ const defaultState: FormState = {
     motherName: "",
     motherOccupation: "",
     siblingsInfo: "",
+    mamaInfo: "",
+    kakaInfo: "",
+    atyaInfo: "",
+    pahuneInfo: "",
     familyType: "एकत्र",
     nativePlace: "",
   },
@@ -363,7 +378,7 @@ export default function BiodataForm() {
 
   const upP = (k: keyof PersonalInfo, v: string | boolean) =>
     setForm((f) => ({ ...f, personal: { ...f.personal, [k]: v } }));
-  const upF = (k: keyof FamilyInfo, v: string) =>
+  const upF = (k: keyof ExtFamilyInfo, v: string) =>
     setForm((f) => ({ ...f, family: { ...f.family, [k]: v } }));
   const upH = (k: keyof Horoscope, v: string | string[]) =>
     setForm((f) => ({ ...f, horoscope: { ...f.horoscope, [k]: v } }));
@@ -1011,6 +1026,53 @@ export default function BiodataForm() {
                         </div>
                       </div>
                     )}
+                    {/* मामा, काका, आत्या, पाहुणे */}
+                    <div className="grid sm:grid-cols-2 gap-5">
+                      {!hiddenFields.has("mamaInfo") && (
+                        <div className="space-y-1.5">
+                          <FL mr="मामा" en="Mama" />
+                          <Input
+                            placeholder="उदा. राम पाटील, शेती"
+                            value={form.family.mamaInfo}
+                            onChange={(e) => upF("mamaInfo", e.target.value)}
+                            data-ocid="family.mama.input"
+                          />
+                        </div>
+                      )}
+                      {!hiddenFields.has("kakaInfo") && (
+                        <div className="space-y-1.5">
+                          <FL mr="काका" en="Kaka" />
+                          <Input
+                            placeholder="उदा. सुरेश देशमुख, व्यापार"
+                            value={form.family.kakaInfo}
+                            onChange={(e) => upF("kakaInfo", e.target.value)}
+                            data-ocid="family.kaka.input"
+                          />
+                        </div>
+                      )}
+                      {!hiddenFields.has("atyaInfo") && (
+                        <div className="space-y-1.5">
+                          <FL mr="आत्या" en="Atya" />
+                          <Input
+                            placeholder="उदा. सुनीता जोशी, गृहिणी"
+                            value={form.family.atyaInfo}
+                            onChange={(e) => upF("atyaInfo", e.target.value)}
+                            data-ocid="family.atya.input"
+                          />
+                        </div>
+                      )}
+                      {!hiddenFields.has("pahuneInfo") && (
+                        <div className="space-y-1.5">
+                          <FL mr="पाहुणे" en="Pahune" />
+                          <Input
+                            placeholder="उदा. विजय कुलकर्णी, डॉक्टर"
+                            value={form.family.pahuneInfo}
+                            onChange={(e) => upF("pahuneInfo", e.target.value)}
+                            data-ocid="family.pahune.input"
+                          />
+                        </div>
+                      )}
+                    </div>
                     <div className="grid sm:grid-cols-2 gap-5">
                       {!hiddenFields.has("familyType") && (
                         <div className="space-y-1.5">

@@ -11,9 +11,16 @@ import type {
   PersonalInfo,
 } from "../backend";
 
+interface ExtFamilyInfo extends FamilyInfo {
+  mamaInfo?: string;
+  kakaInfo?: string;
+  atyaInfo?: string;
+  pahuneInfo?: string;
+}
+
 interface SavedData {
   personal: PersonalInfo;
-  family: FamilyInfo;
+  family: ExtFamilyInfo;
   horoscope: Horoscope;
   contact: ContactInfo;
   template: string;
@@ -446,6 +453,18 @@ function BiodataContent({ data, hidden, theme, hideNamePhoto }: ContentProps) {
         )}
         {!hidden.has("siblingsInfo") && !sibs && data.family.siblingsInfo && (
           <R label="भाऊ-बहीण" value={data.family.siblingsInfo} />
+        )}
+        {!hidden.has("mamaInfo") && data.family.mamaInfo && (
+          <R label="मामा" value={data.family.mamaInfo} />
+        )}
+        {!hidden.has("kakaInfo") && data.family.kakaInfo && (
+          <R label="काका" value={data.family.kakaInfo} />
+        )}
+        {!hidden.has("atyaInfo") && data.family.atyaInfo && (
+          <R label="आत्या" value={data.family.atyaInfo} />
+        )}
+        {!hidden.has("pahuneInfo") && data.family.pahuneInfo && (
+          <R label="पाहुणे" value={data.family.pahuneInfo} />
         )}
       </div>
 
