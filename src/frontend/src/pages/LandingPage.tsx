@@ -1,16 +1,7 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
-import { Badge } from "@/components/ui/badge";
 import { Link } from "@tanstack/react-router";
-import {
-  CheckCircle,
-  ChevronRight,
-  Crown,
-  Download,
-  Edit3,
-  Star,
-  Zap,
-} from "lucide-react";
+import { CheckCircle, ChevronRight, Download, Edit3, Star } from "lucide-react";
 import { motion } from "motion/react";
 
 const STEPS = [
@@ -34,74 +25,6 @@ const STEPS = [
   },
 ];
 
-const TEMPLATES = [
-  {
-    name: "पारंपारिक",
-    eng: "Traditional",
-    img: "/assets/generated/template-traditional.dim_400x560.jpg",
-    id: "traditional",
-    plan: "basic",
-  },
-  {
-    name: "आधुनिक",
-    eng: "Modern",
-    img: "/assets/generated/template-modern.dim_400x560.jpg",
-    id: "modern",
-    plan: "basic",
-  },
-  {
-    name: "राजेशाही",
-    eng: "Royal",
-    img: "/assets/generated/template-royal.dim_400x560.jpg",
-    id: "royal",
-    plan: "standard",
-  },
-  {
-    name: "पुष्पलता",
-    eng: "Floral",
-    img: "/assets/generated/template-floral.dim_400x560.jpg",
-    id: "floral",
-    plan: "standard",
-  },
-  {
-    name: "श्रेष्ठ",
-    eng: "Elegant",
-    img: "/assets/generated/template-elegant.dim_400x560.jpg",
-    id: "elegant",
-    plan: "premium",
-  },
-  {
-    name: "दैवी",
-    eng: "Divine",
-    img: "/assets/generated/template-divine.dim_400x560.jpg",
-    id: "divine",
-    plan: "premium",
-  },
-  {
-    name: "उत्सव",
-    eng: "Vibrant",
-    img: "/assets/generated/template-vibrant.dim_400x560.jpg",
-    id: "vibrant",
-    plan: "premium",
-  },
-  {
-    name: "शुभ",
-    eng: "Shubh",
-    img: "/assets/generated/template-shubh.dim_400x560.jpg",
-    id: "shubh",
-    plan: "premium",
-  },
-];
-
-const PLAN_LABELS: Record<string, { label: string; color: string }> = {
-  basic: { label: "Basic", color: "bg-slate-200 text-slate-700" },
-  standard: { label: "Standard", color: "bg-amber-200 text-amber-800" },
-  premium: {
-    label: "Premium ✦",
-    color: "bg-gradient-to-r from-yellow-400 to-amber-500 text-white",
-  },
-};
-
 const TESTIMONIALS = [
   {
     name: "प्रिया देशमुख",
@@ -121,56 +44,6 @@ const TESTIMONIALS = [
     location: "मुंबई, महाराष्ट्र",
     quote: "कुंडली माहिती आणि फोटो एकत्र सुंदर पद्धतीने मांडली जाते. खूप उपयुक्त आहे!",
     rating: 5,
-  },
-];
-
-const PRICING_PLANS = [
-  {
-    id: "basic",
-    name: "बेसिक",
-    nameEng: "Basic",
-    price: 29,
-    icon: <Zap className="w-5 h-5" />,
-    features: [
-      "२ टेम्पलेट्स",
-      "पारंपारिक डिझाइन",
-      "आधुनिक डिझाइन",
-      "बायोडाटा डाउनलोड",
-      "प्रिंट सुविधा",
-    ],
-    popular: false,
-  },
-  {
-    id: "standard",
-    name: "स्टँडर्ड",
-    nameEng: "Standard",
-    price: 69,
-    icon: <Star className="w-5 h-5" />,
-    features: [
-      "४ टेम्पलेट्स",
-      "पारंपारिक + आधुनिक",
-      "राजेशाही + पुष्पलता",
-      "बायोडाटा डाउनलोड",
-      "प्रिंट सुविधा",
-    ],
-    popular: true,
-  },
-  {
-    id: "premium",
-    name: "प्रीमियम",
-    nameEng: "Premium",
-    price: 149,
-    icon: <Crown className="w-5 h-5" />,
-    features: [
-      "सर्व ८ टेम्पलेट्स ✦",
-      "श्रेष्ठ + दैवी + उत्सव + शुभ",
-      "सर्व Standard सुविधा",
-      "एक्सक्लुसिव्ह प्रीमियम डिझाइन्स",
-      "बायोडाटा डाउनलोड",
-      "प्रिंट सुविधा",
-    ],
-    popular: false,
-    highlight: true,
   },
 ];
 
@@ -211,13 +84,6 @@ export default function LandingPage() {
                 >
                   बायोडाटा तयार करा <ChevronRight className="w-4 h-4" />
                 </Link>
-                <a
-                  href="#templates"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3.5 font-devanagari font-semibold text-base border-2 border-maroon text-maroon bg-transparent hover:bg-maroon/5 transition-colors"
-                  data-ocid="hero.secondary_button"
-                >
-                  टेम्पलेट्स पहा
-                </a>
               </div>
             </motion.div>
 
@@ -332,78 +198,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="templates" className="py-20 bg-charcoal">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-14"
-          >
-            <p className="font-devanagari text-sm font-semibold text-gold tracking-widest uppercase mb-2">
-              ✦ आमचे डिझाइन्स ✦
-            </p>
-            <h2
-              className="font-serif-devanagari font-bold text-amber-50"
-              style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)" }}
-            >
-              ८ सुंदर टेम्पलेट्स
-            </h2>
-            <p className="font-devanagari text-amber-200/70 mt-2 text-sm">
-              प्रीमियम प्लानमध्ये सर्व एक्सक्लुसिव्ह डिझाइन्स उपलब्ध
-            </p>
-          </motion.div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-            {TEMPLATES.map((tmpl, i) => {
-              const planInfo = PLAN_LABELS[tmpl.plan];
-              return (
-                <motion.div
-                  key={tmpl.id}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.07 }}
-                  className="group"
-                  data-ocid={`templates.item.${i + 1}`}
-                >
-                  <div className="relative overflow-hidden rounded-xl shadow-lg mb-3 aspect-[5/7]">
-                    <img
-                      src={tmpl.img}
-                      alt={`${tmpl.name} बायोडाटा टेम्पलेट`}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-maroon/0 group-hover:bg-maroon/20 transition-colors duration-300 rounded-xl" />
-                    <div
-                      className={`absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${planInfo.color}`}
-                    >
-                      {planInfo.label}
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-serif-devanagari font-semibold text-amber-100 text-sm mb-1">
-                      {tmpl.name}
-                    </div>
-                    <div className="text-amber-200/60 text-xs font-display mb-3">
-                      {tmpl.eng}
-                    </div>
-                    <Link
-                      to="/form"
-                      className="inline-flex items-center justify-center px-4 py-2 rounded-lg text-xs font-devanagari font-semibold text-white hover:opacity-90 transition-opacity"
-                      style={{ backgroundColor: "oklch(var(--gold))" }}
-                      data-ocid={`templates.button.${i + 1}`}
-                    >
-                      हे निवडा
-                    </Link>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
       <section className="py-20 bg-background">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <motion.div
@@ -464,6 +258,221 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Templates Section */}
+      <section id="templates" className="py-20 bg-amber-50/30">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-14"
+          >
+            <p className="font-devanagari text-sm font-semibold text-gold tracking-widest uppercase mb-2">
+              ✦ डिझाइन्स ✦
+            </p>
+            <h2
+              className="font-serif-devanagari font-bold text-maroon"
+              style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)" }}
+            >
+              आमचे टेम्प्लेट्स
+            </h2>
+            <p className="font-devanagari text-muted-foreground mt-3 text-sm">
+              ₹२९ मध्ये सर्व ६ सुंदर डिझाइन्स उपलब्ध
+            </p>
+          </motion.div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
+            {[
+              {
+                id: "classic",
+                name: "क्लासिक",
+                desc: "पारंपारिक",
+                bg: "#fff",
+                border: "#8B1A1A",
+                header: "#8B1A1A",
+                headerText: "#fff8f0",
+                accent: "#f5e8e8",
+              },
+              {
+                id: "floral",
+                name: "फुलांचा",
+                desc: "फुलांची सजावट",
+                bg: "#FDF6EE",
+                border: "#C8956A",
+                header: "#9B4400",
+                headerText: "#fff8f0",
+                accent: "#fce8d4",
+              },
+              {
+                id: "rajeshahi",
+                name: "राजेशाही",
+                desc: "शाही लाल",
+                bg: "#8B0000",
+                border: "#8B0000",
+                header: "#8B0000",
+                headerText: "#fff8f0",
+                accent: "#fffaf8",
+              },
+              {
+                id: "aadhunik",
+                name: "आधुनिक",
+                desc: "स्वच्छ आधुनिक",
+                bg: "#fff",
+                border: "#1a1a2e",
+                header: "#1a1a2e",
+                headerText: "#ffffff",
+                accent: "#f3f4f6",
+              },
+              {
+                id: "shreshtha",
+                name: "श्रेष्ठ",
+                desc: "सोनेरी",
+                bg: "#FAFAF0",
+                border: "#C9A84C",
+                header: "#8B6914",
+                headerText: "#FAFAF0",
+                accent: "#fdf5dc",
+              },
+              {
+                id: "daivi",
+                name: "दैवी",
+                desc: "दैवी नील",
+                bg: "#0A1628",
+                border: "#C9A84C",
+                header: "#0A1628",
+                headerText: "#ffd700",
+                accent: "#112240",
+              },
+            ].map((tpl, i) => (
+              <motion.div
+                key={tpl.id}
+                initial={{ opacity: 0, y: 32 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.45, delay: i * 0.08 }}
+                data-ocid={`templates.${tpl.id}.card`}
+                className="rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all hover:-translate-y-1 cursor-pointer border-2"
+                style={{ borderColor: tpl.border }}
+              >
+                {/* Mini biodata preview */}
+                <div style={{ background: tpl.bg }} className="p-3">
+                  {/* Header bar */}
+                  <div
+                    style={{ background: tpl.header }}
+                    className="rounded-lg px-2 py-2 mb-2 text-center"
+                  >
+                    <div
+                      style={{
+                        color: tpl.headerText,
+                        fontSize: 8,
+                        letterSpacing: "0.15em",
+                        opacity: 0.8,
+                      }}
+                      className="font-devanagari"
+                    >
+                      ॥ श्री गणेशाय नमः ॥
+                    </div>
+                    <div
+                      style={{
+                        color: tpl.headerText,
+                        fontSize: 11,
+                        fontWeight: 700,
+                      }}
+                      className="font-serif-devanagari"
+                    >
+                      विवाह बायोडाटा
+                    </div>
+                  </div>
+                  {/* Content area */}
+                  <div
+                    style={{ background: tpl.accent }}
+                    className="rounded-lg p-2"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <div
+                        style={{
+                          width: 28,
+                          height: 32,
+                          background: tpl.border,
+                          borderRadius: 4,
+                          opacity: 0.3,
+                          flexShrink: 0,
+                        }}
+                      />
+                      <div className="flex-1">
+                        <div
+                          style={{
+                            height: 7,
+                            background: tpl.header,
+                            borderRadius: 3,
+                            opacity: 0.7,
+                            width: "80%",
+                          }}
+                          className="mb-1"
+                        />
+                        <div
+                          style={{
+                            height: 5,
+                            background: tpl.border,
+                            borderRadius: 3,
+                            opacity: 0.3,
+                            width: "50%",
+                          }}
+                        />
+                      </div>
+                    </div>
+                    {[
+                      { w: 0.6, k: "r1" },
+                      { w: 0.4, k: "r2" },
+                      { w: 0.5, k: "r3" },
+                    ].map(({ w, k }) => (
+                      <div
+                        key={k}
+                        style={{
+                          height: 4,
+                          background: tpl.border,
+                          borderRadius: 3,
+                          opacity: 0.2,
+                          width: `${w * 100}%`,
+                          marginBottom: 4,
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+                {/* Template name footer */}
+                <div
+                  style={{ background: tpl.header }}
+                  className="px-3 py-2 flex items-center justify-between"
+                >
+                  <span
+                    style={{ color: tpl.headerText }}
+                    className="font-serif-devanagari font-bold text-sm"
+                  >
+                    {tpl.name}
+                  </span>
+                  <span
+                    style={{ color: tpl.headerText, opacity: 0.7 }}
+                    className="font-devanagari text-xs"
+                  >
+                    {tpl.desc}
+                  </span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+          <div className="text-center mt-8">
+            <Link
+              to="/form"
+              className="inline-flex items-center gap-2 rounded-xl px-6 py-3 font-devanagari font-semibold text-sm bg-maroon text-amber-50 hover:opacity-90 transition-opacity shadow-card"
+              data-ocid="templates.cta.button"
+            >
+              <ChevronRight className="w-4 h-4" /> सर्व टेम्प्लेट्स पाहा
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Pricing Section */}
       <section id="pricing" className="py-20 bg-amber-50/50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
@@ -488,103 +497,48 @@ export default function LandingPage() {
             </p>
           </motion.div>
 
-          <div className="grid sm:grid-cols-3 gap-8 items-stretch">
-            {PRICING_PLANS.map((plan, i) => (
-              <motion.div
-                key={plan.id}
-                initial={{ opacity: 0, y: 32 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.12 }}
-                className={`relative rounded-2xl border-2 p-7 flex flex-col gap-4 ${
-                  (plan as any).highlight
-                    ? "border-yellow-500 bg-gradient-to-b from-yellow-50 to-amber-50 shadow-xl ring-2 ring-yellow-400/40"
-                    : plan.popular
-                      ? "border-maroon bg-white shadow-card-hover"
-                      : "border-border bg-card shadow-card"
-                }`}
-                data-ocid={`pricing.${plan.id}.card`}
+          <div className="max-w-sm mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 32 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="relative rounded-2xl border-2 border-maroon bg-white shadow-card-hover p-8 flex flex-col gap-5"
+              data-ocid="pricing.basic.card"
+            >
+              <div className="text-center">
+                <div className="font-display text-5xl font-bold text-maroon mb-1">
+                  ₹२९
+                </div>
+                <div className="font-devanagari text-sm text-muted-foreground">
+                  एकदाच पेमेंट - सर्व ६ टेम्प्लेट्स
+                </div>
+              </div>
+              <ul className="flex flex-col gap-2">
+                {[
+                  "सर्व टेम्पलेट्स",
+                  "PDF डाउनलोड",
+                  "JPG डाउनलोड",
+                  "सर्व माहिती",
+                  "कस्टम फील्ड्स",
+                  "प्रिंट सुविधा",
+                ].map((f) => (
+                  <li key={f} className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 shrink-0 text-maroon" />
+                    <span className="font-devanagari text-sm text-foreground/80">
+                      {f}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <Link
+                to="/form"
+                className="mt-2 w-full inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 font-devanagari font-semibold text-sm bg-maroon text-amber-50 hover:opacity-90 shadow-card transition-opacity"
+                data-ocid="pricing.basic.button"
               >
-                {(plan as any).highlight && (
-                  <Badge className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-500 to-amber-600 text-white font-devanagari text-xs px-4 py-1 shadow-lg border-0">
-                    👑 सर्वोत्तम प्लान
-                  </Badge>
-                )}
-                {plan.popular && !(plan as any).highlight && (
-                  <Badge className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-maroon text-amber-50 font-devanagari text-xs px-4 py-1 shadow">
-                    ⭐ सर्वात लोकप्रिय
-                  </Badge>
-                )}
-
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                      (plan as any).highlight
-                        ? "bg-gradient-to-br from-yellow-400 to-amber-500 text-white"
-                        : plan.popular
-                          ? "bg-maroon text-amber-50"
-                          : "bg-maroon/10 text-maroon"
-                    }`}
-                  >
-                    {plan.icon}
-                  </span>
-                  <div>
-                    <div className="font-serif-devanagari font-bold text-maroon text-xl leading-tight">
-                      {plan.name}
-                    </div>
-                    <div className="font-display text-xs text-muted-foreground">
-                      {plan.nameEng}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-end gap-1">
-                  <span
-                    className={`font-display text-4xl font-bold ${
-                      (plan as any).highlight
-                        ? "text-yellow-700"
-                        : "text-maroon"
-                    }`}
-                  >
-                    ₹{plan.price}
-                  </span>
-                  <span className="font-devanagari text-sm text-muted-foreground mb-1">
-                    /एकदा
-                  </span>
-                </div>
-
-                <ul className="flex flex-col gap-2 flex-1">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2">
-                      <CheckCircle
-                        className={`w-4 h-4 shrink-0 ${
-                          (plan as any).highlight
-                            ? "text-yellow-600"
-                            : "text-maroon"
-                        }`}
-                      />
-                      <span className="font-devanagari text-sm text-foreground/80">
-                        {f}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-
-                <Link
-                  to="/form"
-                  className={`mt-2 w-full inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 font-devanagari font-semibold text-sm transition-all ${
-                    (plan as any).highlight
-                      ? "bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:opacity-90 shadow-lg"
-                      : plan.popular
-                        ? "bg-maroon text-amber-50 hover:opacity-90 shadow-card"
-                        : "border-2 border-maroon text-maroon bg-transparent hover:bg-maroon/5"
-                  }`}
-                  data-ocid={`pricing.${plan.id}.button`}
-                >
-                  आत्ता सुरू करा <ChevronRight className="w-4 h-4" />
-                </Link>
-              </motion.div>
-            ))}
+                आत्ता सुरू करा <ChevronRight className="w-4 h-4" />
+              </Link>
+            </motion.div>
           </div>
 
           <p className="text-center font-devanagari text-xs text-muted-foreground mt-8">

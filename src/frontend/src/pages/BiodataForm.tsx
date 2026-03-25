@@ -40,32 +40,54 @@ const STEP_TITLES = [
   { mr: "संपर्क व फोटो", en: "Contact & Photo" },
 ];
 
-const PLANS = [
+const TEMPLATES_CONFIG = [
   {
-    id: "basic",
-    name: "बेसिक",
-    price: "₹29",
-    features: ["PDF डाउनलोड", "सर्व माहिती", "कस्टम बायोडाटा"],
+    id: "classic",
+    name: "क्लासिक",
+    emoji: "📜",
+    color: "#8B1A1A",
+    plan: "basic",
+    desc: "पारंपारिक मराठी",
   },
   {
-    id: "standard",
-    name: "स्टँडर्ड",
-    price: "₹69",
-    features: ["PDF डाउनलोड", "JPG डाउनलोड", "सर्व माहिती", "कस्टम फील्ड्स"],
-    popular: true,
+    id: "aadhunik",
+    name: "आधुनिक",
+    emoji: "🔷",
+    color: "#1a1a2e",
+    plan: "basic",
+    desc: "स्वच्छ आधुनिक",
   },
   {
-    id: "premium",
-    name: "प्रीमियम",
-    price: "₹149",
-    features: [
-      "PDF डाउनलोड",
-      "JPG डाउनलोड",
-      "सर्व माहिती",
-      "कस्टम फील्ड्स",
-      "प्राधान्य सेवा",
-    ],
-    highlight: true,
+    id: "floral",
+    name: "फुलांचा",
+    emoji: "🌸",
+    color: "#9B4400",
+    plan: "basic",
+    desc: "फुलांची सजावट",
+  },
+  {
+    id: "rajeshahi",
+    name: "राजेशाही",
+    emoji: "♛",
+    color: "#8B0000",
+    plan: "basic",
+    desc: "शाही लाल",
+  },
+  {
+    id: "shreshtha",
+    name: "श्रेष्ठ",
+    emoji: "✨",
+    color: "#8B6914",
+    plan: "basic",
+    desc: "सोनेरी",
+  },
+  {
+    id: "daivi",
+    name: "दैवी",
+    emoji: "🕉️",
+    color: "#0A1628",
+    plan: "basic",
+    desc: "दैवी नील",
   },
 ];
 
@@ -128,7 +150,7 @@ const HOUSES = [
   "लाभ",
   "व्यय",
 ];
-// Optional fields config per step
+
 const OPTIONAL_FIELDS: Record<number, { key: string; label: string }[]> = {
   1: [
     { key: "timeOfBirth", label: "जन्म वेळ" },
@@ -210,7 +232,7 @@ const defaultState: FormState = {
     planetaryPositions: Array(12).fill(""),
   },
   contact: { email: "", phone: "", address: "" },
-  template: "single",
+  template: "classic",
   photoFile: null,
   photoPreview: null,
 };
@@ -238,7 +260,6 @@ function FieldCustomizer({
   const [open, setOpen] = useState(false);
   const fields = OPTIONAL_FIELDS[step];
   if (!fields) return null;
-
   return (
     <div className="mb-5 rounded-xl border border-border overflow-hidden">
       <button
@@ -285,7 +306,7 @@ function FieldCustomizer({
 
 export default function BiodataForm() {
   const [step, setStep] = useState(0);
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const selectedPlan = "basic";
   const [form, setForm] = useState<FormState>(defaultState);
   const [hiddenFields, setHiddenFields] = useState<Set<string>>(new Set());
   const [siblings, setSiblings] = useState<SiblingEntry[]>(() => {
@@ -326,6 +347,7 @@ export default function BiodataForm() {
     setSiblings(updated);
     upF("siblingsInfo", JSON.stringify(updated));
   };
+
   const fileRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const mutation = useCreateOrUpdateBiodata();
@@ -354,6 +376,10 @@ export default function BiodataForm() {
       return { ...f, horoscope: { ...f.horoscope, planetaryPositions: pp } };
     });
 
+  function selectTemplate(tid: string) {
+    setForm((f) => ({ ...f, template: tid }));
+  }
+
   function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -376,9 +402,8 @@ export default function BiodataForm() {
         try {
           const bytes = new Uint8Array(await form.photoFile.arrayBuffer());
           const mod = (await import("../backend")) as any;
-          if (mod.ExternalBlob?.fromBytes) {
+          if (mod.ExternalBlob?.fromBytes)
             photo = mod.ExternalBlob.fromBytes(bytes);
-          }
         } catch {
           /* skip photo */
         }
@@ -470,53 +495,79 @@ export default function BiodataForm() {
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                {/* Step 0 - Plan Selection */}
+                {/* Step 0 - Plan + Template Selection */}
                 {step === 0 && (
-                  <div className="space-y-4">
-                    <p className="font-devanagari text-center text-muted-foreground text-sm mb-6">
-                      आपल्या गरजेनुसार प्लान निवडा
-                    </p>
-                    <div className="grid gap-4 sm:grid-cols-3">
-                      {PLANS.map((plan) => (
-                        <button
-                          key={plan.id}
-                          type="button"
-                          onClick={() => setSelectedPlan(plan.id)}
-                          className={`relative rounded-2xl border-2 p-5 text-left transition-all ${
-                            selectedPlan === plan.id
-                              ? "border-maroon bg-maroon/5 shadow-md"
-                              : "border-border hover:border-maroon/40"
-                          }`}
-                          data-ocid={`plan.select.${plan.id}`}
-                        >
-                          {plan.popular && (
-                            <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-maroon text-amber-50 text-xs font-devanagari px-3 py-0.5 rounded-full">
-                              लोकप्रिय
-                            </span>
-                          )}
-                          <div className="font-serif-devanagari font-bold text-xl text-maroon mb-1">
-                            {plan.price}
-                          </div>
-                          <div className="font-devanagari font-semibold text-foreground mb-3">
-                            {plan.name}
-                          </div>
-                          <ul className="space-y-1">
-                            {plan.features.map((f) => (
-                              <li
-                                key={f}
-                                className="font-devanagari text-xs text-muted-foreground flex items-center gap-1.5"
+                  <div className="space-y-6">
+                    {/* Template selector */}
+                    <div>
+                      <p className="font-devanagari text-center text-maroon font-semibold text-sm mb-4">
+                        फक्त ₹२९ मध्ये सर्व टेम्प्लेट्स उपलब्ध
+                      </p>
+                      <div className="border-t border-border pt-5">
+                        <p className="font-devanagari font-semibold text-foreground text-sm mb-3">
+                          टेम्प्लेट निवडा{" "}
+                          <span className="text-xs text-muted-foreground font-normal">
+                            (Select Template)
+                          </span>
+                        </p>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                          {TEMPLATES_CONFIG.map((t) => {
+                            const isSelected = form.template === t.id;
+                            return (
+                              <button
+                                key={t.id}
+                                type="button"
+                                onClick={() => {
+                                  selectTemplate(t.id);
+                                }}
+                                data-ocid={`template.select.${t.id}`}
+                                className={`relative flex flex-col gap-2 p-3 rounded-xl border-2 text-left transition-all ${
+                                  isSelected
+                                    ? "border-2 shadow-md"
+                                    : "border-border hover:border-gray-300"
+                                }`}
+                                style={{
+                                  borderColor: isSelected ? t.color : undefined,
+                                }}
                               >
-                                <span className="text-green-600">✓</span> {f}
-                              </li>
-                            ))}
-                          </ul>
-                          {selectedPlan === plan.id && (
-                            <div className="mt-3 text-center text-xs font-devanagari font-semibold text-maroon">
-                              ✓ निवडले
-                            </div>
-                          )}
-                        </button>
-                      ))}
+                                <div className="flex items-center gap-2">
+                                  <div
+                                    style={{
+                                      width: 28,
+                                      height: 28,
+                                      background: t.color,
+                                      borderRadius: 6,
+                                      flexShrink: 0,
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      fontSize: 14,
+                                    }}
+                                  >
+                                    {t.emoji}
+                                  </div>
+                                  <div>
+                                    <div className="font-devanagari font-semibold text-sm text-foreground">
+                                      {t.name}
+                                    </div>
+                                    <div className="font-devanagari text-xs text-muted-foreground">
+                                      {t.desc}
+                                    </div>
+                                  </div>
+                                </div>
+                                {isSelected && (
+                                  <div
+                                    className="text-xs font-devanagari font-semibold"
+                                    style={{ color: t.color }}
+                                  >
+                                    ✓ निवडले
+                                  </div>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -529,6 +580,75 @@ export default function BiodataForm() {
                       hiddenFields={hiddenFields}
                       onToggle={toggleField}
                     />
+
+                    {/* Photo Upload */}
+                    <div className="flex items-start gap-5 p-4 bg-muted/50 rounded-xl border border-border">
+                      <button
+                        type="button"
+                        className="relative cursor-pointer flex-shrink-0"
+                        onClick={() => fileRef.current?.click()}
+                      >
+                        {form.photoPreview ? (
+                          <img
+                            src={form.photoPreview}
+                            alt="Profile"
+                            className="w-24 h-28 object-cover rounded-lg border-2 border-maroon shadow"
+                          />
+                        ) : (
+                          <div className="w-24 h-28 rounded-lg border-2 border-dashed border-maroon/40 bg-amber-50 flex flex-col items-center justify-center gap-1 hover:border-maroon transition-colors">
+                            <Upload className="w-6 h-6 text-maroon/50" />
+                            <span className="font-devanagari text-[10px] text-muted-foreground text-center px-1">
+                              फोटो
+                            </span>
+                          </div>
+                        )}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          ref={fileRef}
+                          onChange={handlePhoto}
+                          data-ocid="personal.photo.upload_button"
+                        />
+                      </button>
+                      <div className="flex-1 space-y-1.5">
+                        <div className="font-devanagari font-semibold text-sm text-foreground">
+                          फोटो अपलोड करा{" "}
+                          <span className="text-xs text-muted-foreground font-normal">
+                            (Upload Photo)
+                          </span>
+                        </div>
+                        <p className="font-devanagari text-xs text-muted-foreground leading-relaxed">
+                          बायोडाटावर दाखवण्यासाठी एक स्पष्ट फोटो अपलोड करा. JPG,
+                          PNG फॉर्मेट चालेल.
+                        </p>
+                        {form.photoPreview && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setForm((f) => ({
+                                ...f,
+                                photoFile: null,
+                                photoPreview: null,
+                              }))
+                            }
+                            className="font-devanagari text-xs text-red-500 hover:text-red-700 underline"
+                          >
+                            फोटो काढा
+                          </button>
+                        )}
+                        {!form.photoPreview && (
+                          <button
+                            type="button"
+                            onClick={() => fileRef.current?.click()}
+                            className="inline-flex items-center gap-1.5 font-devanagari text-xs font-semibold text-maroon border border-maroon/30 rounded-lg px-3 py-1.5 hover:bg-maroon/5 transition-colors"
+                          >
+                            <Upload className="w-3 h-3" /> फोटो निवडा
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
                     <div className="grid sm:grid-cols-2 gap-5">
                       <div className="space-y-1.5">
                         <FL mr="पूर्ण नाव" en="Full Name" />
@@ -1116,49 +1236,6 @@ export default function BiodataForm() {
                         />
                       </div>
                     )}
-                    <div className="space-y-2">
-                      <FL mr="फोटो अपलोड करा" en="Upload Photo" />
-                      <div
-                        className="border-2 border-dashed border-border rounded-xl p-6 text-center cursor-pointer hover:border-maroon transition-colors"
-                        onClick={() => fileRef.current?.click()}
-                        onKeyDown={(e) =>
-                          e.key === "Enter" && fileRef.current?.click()
-                        }
-                        data-ocid="contact.dropzone"
-                      >
-                        {form.photoPreview ? (
-                          <div className="flex flex-col items-center gap-2">
-                            <img
-                              src={form.photoPreview}
-                              alt="Profile"
-                              className="w-24 h-24 rounded-full object-cover border-2"
-                              style={{ borderColor: "oklch(var(--gold))" }}
-                            />
-                            <p className="font-devanagari text-sm text-muted-foreground">
-                              बदलण्यासाठी क्लिक करा
-                            </p>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col items-center gap-2">
-                            <Upload className="w-8 h-8 text-muted-foreground" />
-                            <p className="font-devanagari text-sm text-muted-foreground">
-                              फोटो अपलोड करण्यासाठी क्लिक करा
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              JPG, PNG (max 5MB)
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                      <input
-                        ref={fileRef}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handlePhoto}
-                        data-ocid="contact.upload_button"
-                      />
-                    </div>
                   </div>
                 )}
               </motion.div>

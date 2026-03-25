@@ -112,6 +112,17 @@
   }
   .print-area {
     padding: 12mm 15mm;
-    min-height: 100vh;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  .print-area * {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .print-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
 }

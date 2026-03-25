@@ -86,7 +86,7 @@ export default function PaymentModal({
         onOpenChange(false);
         onSuccess(plan.id);
       },
-      prefill: { name: "", email: "", contact: "" },
+      prefill: { name: "", email: "" },
       theme: { color: "#7B1C1C" },
     });
   }
