@@ -2,6 +2,7 @@ import PaymentModal from "@/components/PaymentModal";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, Download } from "lucide-react";
+import QRCode from "qrcode";
 import type React from "react";
 import { useEffect, useState } from "react";
 import type {
@@ -108,6 +109,124 @@ type SiblingEntry = {
   occupation: string;
 };
 
+// Language translations for biodata labels
+const TRANSLATIONS: Record<string, Record<string, string>> = {
+  marathi: {
+    personalInfo: "वैयक्तिक माहिती",
+    familyInfo: "कौटुंबिक माहिती",
+    horoscope: "कुंडली / जन्मपत्रिका",
+    contactInfo: "संपर्क माहिती",
+    name: "पूर्ण नाव",
+    dob: "जन्म तारीख",
+    tob: "जन्म वेळ",
+    pob: "जन्म ठिकाण",
+    height: "उंची",
+    complexion: "रंग",
+    education: "शिक्षण",
+    occupation: "व्यवसाय",
+    income: "मासिक उत्पन्न",
+    religion: "धर्म",
+    caste: "जात",
+    gotra: "गोत्र",
+    manglik: "मांगलिक",
+    fatherName: "वडिलांचे नाव",
+    fatherOccupation: "वडिलांचा व्यवसाय",
+    motherName: "आईचे नाव",
+    motherOccupation: "आईचा व्यवसाय",
+    siblings: "भाऊ-बहीण",
+    familyType: "कुटुंब प्रकार",
+    nativePlace: "मूळ गाव",
+    rashi: "राशी",
+    nakshatra: "नक्षत्र",
+    gan: "गण",
+    nadi: "नाडी",
+    charan: "चरण",
+    phone: "फोन",
+    email: "ईमेल",
+    address: "पत्ता",
+    mama: "मामा",
+    kaka: "काका",
+    atya: "आत्या",
+    pahune: "पाहुणे",
+  },
+  hindi: {
+    personalInfo: "व्यक्तिगत जानकारी",
+    familyInfo: "पारिवारिक जानकारी",
+    horoscope: "कुंडली / जन्मपत्री",
+    contactInfo: "संपर्क जानकारी",
+    name: "पूरा नाम",
+    dob: "जन्म तिथि",
+    tob: "जन्म समय",
+    pob: "जन्म स्थान",
+    height: "ऊंचाई",
+    complexion: "रंग",
+    education: "शिक्षा",
+    occupation: "व्यवसाय",
+    income: "मासिक आय",
+    religion: "धर्म",
+    caste: "जाति",
+    gotra: "गोत्र",
+    manglik: "मांगलिक",
+    fatherName: "पिता का नाम",
+    fatherOccupation: "पिता का व्यवसाय",
+    motherName: "माता का नाम",
+    motherOccupation: "माता का व्यवसाय",
+    siblings: "भाई-बहन",
+    familyType: "परिवार प्रकार",
+    nativePlace: "मूल स्थान",
+    rashi: "राशि",
+    nakshatra: "नक्षत्र",
+    gan: "गण",
+    nadi: "नाड़ी",
+    charan: "चरण",
+    phone: "फ़ोन",
+    email: "ईमेल",
+    address: "पता",
+    mama: "मामा",
+    kaka: "काका",
+    atya: "बुआ",
+    pahune: "मेहमान",
+  },
+  english: {
+    personalInfo: "Personal Information",
+    familyInfo: "Family Information",
+    horoscope: "Horoscope",
+    contactInfo: "Contact Information",
+    name: "Full Name",
+    dob: "Date of Birth",
+    tob: "Time of Birth",
+    pob: "Place of Birth",
+    height: "Height",
+    complexion: "Complexion",
+    education: "Education",
+    occupation: "Occupation",
+    income: "Monthly Income",
+    religion: "Religion",
+    caste: "Caste",
+    gotra: "Gotra",
+    manglik: "Manglik Status",
+    fatherName: "Father's Name",
+    fatherOccupation: "Father's Occupation",
+    motherName: "Mother's Name",
+    motherOccupation: "Mother's Occupation",
+    siblings: "Siblings",
+    familyType: "Family Type",
+    nativePlace: "Native Place",
+    rashi: "Rashi",
+    nakshatra: "Nakshatra",
+    gan: "Gan",
+    nadi: "Nadi",
+    charan: "Charan",
+    phone: "Phone",
+    email: "Email",
+    address: "Address",
+    mama: "Maternal Uncle",
+    kaka: "Paternal Uncle",
+    atya: "Aunt",
+    pahune: "In-laws",
+  },
+};
+
 function parseSiblings(raw: string): SiblingEntry[] | null {
   try {
     const p = JSON.parse(raw || "");
@@ -195,9 +314,24 @@ interface ContentProps {
   hidden: Set<string>;
   theme: ThemeConfig;
   hideNamePhoto?: boolean;
+  translations?: Record<string, string>;
+  fontFamily?: string;
+  qrDataUrl?: string;
 }
 
-function BiodataContent({ data, hidden, theme, hideNamePhoto }: ContentProps) {
+function BiodataContent({
+  data,
+  hidden,
+  theme,
+  hideNamePhoto,
+  translations,
+  fontFamily: propFont,
+  qrDataUrl,
+}: ContentProps) {
+  const T = translations || TRANSLATIONS.marathi;
+  const fontFamilyStr = propFont
+    ? `'${propFont}', 'Noto Sans Devanagari', 'Hind', Arial, sans-serif`
+    : "'Noto Sans Devanagari', 'Hind', Arial, sans-serif";
   const sibs = parseSiblings(data.family.siblingsInfo);
   const hasPlanetary = data.horoscope.planetaryPositions?.some(
     (p) => p.trim() !== "",
@@ -248,7 +382,7 @@ function BiodataContent({ data, hidden, theme, hideNamePhoto }: ContentProps) {
   return (
     <div
       style={{
-        fontFamily: "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
+        fontFamily: fontFamilyStr,
       }}
     >
       {/* Name + Photo */}
@@ -351,60 +485,66 @@ function BiodataContent({ data, hidden, theme, hideNamePhoto }: ContentProps) {
 
       {/* Personal */}
       <div className="print-section">
-        <SH title="वैयक्तिक माहिती" />
+        <SH title={T.personalInfo} />
         <div style={{ columns: 2, columnGap: 20 }}>
-          {!hidden.has("dateOfBirth") && <R label="जन्म तारीख" value={dob} />}
+          {!hidden.has("dateOfBirth") && <R label={T.dob} value={dob} />}
           {!hidden.has("timeOfBirth") && (
-            <R label="जन्म वेळ" value={data.personal.timeOfBirth} />
+            <R label={T.tob} value={data.personal.timeOfBirth} />
           )}
           {!hidden.has("placeOfBirth") && (
-            <R label="जन्म ठिकाण" value={data.personal.placeOfBirth} />
+            <R label={T.pob} value={data.personal.placeOfBirth} />
           )}
           {!hidden.has("height") && (
-            <R label="उंची" value={data.personal.height} />
+            <R label={T.height} value={data.personal.height} />
           )}
           {!hidden.has("complexion") && (
-            <R label="रंग" value={data.personal.complexion} />
+            <R label={T.complexion} value={data.personal.complexion} />
           )}
           {!hidden.has("education") && (
-            <R label="शिक्षण" value={data.personal.education} />
+            <R label={T.education} value={data.personal.education} />
           )}
           {!hidden.has("occupation") && (
-            <R label="व्यवसाय" value={data.personal.occupation} />
+            <R label={T.occupation} value={data.personal.occupation} />
           )}
           {!hidden.has("income") && (
-            <R label="मासिक उत्पन्न" value={data.personal.income} />
+            <R label={T.income} value={data.personal.income} />
           )}
           {!hidden.has("gotra") && (
-            <R label="गोत्र" value={data.personal.gotra} />
+            <R label={T.gotra} value={data.personal.gotra} />
           )}
           {!hidden.has("manglikStatus") && (
-            <R label="मांगलिक" value={data.personal.manglikStatus} />
+            <R label={T.manglik} value={data.personal.manglikStatus} />
           )}
         </div>
       </div>
 
       {/* Family */}
       <div className="print-section">
-        <SH title="कौटुंबिक माहिती" />
+        <SH title={T.familyInfo} />
         <div style={{ columns: 2, columnGap: 20 }}>
           {!hidden.has("fatherName") && (
-            <R label="वडिलांचे नाव" value={data.family.fatherName} />
+            <R label={T.fatherName} value={data.family.fatherName} />
           )}
           {!hidden.has("fatherOccupation") && (
-            <R label="वडिलांचा व्यवसाय" value={data.family.fatherOccupation} />
+            <R
+              label={T.fatherOccupation}
+              value={data.family.fatherOccupation}
+            />
           )}
           {!hidden.has("motherName") && (
-            <R label="आईचे नाव" value={data.family.motherName} />
+            <R label={T.motherName} value={data.family.motherName} />
           )}
           {!hidden.has("motherOccupation") && (
-            <R label="आईचा व्यवसाय" value={data.family.motherOccupation} />
+            <R
+              label={T.motherOccupation}
+              value={data.family.motherOccupation}
+            />
           )}
           {!hidden.has("familyType") && (
-            <R label="कुटुंब प्रकार" value={data.family.familyType} />
+            <R label={T.familyType} value={data.family.familyType} />
           )}
           {!hidden.has("nativePlace") && (
-            <R label="मूळ गाव" value={data.family.nativePlace} />
+            <R label={T.nativePlace} value={data.family.nativePlace} />
           )}
         </div>
         {!hidden.has("siblingsInfo") && sibs && sibs.length > 0 && (
@@ -452,38 +592,38 @@ function BiodataContent({ data, hidden, theme, hideNamePhoto }: ContentProps) {
           </div>
         )}
         {!hidden.has("siblingsInfo") && !sibs && data.family.siblingsInfo && (
-          <R label="भाऊ-बहीण" value={data.family.siblingsInfo} />
+          <R label={T.siblings} value={data.family.siblingsInfo} />
         )}
         {!hidden.has("mamaInfo") && data.family.mamaInfo && (
-          <R label="मामा" value={data.family.mamaInfo} />
+          <R label={T.mama} value={data.family.mamaInfo} />
         )}
         {!hidden.has("kakaInfo") && data.family.kakaInfo && (
-          <R label="काका" value={data.family.kakaInfo} />
+          <R label={T.kaka} value={data.family.kakaInfo} />
         )}
         {!hidden.has("atyaInfo") && data.family.atyaInfo && (
-          <R label="आत्या" value={data.family.atyaInfo} />
+          <R label={T.atya} value={data.family.atyaInfo} />
         )}
         {!hidden.has("pahuneInfo") && data.family.pahuneInfo && (
-          <R label="पाहुणे" value={data.family.pahuneInfo} />
+          <R label={T.pahune} value={data.family.pahuneInfo} />
         )}
       </div>
 
       {/* Horoscope */}
       <div className="print-section">
-        <SH title="कुंडली / जन्मपत्रिका" />
+        <SH title={T.horoscope} />
         <div style={{ columns: 2, columnGap: 20, marginBottom: 8 }}>
           {!hidden.has("rashi") && (
-            <R label="राशी" value={data.horoscope.rashi} />
+            <R label={T.rashi} value={data.horoscope.rashi} />
           )}
           {!hidden.has("nakshatra") && (
-            <R label="नक्षत्र" value={data.horoscope.nakshatra} />
+            <R label={T.nakshatra} value={data.horoscope.nakshatra} />
           )}
-          {!hidden.has("gan") && <R label="गण" value={data.horoscope.gan} />}
+          {!hidden.has("gan") && <R label={T.gan} value={data.horoscope.gan} />}
           {!hidden.has("nadi") && (
-            <R label="नाडी" value={data.horoscope.nadi} />
+            <R label={T.nadi} value={data.horoscope.nadi} />
           )}
           {!hidden.has("charan") && (
-            <R label="चरण" value={data.horoscope.charan} />
+            <R label={T.charan} value={data.horoscope.charan} />
           )}
         </div>
         {!hidden.has("planetaryPositions") && hasPlanetary && (
@@ -539,19 +679,41 @@ function BiodataContent({ data, hidden, theme, hideNamePhoto }: ContentProps) {
 
       {/* Contact */}
       <div className="print-section">
-        <SH title="संपर्क माहिती" />
+        <SH title={T.contactInfo} />
         <div style={{ columns: 2, columnGap: 20 }}>
           {!hidden.has("phone") && data.contact.phone && (
-            <R label="फोन" value={data.contact.phone} />
+            <R label={T.phone} value={data.contact.phone} />
           )}
           {!hidden.has("email") && data.contact.email && (
-            <R label="ईमेल" value={data.contact.email} />
+            <R label={T.email} value={data.contact.email} />
           )}
           {!hidden.has("address") && (
-            <R label="पत्ता" value={data.contact.address} />
+            <R label={T.address} value={data.contact.address} />
           )}
         </div>
       </div>
+      {/* QR Code */}
+      {qrDataUrl && (
+        <div
+          style={{ display: "flex", justifyContent: "flex-end", marginTop: 8 }}
+        >
+          <div style={{ textAlign: "center" }}>
+            <img
+              src={qrDataUrl}
+              alt="QR Code"
+              style={{
+                width: 60,
+                height: 60,
+                border: `1px solid ${theme.borderColor}`,
+                borderRadius: 4,
+              }}
+            />
+            <div style={{ fontSize: 8, color: theme.labelColor, marginTop: 2 }}>
+              Scan to Contact
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -635,12 +797,23 @@ function CornerPx({ pos }: { pos: "tl" | "tr" | "bl" | "br" }) {
 export function TemplateClassic({
   data,
   hidden,
-}: { data: SavedData; hidden: Set<string> }) {
+  translations,
+  fontFamily,
+  qrDataUrl,
+}: {
+  data: SavedData;
+  hidden: Set<string>;
+  translations?: Record<string, string>;
+  fontFamily?: string;
+  qrDataUrl?: string;
+}) {
   return (
     <div
       style={{
         background: "#fff",
-        fontFamily: "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
+        fontFamily: fontFamily
+          ? `'${fontFamily}', 'Noto Sans Devanagari', 'Hind', Arial, sans-serif`
+          : "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
         maxWidth: 794,
         margin: "0 auto",
         padding: "24px 28px",
@@ -695,7 +868,14 @@ export function TemplateClassic({
           विवाह बायोडाटा
         </h1>
       </div>
-      <BiodataContent data={data} hidden={hidden} theme={classicTheme} />
+      <BiodataContent
+        data={data}
+        hidden={hidden}
+        theme={classicTheme}
+        translations={translations}
+        fontFamily={fontFamily}
+        qrDataUrl={qrDataUrl}
+      />
       <div
         style={{
           position: "relative" as const,
@@ -737,7 +917,16 @@ const floralTheme: ThemeConfig = {
 function TemplateFloral({
   data,
   hidden,
-}: { data: SavedData; hidden: Set<string> }) {
+  translations,
+  fontFamily,
+  qrDataUrl,
+}: {
+  data: SavedData;
+  hidden: Set<string>;
+  translations?: Record<string, string>;
+  fontFamily?: string;
+  qrDataUrl?: string;
+}) {
   const flowers: Array<{
     top?: number | string;
     bottom?: number | string;
@@ -753,7 +942,9 @@ function TemplateFloral({
     <div
       style={{
         background: "#FDF6EE",
-        fontFamily: "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
+        fontFamily: fontFamily
+          ? `'${fontFamily}', 'Noto Sans Devanagari', 'Hind', Arial, sans-serif`
+          : "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
         maxWidth: 794,
         margin: "0 auto",
         padding: "28px 30px 24px",
@@ -827,7 +1018,14 @@ function TemplateFloral({
           }}
         />
       </div>
-      <BiodataContent data={data} hidden={hidden} theme={floralTheme} />
+      <BiodataContent
+        data={data}
+        hidden={hidden}
+        theme={floralTheme}
+        translations={translations}
+        fontFamily={fontFamily}
+        qrDataUrl={qrDataUrl}
+      />
       <div
         style={{
           position: "relative" as const,
@@ -866,13 +1064,24 @@ const rajTheme: ThemeConfig = {
 function TemplateRajeshahi({
   data,
   hidden,
-}: { data: SavedData; hidden: Set<string> }) {
+  translations,
+  fontFamily,
+  qrDataUrl,
+}: {
+  data: SavedData;
+  hidden: Set<string>;
+  translations?: Record<string, string>;
+  fontFamily?: string;
+  qrDataUrl?: string;
+}) {
   const dots = Array.from({ length: 18 });
   return (
     <div
       style={{
         background: "#8B0000",
-        fontFamily: "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
+        fontFamily: fontFamily
+          ? `'${fontFamily}', 'Noto Sans Devanagari', 'Hind', Arial, sans-serif`
+          : "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
         maxWidth: 794,
         margin: "0 auto",
         padding: "14px",
@@ -976,7 +1185,14 @@ function TemplateRajeshahi({
             विवाह बायोडाटा
           </h1>
         </div>
-        <BiodataContent data={data} hidden={hidden} theme={rajTheme} />
+        <BiodataContent
+          data={data}
+          hidden={hidden}
+          theme={rajTheme}
+          translations={translations}
+          fontFamily={fontFamily}
+          qrDataUrl={qrDataUrl}
+        />
         <div
           style={{
             textAlign: "center",
@@ -1014,12 +1230,23 @@ const aadhunikTheme: ThemeConfig = {
 function TemplateAadhunik({
   data,
   hidden,
-}: { data: SavedData; hidden: Set<string> }) {
+  translations,
+  fontFamily,
+  qrDataUrl,
+}: {
+  data: SavedData;
+  hidden: Set<string>;
+  translations?: Record<string, string>;
+  fontFamily?: string;
+  qrDataUrl?: string;
+}) {
   return (
     <div
       style={{
         background: "#fff",
-        fontFamily: "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
+        fontFamily: fontFamily
+          ? `'${fontFamily}', 'Noto Sans Devanagari', 'Hind', Arial, sans-serif`
+          : "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
         maxWidth: 794,
         margin: "0 auto",
         boxSizing: "border-box" as const,
@@ -1148,6 +1375,9 @@ function TemplateAadhunik({
           hidden={new Set([...hidden, "religion", "caste"])}
           theme={aadhunikTheme}
           hideNamePhoto={true}
+          translations={translations}
+          fontFamily={fontFamily}
+          qrDataUrl={qrDataUrl}
         />
         <div
           style={{
@@ -1218,12 +1448,23 @@ function GoldCorner({ pos }: { pos: "tl" | "tr" | "bl" | "br" }) {
 function TemplateShreshtha({
   data,
   hidden,
-}: { data: SavedData; hidden: Set<string> }) {
+  translations,
+  fontFamily,
+  qrDataUrl,
+}: {
+  data: SavedData;
+  hidden: Set<string>;
+  translations?: Record<string, string>;
+  fontFamily?: string;
+  qrDataUrl?: string;
+}) {
   return (
     <div
       style={{
         background: "#FAFAF0",
-        fontFamily: "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
+        fontFamily: fontFamily
+          ? `'${fontFamily}', 'Noto Sans Devanagari', 'Hind', Arial, sans-serif`
+          : "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
         maxWidth: 794,
         margin: "0 auto",
         padding: "24px 28px",
@@ -1296,7 +1537,14 @@ function TemplateShreshtha({
           </div>
         )}
       </div>
-      <BiodataContent data={data} hidden={hidden} theme={shresthaTheme} />
+      <BiodataContent
+        data={data}
+        hidden={hidden}
+        theme={shresthaTheme}
+        translations={translations}
+        fontFamily={fontFamily}
+        qrDataUrl={qrDataUrl}
+      />
       <div
         style={{
           textAlign: "center",
@@ -1335,12 +1583,23 @@ const daiviTheme: ThemeConfig = {
 function TemplateDaivi({
   data,
   hidden,
-}: { data: SavedData; hidden: Set<string> }) {
+  translations,
+  fontFamily,
+  qrDataUrl,
+}: {
+  data: SavedData;
+  hidden: Set<string>;
+  translations?: Record<string, string>;
+  fontFamily?: string;
+  qrDataUrl?: string;
+}) {
   return (
     <div
       style={{
         background: "#0A1628",
-        fontFamily: "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
+        fontFamily: fontFamily
+          ? `'${fontFamily}', 'Noto Sans Devanagari', 'Hind', Arial, sans-serif`
+          : "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
         maxWidth: 794,
         margin: "0 auto",
         padding: "14px",
@@ -1418,7 +1677,14 @@ function TemplateDaivi({
             }}
           />
         </div>
-        <BiodataContent data={data} hidden={hidden} theme={daiviTheme} />
+        <BiodataContent
+          data={data}
+          hidden={hidden}
+          theme={daiviTheme}
+          translations={translations}
+          fontFamily={fontFamily}
+          qrDataUrl={qrDataUrl}
+        />
         {/* Gold bottom border line */}
         <div
           style={{
@@ -1448,7 +1714,13 @@ function TemplateDaivi({
 // ─── Template map ─────────────────────────────────────────────────────────────
 const templateMap: Record<
   string,
-  React.ComponentType<{ data: SavedData; hidden: Set<string> }>
+  React.ComponentType<{
+    data: SavedData;
+    hidden: Set<string>;
+    translations?: Record<string, string>;
+    fontFamily?: string;
+    qrDataUrl?: string;
+  }>
 > = {
   classic: TemplateClassic,
   floral: TemplateFloral,
@@ -1505,6 +1777,9 @@ export default function BiodataPreview() {
   const [isPaid, setIsPaid] = useState(
     () => !!sessionStorage.getItem("biodataPaidPlan"),
   );
+  const [language, setLanguage] = useState<string>("marathi");
+  const [selectedFont, setSelectedFont] = useState<string>("Laila");
+  const [qrDataUrl, setQrDataUrl] = useState<string>("");
 
   useEffect(() => {
     const stored = sessionStorage.getItem("biodataFormData");
@@ -1525,7 +1800,46 @@ export default function BiodataPreview() {
         /* ignore */
       }
     }
+    const lang = sessionStorage.getItem("biodataLanguage");
+    if (lang) setLanguage(lang);
+    const font = sessionStorage.getItem("biodataFont");
+    if (font) setSelectedFont(font);
   }, []);
+
+  // Load selected Google font
+  useEffect(() => {
+    if (!selectedFont) return;
+    const fontParam = selectedFont.replace(/ /g, "+");
+    const id = `gfont-prev-${fontParam}`;
+    if (!document.getElementById(id)) {
+      const link = document.createElement("link");
+      link.id = id;
+      link.rel = "stylesheet";
+      link.href = `https://fonts.googleapis.com/css2?family=${fontParam}:wght@400;600;700&display=swap`;
+      document.head.appendChild(link);
+    }
+  }, [selectedFont]);
+
+  // Generate QR code from contact info
+  useEffect(() => {
+    const phone = data.contact?.phone;
+    const email = data.contact?.email;
+    const name = data.personal?.name;
+    if (!phone && !email) {
+      setQrDataUrl("");
+      return;
+    }
+    const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${name || ""}\nTEL:${phone || ""}\nEMAIL:${email || ""}\nEND:VCARD`;
+    QRCode.toDataURL(vcard, {
+      width: 80,
+      margin: 1,
+      color: { dark: "#1a1a1a", light: "#ffffff" },
+    })
+      .then((url) => setQrDataUrl(url))
+      .catch(() => setQrDataUrl(""));
+  }, [data.contact?.phone, data.contact?.email, data.personal?.name]);
+
+  const T = TRANSLATIONS[language] || TRANSLATIONS.marathi;
 
   function handleTemplateSelect(tid: string) {
     setActiveTemplate(tid);
@@ -1695,7 +2009,13 @@ export default function BiodataPreview() {
                 </span>
               ))}
             </div>
-            <TemplateToRender data={data} hidden={new Set<string>()} />
+            <TemplateToRender
+              data={data}
+              hidden={new Set<string>()}
+              translations={T}
+              fontFamily={selectedFont}
+              qrDataUrl={qrDataUrl}
+            />
           </div>
         </div>
 

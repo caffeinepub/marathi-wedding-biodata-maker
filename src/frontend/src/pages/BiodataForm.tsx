@@ -22,7 +22,7 @@ import {
   Upload,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import type {
   ContactInfo,
@@ -199,6 +199,9 @@ interface SiblingEntry {
   occupation: string;
 }
 
+type ReligionType = "हिंदू" | "जैन" | "बौद्ध" | "लिंगायत" | "ख्रिश्चन" | "मुस्लीम";
+type LanguageType = "marathi" | "hindi" | "english";
+
 interface FormState {
   personal: PersonalInfo;
   family: ExtFamilyInfo;
@@ -207,6 +210,9 @@ interface FormState {
   template: string;
   photoFile: File | null;
   photoPreview: string | null;
+  religion: ReligionType;
+  language: LanguageType;
+  selectedFont: string;
 }
 
 const defaultState: FormState = {
@@ -225,6 +231,9 @@ const defaultState: FormState = {
     gotra: "",
     manglikStatus: false,
   },
+  religion: "हिंदू",
+  language: "marathi",
+  selectedFont: "Laila",
   family: {
     fatherName: "",
     fatherOccupation: "",
@@ -363,6 +372,20 @@ export default function BiodataForm() {
     upF("siblingsInfo", JSON.stringify(updated));
   };
 
+  useEffect(() => {
+    const fonts = ["Laila", "Hind", "Noto+Sans+Devanagari", "Mukta"];
+    for (const font of fonts) {
+      const id = `gfont-${font}`;
+      if (!document.getElementById(id)) {
+        const link = document.createElement("link");
+        link.id = id;
+        link.rel = "stylesheet";
+        link.href = `https://fonts.googleapis.com/css2?family=${font}:wght@400;600;700&display=swap`;
+        document.head.appendChild(link);
+      }
+    }
+  }, []);
+
   const fileRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const mutation = useCreateOrUpdateBiodata();
@@ -434,10 +457,13 @@ export default function BiodataForm() {
     } catch {
       /* proceed anyway */
     }
+    sessionStorage.setItem("biodataLanguage", form.language);
+    sessionStorage.setItem("biodataFont", form.selectedFont);
+    sessionStorage.setItem("biodataReligion", form.religion);
     sessionStorage.setItem(
       "biodataFormData",
       JSON.stringify({
-        personal: form.personal,
+        personal: { ...form.personal, religion: form.religion },
         family: form.family,
         horoscope: form.horoscope,
         contact: form.contact,
@@ -513,10 +539,131 @@ export default function BiodataForm() {
                 {/* Step 0 - Plan + Template Selection */}
                 {step === 0 && (
                   <div className="space-y-6">
+                    {/* Religion Selector */}
+                    <div className="space-y-2">
+                      <p className="font-devanagari font-semibold text-foreground text-sm">
+                        धर्म निवडा{" "}
+                        <span className="text-xs text-muted-foreground font-normal">
+                          (Select Religion)
+                        </span>
+                      </p>
+                      <Select
+                        value={form.religion}
+                        onValueChange={(v) =>
+                          setForm((f) => ({
+                            ...f,
+                            religion: v as ReligionType,
+                            personal: { ...f.personal, religion: v },
+                          }))
+                        }
+                      >
+                        <SelectTrigger
+                          data-ocid="form.religion.select"
+                          className="font-devanagari"
+                        >
+                          <SelectValue placeholder="धर्म निवडा" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(
+                            [
+                              "हिंदू",
+                              "जैन",
+                              "बौद्ध",
+                              "लिंगायत",
+                              "ख्रिश्चन",
+                              "मुस्लीम",
+                            ] as ReligionType[]
+                          ).map((r) => (
+                            <SelectItem
+                              key={r}
+                              value={r}
+                              className="font-devanagari"
+                            >
+                              {r}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Language Selector */}
+                    <div className="space-y-2">
+                      <p className="font-devanagari font-semibold text-foreground text-sm">
+                        भाषा निवडा{" "}
+                        <span className="text-xs text-muted-foreground font-normal">
+                          (Select Language)
+                        </span>
+                      </p>
+                      <div className="flex gap-2">
+                        {(
+                          [
+                            ["marathi", "मराठी"],
+                            ["hindi", "हिंदी"],
+                            ["english", "English"],
+                          ] as [LanguageType, string][]
+                        ).map(([val, label]) => (
+                          <button
+                            key={val}
+                            type="button"
+                            onClick={() =>
+                              setForm((f) => ({ ...f, language: val }))
+                            }
+                            data-ocid={`form.language.${val}.toggle`}
+                            className={`flex-1 py-2 rounded-lg border-2 text-sm font-semibold transition-all ${form.language === val ? "border-maroon bg-maroon text-amber-50" : "border-border text-foreground hover:border-maroon/50"}`}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Font Selector */}
+                    <div className="space-y-2">
+                      <p className="font-devanagari font-semibold text-foreground text-sm">
+                        फॉन्ट निवडा{" "}
+                        <span className="text-xs text-muted-foreground font-normal">
+                          (Select Font)
+                        </span>
+                      </p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {(
+                          [
+                            "Laila",
+                            "Hind",
+                            "Noto Sans Devanagari",
+                            "Mukta",
+                          ] as string[]
+                        ).map((font) => (
+                          <button
+                            key={font}
+                            type="button"
+                            onClick={() =>
+                              setForm((f) => ({ ...f, selectedFont: font }))
+                            }
+                            data-ocid={`form.font.${font.replace(/\s+/g, "-")}.toggle`}
+                            className={`py-2.5 px-3 rounded-lg border-2 text-sm transition-all ${form.selectedFont === font ? "border-maroon bg-maroon/5" : "border-border hover:border-maroon/50"}`}
+                            style={{ fontFamily: `'${font}', sans-serif` }}
+                          >
+                            <span
+                              style={{ fontFamily: `'${font}', sans-serif` }}
+                            >
+                              {font === "Noto Sans Devanagari" ? "Noto" : font}
+                            </span>
+                            <span
+                              className="text-xs text-muted-foreground ml-1.5"
+                              style={{ fontFamily: `'${font}', sans-serif` }}
+                            >
+                              अ
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
                     {/* Template selector */}
                     <div>
                       <p className="font-devanagari text-center text-maroon font-semibold text-sm mb-4">
-                        फक्त ₹२९ मध्ये सर्व टेम्प्लेट्स उपलब्ध
+                        फक्त ₹४९ मध्ये सर्व टेम्प्लेट्स उपलब्ध
                       </p>
                       <div className="border-t border-border pt-5">
                         <p className="font-devanagari font-semibold text-foreground text-sm mb-3">
@@ -789,11 +936,9 @@ export default function BiodataForm() {
                       {!hiddenFields.has("religion") && (
                         <div className="space-y-1.5">
                           <FL mr="धर्म" en="Religion" />
-                          <Input
-                            value={form.personal.religion}
-                            onChange={(e) => upP("religion", e.target.value)}
-                            data-ocid="personal.religion.input"
-                          />
+                          <div className="h-10 px-3 flex items-center rounded-md border border-input bg-muted font-devanagari text-sm">
+                            {form.religion}
+                          </div>
                         </div>
                       )}
                       {!hiddenFields.has("caste") && (
@@ -808,30 +953,72 @@ export default function BiodataForm() {
                         </div>
                       )}
                     </div>
-                    {!hiddenFields.has("gotra") && (
+                    {!hiddenFields.has("gotra") &&
+                      !["बौद्ध", "ख्रिश्चन", "मुस्लीम"].includes(form.religion) && (
+                        <div className="space-y-1.5">
+                          <FL mr="गोत्र" en="Gotra" />
+                          <Input
+                            placeholder="उदा. कश्यप"
+                            value={form.personal.gotra}
+                            onChange={(e) => upP("gotra", e.target.value)}
+                            data-ocid="personal.gotra.input"
+                          />
+                        </div>
+                      )}
+                    {!hiddenFields.has("manglikStatus") &&
+                      !["ख्रिश्चन", "मुस्लीम", "बौद्ध"].includes(form.religion) && (
+                        <div className="flex items-center gap-3 p-4 bg-muted rounded-xl">
+                          <Switch
+                            checked={form.personal.manglikStatus}
+                            onCheckedChange={(v) => upP("manglikStatus", v)}
+                            data-ocid="personal.manglik.switch"
+                          />
+                          <span className="font-devanagari font-semibold text-sm">
+                            मांगलिक{" "}
+                            <span className="text-xs text-muted-foreground font-sans">
+                              (Manglik Status)
+                            </span>
+                          </span>
+                        </div>
+                      )}
+
+                    {/* Denomination for Christian */}
+                    {form.religion === "ख्रिश्चन" && (
                       <div className="space-y-1.5">
-                        <FL mr="गोत्र" en="Gotra" />
+                        <FL mr="denomination (पंथ)" en="Denomination" />
                         <Input
-                          placeholder="उदा. कश्यप"
-                          value={form.personal.gotra}
-                          onChange={(e) => upP("gotra", e.target.value)}
-                          data-ocid="personal.gotra.input"
+                          placeholder="उदा. Catholic, Protestant"
+                          value={(form.personal as any).denomination || ""}
+                          onChange={(e) =>
+                            upP("denomination" as any, e.target.value)
+                          }
+                          data-ocid="personal.denomination.input"
                         />
                       </div>
                     )}
-                    {!hiddenFields.has("manglikStatus") && (
-                      <div className="flex items-center gap-3 p-4 bg-muted rounded-xl">
-                        <Switch
-                          checked={form.personal.manglikStatus}
-                          onCheckedChange={(v) => upP("manglikStatus", v)}
-                          data-ocid="personal.manglik.switch"
+
+                    {/* Panth for Buddhist / Muslim */}
+                    {(form.religion === "बौद्ध" ||
+                      form.religion === "मुस्लीम") && (
+                      <div className="space-y-1.5">
+                        <FL
+                          mr={
+                            form.religion === "मुस्लीम" ? "पंथ (सुन्नी/शिया)" : "पंथ"
+                          }
+                          en="Sect/Panth"
                         />
-                        <span className="font-devanagari font-semibold text-sm">
-                          मांगलिक{" "}
-                          <span className="text-xs text-muted-foreground font-sans">
-                            (Manglik Status)
-                          </span>
-                        </span>
+                        <Input
+                          placeholder={
+                            form.religion === "मुस्लीम"
+                              ? "सुन्नी / शिया"
+                              : "उदा. नवयान, थेरवाद"
+                          }
+                          value={(form.personal as any).denomination || ""}
+                          onChange={(e) =>
+                            upP("denomination" as any, e.target.value)
+                          }
+                          data-ocid="personal.panth.input"
+                        />
                       </div>
                     )}
                   </div>
@@ -1307,7 +1494,14 @@ export default function BiodataForm() {
           <div className="px-6 md:px-8 pb-6 flex justify-between">
             <Button
               variant="outline"
-              onClick={() => setStep((s) => Math.max(0, s - 1))}
+              onClick={() => {
+                const skipHoroscope = ["ख्रिश्चन", "मुस्लीम"].includes(
+                  form.religion,
+                );
+                const prevStep =
+                  skipHoroscope && step === 4 ? 2 : Math.max(0, step - 1);
+                setStep(prevStep);
+              }}
               disabled={step === 0}
               className="font-devanagari gap-2"
               data-ocid="form.prev.button"
@@ -1331,7 +1525,13 @@ export default function BiodataForm() {
               </Button>
             ) : step < STEP_TITLES.length - 1 ? (
               <Button
-                onClick={() => setStep((s) => s + 1)}
+                onClick={() => {
+                  const skipHoroscope = ["ख्रिश्चन", "मुस्लीम"].includes(
+                    form.religion,
+                  );
+                  const nextStep = skipHoroscope && step === 2 ? 4 : step + 1;
+                  setStep(nextStep);
+                }}
                 className="font-devanagari gap-2 bg-maroon hover:opacity-90"
                 data-ocid="form.next.button"
               >
