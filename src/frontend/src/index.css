@@ -109,6 +109,14 @@
   body {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+    height: 297mm;
+    max-height: 297mm;
+    overflow: hidden;
+  }
+  html {
+    height: 297mm;
+    max-height: 297mm;
+    overflow: hidden;
   }
   .print-area {
     padding: 12mm 15mm;
@@ -116,6 +124,14 @@
     max-width: 100% !important;
     border-radius: 0 !important;
     box-shadow: none !important;
+  }
+  #biodata-print-area {
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+    break-after: avoid !important;
+    break-inside: avoid !important;
+    overflow: hidden !important;
+    max-height: 297mm !important;
   }
 }
 

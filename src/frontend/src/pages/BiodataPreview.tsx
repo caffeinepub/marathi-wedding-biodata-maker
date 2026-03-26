@@ -1539,24 +1539,26 @@ export default function BiodataPreview() {
       setShowPaymentModal(true);
       return;
     }
-    const el = document.getElementById("biodata-print-area");
+    const el = document.getElementById(
+      "biodata-print-area",
+    ) as HTMLElement | null;
     if (el) {
       const a4HeightPx = 1123;
       const contentHeight = el.scrollHeight;
       if (contentHeight > a4HeightPx) {
         const scale = a4HeightPx / contentHeight;
-        el.style.transform = `scale(${scale})`;
-        el.style.transformOrigin = "top center";
-        el.style.marginBottom = `-${contentHeight - a4HeightPx}px`;
+        el.style.zoom = String(scale);
+      } else {
+        el.style.zoom = "";
       }
     }
     window.print();
     setTimeout(() => {
-      const el2 = document.getElementById("biodata-print-area");
+      const el2 = document.getElementById(
+        "biodata-print-area",
+      ) as HTMLElement | null;
       if (el2) {
-        el2.style.transform = "";
-        el2.style.transformOrigin = "";
-        el2.style.marginBottom = "";
+        el2.style.zoom = "";
       }
     }, 500);
   }

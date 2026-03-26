@@ -37,7 +37,13 @@ export default function PaymentModal({
         onOpenChange(false);
         onSuccess("basic");
       },
-      prefill: { name: "", email: "", contact: "" },
+      prefill: { name: "", email: "", contact: "9999999999" },
+      config: {
+        display: {
+          hide: [{ method: "paylater" }],
+          preferences: { show_default_blocks: true },
+        },
+      },
       theme: { color: "#7B1C1C" },
     });
   }
