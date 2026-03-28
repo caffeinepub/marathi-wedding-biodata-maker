@@ -158,39 +158,6 @@ const HOUSES = [
   "व्यय",
 ];
 
-const OPTIONAL_FIELDS: Record<number, { key: string; label: string }[]> = {
-  1: [
-    { key: "timeOfBirth", label: "जन्म वेळ" },
-    { key: "complexion", label: "रंग" },
-    { key: "income", label: "मासिक उत्पन्न" },
-    { key: "religion", label: "धर्म" },
-    { key: "caste", label: "जात" },
-    { key: "gotra", label: "गोत्र" },
-    { key: "manglikStatus", label: "मांगलिक" },
-  ],
-  2: [
-    { key: "fatherOccupation", label: "वडिलांचा व्यवसाय" },
-    { key: "motherOccupation", label: "आईचा व्यवसाय" },
-    { key: "siblingsInfo", label: "भाऊ-बहीण माहिती" },
-    { key: "mamaInfo", label: "मामा" },
-    { key: "kakaInfo", label: "काका" },
-    { key: "atyaInfo", label: "आत्या" },
-    { key: "pahuneInfo", label: "पाहुणे" },
-    { key: "familyType", label: "कुटुंब प्रकार" },
-    { key: "nativePlace", label: "मूळ गाव" },
-  ],
-  3: [
-    { key: "gan", label: "गण" },
-    { key: "nadi", label: "नाडी" },
-    { key: "charan", label: "चरण" },
-    { key: "planetaryPositions", label: "ग्रह स्थिती" },
-  ],
-  4: [
-    { key: "email", label: "ईमेल" },
-    { key: "address", label: "पत्ता" },
-  ],
-};
-
 interface SiblingEntry {
   id: string;
   type: "भाऊ" | "बहीण";
@@ -261,13 +228,235 @@ const defaultState: FormState = {
   photoPreview: null,
 };
 
-function FL({ mr, en }: { mr: string; en: string }) {
+const FORM_LABELS: Record<string, Record<string, string>> = {
+  marathi: {
+    fullName: "पूर्ण नाव",
+    dob: "जन्म तारीख",
+    tob: "जन्म वेळ",
+    pob: "जन्म ठिकाण",
+    height: "उंची",
+    complexion: "रंग",
+    education: "शिक्षण",
+    occupation: "व्यवसाय",
+    income: "मासिक उत्पन्न",
+    religion: "धर्म",
+    caste: "जात",
+    gotra: "गोत्र",
+    manglik: "मांगलिक",
+    fatherName: "वडिलांचे नाव",
+    fatherOccupation: "वडिलांचा व्यवसाय",
+    motherName: "आईचे नाव",
+    motherOccupation: "आईचा व्यवसाय",
+    siblings: "भाऊ-बहीण माहिती",
+    familyType: "कुटुंब प्रकार",
+    nativePlace: "मूळ गाव",
+    mama: "मामा",
+    kaka: "काका",
+    atya: "आत्या",
+    pahune: "पाहुणे",
+    phone: "फोन नंबर",
+    email: "ईमेल",
+    address: "पत्ता",
+    photo: "फोटो अपलोड करा",
+    denomination: "denomination (पंथ)",
+    panth: "पंथ",
+    selectReligion: "धर्म निवडा",
+    selectLanguage: "भाषा निवडा",
+    selectFont: "फॉन्ट निवडा",
+    selectTemplate: "टेम्प्लेट निवडा",
+    addSibling: "भाऊ/बहीण जोडा",
+    type: "प्रकार",
+    name: "नाव",
+    maritalStatus: "वैवाहिक स्थिती",
+    workPost: "काम/पोस्ट",
+    next: "पुढे",
+    prev: "मागे",
+    submit: "बायोडाटा तयार करा ✓",
+    saving: "जतन करत आहे...",
+    customize: "⚙️ फील्ड कस्टमाइज करा",
+    rashi: "राशी",
+    nakshatra: "नक्षत्र",
+    gan: "गण",
+    nadi: "नाडी",
+    charan: "चरण",
+    planetaryPos: "ग्रह स्थिती",
+    timeOfBirth: "जन्म वेळ",
+    manglikStatus: "मांगलिक",
+    siblingsInfo: "भाऊ-बहीण माहिती",
+    mamaInfo: "मामा",
+    kakaInfo: "काका",
+    atyaInfo: "आत्या",
+    pahuneInfo: "पाहुणे",
+    planetaryPositions: "ग्रह स्थिती",
+  },
+  hindi: {
+    fullName: "पूरा नाम",
+    dob: "जन्म तिथि",
+    tob: "जन्म समय",
+    pob: "जन्म स्थान",
+    height: "ऊंचाई",
+    complexion: "रंग",
+    education: "शिक्षा",
+    occupation: "व्यवसाय",
+    income: "मासिक आय",
+    religion: "धर्म",
+    caste: "जाति",
+    gotra: "गोत्र",
+    manglik: "मांगलिक",
+    fatherName: "पिता का नाम",
+    fatherOccupation: "पिता का व्यवसाय",
+    motherName: "माता का नाम",
+    motherOccupation: "माता का व्यवसाय",
+    siblings: "भाई-बहन जानकारी",
+    familyType: "परिवार प्रकार",
+    nativePlace: "मूल स्थान",
+    mama: "मामा",
+    kaka: "चाचा",
+    atya: "बुआ",
+    pahune: "समधी",
+    phone: "फ़ोन नंबर",
+    email: "ईमेल",
+    address: "पता",
+    photo: "फ़ोटो अपलोड करें",
+    denomination: "denomination (पंथ)",
+    panth: "पंथ",
+    selectReligion: "धर्म चुनें",
+    selectLanguage: "भाषा चुनें",
+    selectFont: "फ़ॉन्ट चुनें",
+    selectTemplate: "टेम्पलेट चुनें",
+    addSibling: "भाई/बहन जोड़ें",
+    type: "प्रकार",
+    name: "नाम",
+    maritalStatus: "वैवाहिक स्थिति",
+    workPost: "काम/पद",
+    next: "आगे",
+    prev: "पीछे",
+    submit: "बायोडाटा बनाएं ✓",
+    saving: "सहेज रहे हैं...",
+    customize: "⚙️ फ़ील्ड कस्टमाइज़ करें",
+    rashi: "राशि",
+    nakshatra: "नक्षत्र",
+    gan: "गण",
+    nadi: "नाड़ी",
+    charan: "चरण",
+    planetaryPos: "ग्रह स्थिति",
+    timeOfBirth: "जन्म समय",
+    manglikStatus: "मांगलिक",
+    siblingsInfo: "भाई-बहन जानकारी",
+    mamaInfo: "मामा",
+    kakaInfo: "चाचा",
+    atyaInfo: "बुआ",
+    pahuneInfo: "समधी",
+    planetaryPositions: "ग्रह स्थिति",
+  },
+  english: {
+    fullName: "Full Name",
+    dob: "Date of Birth",
+    tob: "Time of Birth",
+    pob: "Place of Birth",
+    height: "Height",
+    complexion: "Complexion",
+    education: "Education",
+    occupation: "Occupation",
+    income: "Monthly Income",
+    religion: "Religion",
+    caste: "Caste",
+    gotra: "Gotra",
+    manglik: "Manglik Status",
+    fatherName: "Father's Name",
+    fatherOccupation: "Father's Occupation",
+    motherName: "Mother's Name",
+    motherOccupation: "Mother's Occupation",
+    siblings: "Siblings Info",
+    familyType: "Family Type",
+    nativePlace: "Native Place",
+    mama: "Maternal Uncle",
+    kaka: "Paternal Uncle",
+    atya: "Aunt",
+    pahune: "In-laws",
+    phone: "Phone Number",
+    email: "Email",
+    address: "Address",
+    photo: "Upload Photo",
+    denomination: "Denomination",
+    panth: "Sect/Panth",
+    selectReligion: "Select Religion",
+    selectLanguage: "Select Language",
+    selectFont: "Select Font",
+    selectTemplate: "Select Template",
+    addSibling: "Add Sibling",
+    type: "Type",
+    name: "Name",
+    maritalStatus: "Marital Status",
+    workPost: "Occupation/Post",
+    next: "Next",
+    prev: "Back",
+    submit: "Create Biodata ✓",
+    saving: "Saving...",
+    customize: "⚙️ Customize Fields",
+    rashi: "Rashi",
+    nakshatra: "Nakshatra",
+    gan: "Gan",
+    nadi: "Nadi",
+    charan: "Charan",
+    planetaryPos: "Planetary Positions",
+    timeOfBirth: "Time of Birth",
+    manglikStatus: "Manglik Status",
+    siblingsInfo: "Siblings Info",
+    mamaInfo: "Maternal Uncle",
+    kakaInfo: "Paternal Uncle",
+    atyaInfo: "Aunt",
+    pahuneInfo: "In-laws",
+    planetaryPositions: "Planetary Positions",
+  },
+};
+
+function getOptionalFieldsForStep(
+  step: number,
+  lang: string,
+): { key: string; label: string }[] {
+  const L = FORM_LABELS[lang] || FORM_LABELS.marathi;
+  const fields: Record<number, { key: string; label: string }[]> = {
+    1: [
+      { key: "timeOfBirth", label: L.tob },
+      { key: "complexion", label: L.complexion },
+      { key: "income", label: L.income },
+      { key: "religion", label: L.religion },
+      { key: "caste", label: L.caste },
+      { key: "gotra", label: L.gotra },
+      { key: "manglikStatus", label: L.manglik },
+    ],
+    2: [
+      { key: "fatherOccupation", label: L.fatherOccupation },
+      { key: "motherOccupation", label: L.motherOccupation },
+      { key: "siblingsInfo", label: L.siblings },
+      { key: "mamaInfo", label: L.mama },
+      { key: "kakaInfo", label: L.kaka },
+      { key: "atyaInfo", label: L.atya },
+      { key: "pahuneInfo", label: L.pahune },
+      { key: "familyType", label: L.familyType },
+      { key: "nativePlace", label: L.nativePlace },
+    ],
+    3: [
+      { key: "gan", label: L.gan },
+      { key: "nadi", label: L.nadi },
+      { key: "charan", label: L.charan },
+      { key: "planetaryPositions", label: L.planetaryPos },
+    ],
+    4: [
+      { key: "email", label: L.email },
+      { key: "address", label: L.address },
+    ],
+  };
+  return fields[step] || [];
+}
+
+function FL({ label }: { label: string }) {
   return (
     <Label className="flex items-baseline gap-1.5">
       <span className="font-devanagari font-semibold text-foreground">
-        {mr}
+        {label}
       </span>
-      <span className="text-xs text-muted-foreground">({en})</span>
     </Label>
   );
 }
@@ -276,13 +465,15 @@ function FieldCustomizer({
   step,
   hiddenFields,
   onToggle,
+  language,
 }: {
   step: number;
   hiddenFields: Set<string>;
   onToggle: (key: string) => void;
+  language: string;
 }) {
   const [open, setOpen] = useState(false);
-  const fields = OPTIONAL_FIELDS[step];
+  const fields = getOptionalFieldsForStep(step, language);
   if (!fields) return null;
   return (
     <div className="mb-5 rounded-xl border border-border overflow-hidden">
@@ -332,6 +523,7 @@ export default function BiodataForm() {
   const [step, setStep] = useState(0);
   const selectedPlan = "basic";
   const [form, setForm] = useState<FormState>(defaultState);
+  const FL_LABELS = FORM_LABELS[form.language] || FORM_LABELS.marathi;
   const [hiddenFields, setHiddenFields] = useState<Set<string>>(new Set());
   const [siblings, setSiblings] = useState<SiblingEntry[]>(() => {
     try {
@@ -542,7 +734,7 @@ export default function BiodataForm() {
                     {/* Religion Selector */}
                     <div className="space-y-2">
                       <p className="font-devanagari font-semibold text-foreground text-sm">
-                        धर्म निवडा{" "}
+                        {FL_LABELS.selectReligion}{" "}
                         <span className="text-xs text-muted-foreground font-normal">
                           (Select Religion)
                         </span>
@@ -589,7 +781,7 @@ export default function BiodataForm() {
                     {/* Language Selector */}
                     <div className="space-y-2">
                       <p className="font-devanagari font-semibold text-foreground text-sm">
-                        भाषा निवडा{" "}
+                        {FL_LABELS.selectLanguage}{" "}
                         <span className="text-xs text-muted-foreground font-normal">
                           (Select Language)
                         </span>
@@ -620,7 +812,7 @@ export default function BiodataForm() {
                     {/* Font Selector */}
                     <div className="space-y-2">
                       <p className="font-devanagari font-semibold text-foreground text-sm">
-                        फॉन्ट निवडा{" "}
+                        {FL_LABELS.selectFont}{" "}
                         <span className="text-xs text-muted-foreground font-normal">
                           (Select Font)
                         </span>
@@ -667,7 +859,7 @@ export default function BiodataForm() {
                       </p>
                       <div className="border-t border-border pt-5">
                         <p className="font-devanagari font-semibold text-foreground text-sm mb-3">
-                          टेम्प्लेट निवडा{" "}
+                          {FL_LABELS.selectTemplate}{" "}
                           <span className="text-xs text-muted-foreground font-normal">
                             (Select Template)
                           </span>
@@ -741,6 +933,7 @@ export default function BiodataForm() {
                       step={1}
                       hiddenFields={hiddenFields}
                       onToggle={toggleField}
+                      language={form.language}
                     />
 
                     {/* Photo Upload */}
@@ -813,7 +1006,7 @@ export default function BiodataForm() {
 
                     <div className="grid sm:grid-cols-2 gap-5">
                       <div className="space-y-1.5">
-                        <FL mr="पूर्ण नाव" en="Full Name" />
+                        <FL label={FL_LABELS.fullName} />
                         <Input
                           placeholder="उदा. राधा देशपांडे"
                           value={form.personal.name}
@@ -822,7 +1015,7 @@ export default function BiodataForm() {
                         />
                       </div>
                       <div className="space-y-1.5">
-                        <FL mr="जन्म तारीख" en="Date of Birth" />
+                        <FL label={FL_LABELS.dob} />
                         <Input
                           type="date"
                           value={form.personal.dateOfBirth}
@@ -834,7 +1027,7 @@ export default function BiodataForm() {
                     {!hiddenFields.has("timeOfBirth") && (
                       <div className="grid sm:grid-cols-2 gap-5">
                         <div className="space-y-1.5">
-                          <FL mr="जन्म वेळ" en="Time of Birth" />
+                          <FL label={FL_LABELS.tob} />
                           <Input
                             type="time"
                             value={form.personal.timeOfBirth}
@@ -843,7 +1036,7 @@ export default function BiodataForm() {
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <FL mr="जन्म ठिकाण" en="Place of Birth" />
+                          <FL label={FL_LABELS.pob} />
                           <Input
                             placeholder="उदा. पुणे"
                             value={form.personal.placeOfBirth}
@@ -857,7 +1050,7 @@ export default function BiodataForm() {
                     )}
                     {hiddenFields.has("timeOfBirth") && (
                       <div className="space-y-1.5">
-                        <FL mr="जन्म ठिकाण" en="Place of Birth" />
+                        <FL label={FL_LABELS.pob} />
                         <Input
                           placeholder="उदा. पुणे"
                           value={form.personal.placeOfBirth}
@@ -868,7 +1061,7 @@ export default function BiodataForm() {
                     )}
                     <div className="grid sm:grid-cols-2 gap-5">
                       <div className="space-y-1.5">
-                        <FL mr="उंची" en="Height" />
+                        <FL label={FL_LABELS.height} />
                         <Input
                           placeholder="उदा. ५ फूट"
                           value={form.personal.height}
@@ -878,7 +1071,7 @@ export default function BiodataForm() {
                       </div>
                       {!hiddenFields.has("complexion") && (
                         <div className="space-y-1.5">
-                          <FL mr="रंग" en="Complexion" />
+                          <FL label={FL_LABELS.complexion} />
                           <Select
                             value={form.personal.complexion}
                             onValueChange={(v) => upP("complexion", v)}
@@ -903,7 +1096,7 @@ export default function BiodataForm() {
                     </div>
                     <div className="grid sm:grid-cols-2 gap-5">
                       <div className="space-y-1.5">
-                        <FL mr="शिक्षण" en="Education" />
+                        <FL label={FL_LABELS.education} />
                         <Input
                           placeholder="उदा. B.E. Computer"
                           value={form.personal.education}
@@ -912,7 +1105,7 @@ export default function BiodataForm() {
                         />
                       </div>
                       <div className="space-y-1.5">
-                        <FL mr="व्यवसाय" en="Occupation" />
+                        <FL label={FL_LABELS.occupation} />
                         <Input
                           placeholder="उदा. Software Engineer"
                           value={form.personal.occupation}
@@ -923,7 +1116,7 @@ export default function BiodataForm() {
                     </div>
                     {!hiddenFields.has("income") && (
                       <div className="space-y-1.5">
-                        <FL mr="मासिक उत्पन्न" en="Monthly Income" />
+                        <FL label={FL_LABELS.income} />
                         <Input
                           placeholder="उदा. ₹50,000"
                           value={form.personal.income}
@@ -935,7 +1128,7 @@ export default function BiodataForm() {
                     <div className="grid sm:grid-cols-2 gap-5">
                       {!hiddenFields.has("religion") && (
                         <div className="space-y-1.5">
-                          <FL mr="धर्म" en="Religion" />
+                          <FL label={FL_LABELS.religion} />
                           <div className="h-10 px-3 flex items-center rounded-md border border-input bg-muted font-devanagari text-sm">
                             {form.religion}
                           </div>
@@ -943,7 +1136,7 @@ export default function BiodataForm() {
                       )}
                       {!hiddenFields.has("caste") && (
                         <div className="space-y-1.5">
-                          <FL mr="जात" en="Caste" />
+                          <FL label={FL_LABELS.caste} />
                           <Input
                             placeholder="उदा. ब्राह्मण"
                             value={form.personal.caste}
@@ -956,7 +1149,7 @@ export default function BiodataForm() {
                     {!hiddenFields.has("gotra") &&
                       !["बौद्ध", "ख्रिश्चन", "मुस्लीम"].includes(form.religion) && (
                         <div className="space-y-1.5">
-                          <FL mr="गोत्र" en="Gotra" />
+                          <FL label={FL_LABELS.gotra} />
                           <Input
                             placeholder="उदा. कश्यप"
                             value={form.personal.gotra}
@@ -985,7 +1178,7 @@ export default function BiodataForm() {
                     {/* Denomination for Christian */}
                     {form.religion === "ख्रिश्चन" && (
                       <div className="space-y-1.5">
-                        <FL mr="denomination (पंथ)" en="Denomination" />
+                        <FL label={FL_LABELS.denomination} />
                         <Input
                           placeholder="उदा. Catholic, Protestant"
                           value={(form.personal as any).denomination || ""}
@@ -1001,12 +1194,7 @@ export default function BiodataForm() {
                     {(form.religion === "बौद्ध" ||
                       form.religion === "मुस्लीम") && (
                       <div className="space-y-1.5">
-                        <FL
-                          mr={
-                            form.religion === "मुस्लीम" ? "पंथ (सुन्नी/शिया)" : "पंथ"
-                          }
-                          en="Sect/Panth"
-                        />
+                        <FL label={FL_LABELS.panth} />
                         <Input
                           placeholder={
                             form.religion === "मुस्लीम"
@@ -1031,10 +1219,11 @@ export default function BiodataForm() {
                       step={2}
                       hiddenFields={hiddenFields}
                       onToggle={toggleField}
+                      language={form.language}
                     />
                     <div className="grid sm:grid-cols-2 gap-5">
                       <div className="space-y-1.5">
-                        <FL mr="वडिलांचे नाव" en="Father's Name" />
+                        <FL label={FL_LABELS.fatherName} />
                         <Input
                           placeholder="उदा. सुरेश देशपांडे"
                           value={form.family.fatherName}
@@ -1044,7 +1233,7 @@ export default function BiodataForm() {
                       </div>
                       {!hiddenFields.has("fatherOccupation") && (
                         <div className="space-y-1.5">
-                          <FL mr="वडिलांचा व्यवसाय" en="Father's Occupation" />
+                          <FL label={FL_LABELS.fatherOccupation} />
                           <Input
                             placeholder="उदा. सरकारी नोकरी"
                             value={form.family.fatherOccupation}
@@ -1058,7 +1247,7 @@ export default function BiodataForm() {
                     </div>
                     <div className="grid sm:grid-cols-2 gap-5">
                       <div className="space-y-1.5">
-                        <FL mr="आईचे नाव" en="Mother's Name" />
+                        <FL label={FL_LABELS.motherName} />
                         <Input
                           placeholder="उदा. सुमित्रा देशपांडे"
                           value={form.family.motherName}
@@ -1068,7 +1257,7 @@ export default function BiodataForm() {
                       </div>
                       {!hiddenFields.has("motherOccupation") && (
                         <div className="space-y-1.5">
-                          <FL mr="आईचा व्यवसाय" en="Mother's Occupation" />
+                          <FL label={FL_LABELS.motherOccupation} />
                           <Input
                             placeholder="उदा. गृहिणी"
                             value={form.family.motherOccupation}
@@ -1083,7 +1272,7 @@ export default function BiodataForm() {
                     {!hiddenFields.has("siblingsInfo") && (
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <FL mr="भाऊ-बहीण माहिती" en="Siblings Info" />
+                          <FL label={FL_LABELS.siblings} />
                           <Button
                             type="button"
                             size="sm"
@@ -1092,7 +1281,7 @@ export default function BiodataForm() {
                             data-ocid="family.siblings.button"
                             className="text-xs h-7 px-2"
                           >
-                            ➕ भाऊ/बहीण जोडा
+                            ➕ {FL_LABELS.addSibling}
                           </Button>
                         </div>
                         {siblings.length === 0 && (
@@ -1128,7 +1317,7 @@ export default function BiodataForm() {
                               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                 <div className="space-y-1">
                                   <span className="text-xs text-muted-foreground">
-                                    प्रकार
+                                    {FL_LABELS.type}
                                   </span>
                                   <div className="flex gap-1">
                                     {(["भाऊ", "बहीण"] as const).map((t) => (
@@ -1165,7 +1354,7 @@ export default function BiodataForm() {
                                 </div>
                                 <div className="space-y-1">
                                   <span className="text-xs text-muted-foreground">
-                                    वैवाहिक स्थिती
+                                    {FL_LABELS.maritalStatus}
                                   </span>
                                   <Select
                                     value={sib.maritalStatus}
@@ -1191,7 +1380,7 @@ export default function BiodataForm() {
                                 </div>
                                 <div className="space-y-1">
                                   <span className="text-xs text-muted-foreground">
-                                    काम/पोस्ट
+                                    {FL_LABELS.workPost}
                                   </span>
                                   <Input
                                     placeholder="व्यवसाय"
@@ -1217,7 +1406,7 @@ export default function BiodataForm() {
                     <div className="grid sm:grid-cols-2 gap-5">
                       {!hiddenFields.has("mamaInfo") && (
                         <div className="space-y-1.5">
-                          <FL mr="मामा" en="Mama" />
+                          <FL label={FL_LABELS.mama} />
                           <Input
                             placeholder="उदा. राम पाटील, शेती"
                             value={form.family.mamaInfo}
@@ -1228,7 +1417,7 @@ export default function BiodataForm() {
                       )}
                       {!hiddenFields.has("kakaInfo") && (
                         <div className="space-y-1.5">
-                          <FL mr="काका" en="Kaka" />
+                          <FL label={FL_LABELS.kaka} />
                           <Input
                             placeholder="उदा. सुरेश देशमुख, व्यापार"
                             value={form.family.kakaInfo}
@@ -1239,7 +1428,7 @@ export default function BiodataForm() {
                       )}
                       {!hiddenFields.has("atyaInfo") && (
                         <div className="space-y-1.5">
-                          <FL mr="आत्या" en="Atya" />
+                          <FL label={FL_LABELS.atya} />
                           <Input
                             placeholder="उदा. सुनीता जोशी, गृहिणी"
                             value={form.family.atyaInfo}
@@ -1250,7 +1439,7 @@ export default function BiodataForm() {
                       )}
                       {!hiddenFields.has("pahuneInfo") && (
                         <div className="space-y-1.5">
-                          <FL mr="पाहुणे" en="Pahune" />
+                          <FL label={FL_LABELS.pahune} />
                           <Input
                             placeholder="उदा. विजय कुलकर्णी, डॉक्टर"
                             value={form.family.pahuneInfo}
@@ -1263,7 +1452,7 @@ export default function BiodataForm() {
                     <div className="grid sm:grid-cols-2 gap-5">
                       {!hiddenFields.has("familyType") && (
                         <div className="space-y-1.5">
-                          <FL mr="कुटुंब प्रकार" en="Family Type" />
+                          <FL label={FL_LABELS.familyType} />
                           <Select
                             value={form.family.familyType}
                             onValueChange={(v) => upF("familyType", v)}
@@ -1287,7 +1476,7 @@ export default function BiodataForm() {
                       )}
                       {!hiddenFields.has("nativePlace") && (
                         <div className="space-y-1.5">
-                          <FL mr="मूळ गाव" en="Native Place" />
+                          <FL label={FL_LABELS.nativePlace} />
                           <Input
                             placeholder="उदा. सातारा"
                             value={form.family.nativePlace}
@@ -1307,10 +1496,11 @@ export default function BiodataForm() {
                       step={3}
                       hiddenFields={hiddenFields}
                       onToggle={toggleField}
+                      language={form.language}
                     />
                     <div className="grid sm:grid-cols-2 gap-5">
                       <div className="space-y-1.5">
-                        <FL mr="राशी" en="Rashi" />
+                        <FL label={FL_LABELS.rashi} />
                         <Select
                           value={form.horoscope.rashi}
                           onValueChange={(v) => upH("rashi", v)}
@@ -1332,7 +1522,7 @@ export default function BiodataForm() {
                         </Select>
                       </div>
                       <div className="space-y-1.5">
-                        <FL mr="नक्षत्र" en="Nakshatra" />
+                        <FL label={FL_LABELS.nakshatra} />
                         <Select
                           value={form.horoscope.nakshatra}
                           onValueChange={(v) => upH("nakshatra", v)}
@@ -1356,7 +1546,7 @@ export default function BiodataForm() {
                     </div>
                     {!hiddenFields.has("gan") && (
                       <div className="space-y-1.5">
-                        <FL mr="गण" en="Gan" />
+                        <FL label={FL_LABELS.gan} />
                         <Select
                           value={form.horoscope.gan}
                           onValueChange={(v) => upH("gan", v)}
@@ -1380,7 +1570,7 @@ export default function BiodataForm() {
                     )}
                     {!hiddenFields.has("nadi") && (
                       <div className="space-y-1.5">
-                        <FL mr="नाडी" en="Nadi" />
+                        <FL label={FL_LABELS.nadi} />
                         <Select
                           value={form.horoscope.nadi}
                           onValueChange={(v) => upH("nadi", v)}
@@ -1404,7 +1594,7 @@ export default function BiodataForm() {
                     )}
                     {!hiddenFields.has("charan") && (
                       <div className="space-y-1.5">
-                        <FL mr="चरण" en="Charan" />
+                        <FL label={FL_LABELS.charan} />
                         <Input
                           placeholder="उदा. ३"
                           value={form.horoscope.charan}
@@ -1416,7 +1606,7 @@ export default function BiodataForm() {
                     {!hiddenFields.has("planetaryPositions") && (
                       <div>
                         <p className="font-devanagari font-semibold text-foreground mb-3">
-                          ग्रह स्थिती{" "}
+                          {FL_LABELS.planetaryPos}{" "}
                           <span className="text-xs font-sans text-muted-foreground">
                             (Planetary Positions)
                           </span>
@@ -1451,9 +1641,10 @@ export default function BiodataForm() {
                       step={4}
                       hiddenFields={hiddenFields}
                       onToggle={toggleField}
+                      language={form.language}
                     />
                     <div className="space-y-1.5">
-                      <FL mr="फोन नंबर" en="Phone" />
+                      <FL label={FL_LABELS.phone} />
                       <Input
                         placeholder="फोन नंबर टाका"
                         value={form.contact.phone}
@@ -1463,7 +1654,7 @@ export default function BiodataForm() {
                     </div>
                     {!hiddenFields.has("email") && (
                       <div className="space-y-1.5">
-                        <FL mr="ईमेल" en="Email" />
+                        <FL label={FL_LABELS.email} />
                         <Input
                           type="email"
                           placeholder="example@email.com"
@@ -1475,7 +1666,7 @@ export default function BiodataForm() {
                     )}
                     {!hiddenFields.has("address") && (
                       <div className="space-y-1.5">
-                        <FL mr="पत्ता" en="Address" />
+                        <FL label={FL_LABELS.address} />
                         <Textarea
                           placeholder="उदा. १२३, मोहन नगर, पुणे - ४११०२१"
                           value={form.contact.address}
@@ -1506,7 +1697,7 @@ export default function BiodataForm() {
               className="font-devanagari gap-2"
               data-ocid="form.prev.button"
             >
-              <ChevronLeft className="w-4 h-4" /> मागे
+              <ChevronLeft className="w-4 h-4" /> {FL_LABELS.prev}
             </Button>
             {step === 0 ? (
               <Button
@@ -1521,7 +1712,7 @@ export default function BiodataForm() {
                 className="font-devanagari gap-2 bg-maroon hover:opacity-90"
                 data-ocid="form.next.button"
               >
-                पुढे <ChevronRight className="w-4 h-4" />
+                {FL_LABELS.next} <ChevronRight className="w-4 h-4" />
               </Button>
             ) : step < STEP_TITLES.length - 1 ? (
               <Button
@@ -1535,7 +1726,7 @@ export default function BiodataForm() {
                 className="font-devanagari gap-2 bg-maroon hover:opacity-90"
                 data-ocid="form.next.button"
               >
-                पुढे <ChevronRight className="w-4 h-4" />
+                {FL_LABELS.next} <ChevronRight className="w-4 h-4" />
               </Button>
             ) : (
               <Button
@@ -1544,7 +1735,7 @@ export default function BiodataForm() {
                 className="font-devanagari gap-2 bg-maroon hover:opacity-90"
                 data-ocid="form.submit_button"
               >
-                {mutation.isPending ? "जतन करत आहे..." : "बायोडाटा तयार करा ✓"}
+                {mutation.isPending ? FL_LABELS.saving : FL_LABELS.submit}
               </Button>
             )}
           </div>

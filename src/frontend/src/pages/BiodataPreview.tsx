@@ -2,7 +2,18 @@ import PaymentModal from "@/components/PaymentModal";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, Download } from "lucide-react";
-import QRCode from "qrcode";
+function getReligionBlessing(religion: string): string {
+  const blessings: Record<string, string> = {
+    हिंदू: "॥ श्री गणेशाय नमः ॥",
+    जैन: "॥ णमो अरिहंताणं ॥",
+    बौद्ध: "॥ नमो बुद्धाय ॥",
+    लिंगायत: "॥ ओम नमः शिवाय ॥",
+    ख्रिश्चन: "✝ God Bless ✝",
+    मुस्लीम: "॥ बिस्मिल्लाह ॥",
+  };
+  return blessings[religion] || "॥ श्री गणेशाय नमः ॥";
+}
+
 import type React from "react";
 import { useEffect, useState } from "react";
 import type {
@@ -842,7 +853,7 @@ export function TemplateClassic({
             fontWeight: 500,
           }}
         >
-          ॥ श्री गणेशाय नमः ॥
+          {getReligionBlessing(data.personal?.religion || "हिंदू")}
         </span>
       </div>
       <div
@@ -993,7 +1004,7 @@ function TemplateFloral({
             fontWeight: 500,
           }}
         >
-          ॥ श्री गणेशाय नमः ॥
+          {getReligionBlessing(data.personal?.religion || "हिंदू")}
         </span>
       </div>
       <div style={{ textAlign: "center", marginBottom: 18 }}>
@@ -1160,7 +1171,7 @@ function TemplateRajeshahi({
               fontWeight: 500,
             }}
           >
-            ॥ श्री गणेशाय नमः ॥
+            {getReligionBlessing(data.personal?.religion || "हिंदू")}
           </span>
         </div>
         <div
@@ -1501,7 +1512,7 @@ function TemplateShreshtha({
             fontWeight: 500,
           }}
         >
-          ॥ श्री गणेशाय नमः ॥
+          {getReligionBlessing(data.personal?.religion || "हिंदू")}
         </span>
       </div>
       <div
@@ -1652,7 +1663,7 @@ function TemplateDaivi({
               fontWeight: 500,
             }}
           >
-            ॥ श्री गणेशाय नमः ॥
+            {getReligionBlessing(data.personal?.religion || "हिंदू")}
           </span>
         </div>
         <div style={{ textAlign: "center", marginBottom: 20 }}>
@@ -1825,18 +1836,13 @@ export default function BiodataPreview() {
     const phone = data.contact?.phone;
     const email = data.contact?.email;
     const name = data.personal?.name;
-    if (!phone && !email) {
+    if (!name && !phone && !email) {
       setQrDataUrl("");
       return;
     }
-    const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${name || ""}\nTEL:${phone || ""}\nEMAIL:${email || ""}\nEND:VCARD`;
-    QRCode.toDataURL(vcard, {
-      width: 80,
-      margin: 1,
-      color: { dark: "#1a1a1a", light: "#ffffff" },
-    })
-      .then((url) => setQrDataUrl(url))
-      .catch(() => setQrDataUrl(""));
+    const contactText = [name, phone, email].filter(Boolean).join("\n");
+    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(contactText)}&color=1a1a1a&bgcolor=ffffff&margin=1`;
+    setQrDataUrl(qrApiUrl);
   }, [data.contact?.phone, data.contact?.email, data.personal?.name]);
 
   const T = TRANSLATIONS[language] || TRANSLATIONS.marathi;
@@ -1884,7 +1890,7 @@ export default function BiodataPreview() {
     setIsPaid(true);
     setShowPaymentModal(false);
     // small delay then print
-    setTimeout(() => handleDownloadPDFClick(), 100);
+    setTimeout(() => handleDownloadPDFClick(), 600);
   }
 
   return (

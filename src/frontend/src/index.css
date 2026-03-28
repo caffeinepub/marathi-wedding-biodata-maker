@@ -133,6 +133,12 @@
     overflow: hidden !important;
     max-height: 297mm !important;
   }
+  /* Hide payment modal during print */
+  [role="dialog"],
+  [data-radix-dialog-overlay],
+  [data-radix-dialog-content] {
+    display: none !important;
+  }
 }
 
 #biodata-print-area * {
