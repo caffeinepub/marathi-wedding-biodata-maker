@@ -14,6 +14,43 @@ function getReligionBlessing(religion: string): string {
   return blessings[religion] || "॥ श्री गणेशाय नमः ॥";
 }
 
+function getFooterText(religion: string, language: string): string {
+  if (religion === "हिंदू") {
+    if (language === "hindi") return "॥ शुभमंगल सावधान ॥";
+    if (language === "english") return "॥ Shubh Mangal Savdhan ॥";
+    return "॥ शुभमंगल सावधान ॥";
+  }
+  if (religion === "जैन") {
+    if (language === "hindi") return "॥ जय जिनेन्द्र ॥";
+    if (language === "english") return "॥ Jai Jinendra ॥";
+    return "॥ जय जिनेंद्र ॥";
+  }
+  if (religion === "बौद्ध") {
+    if (language === "hindi") return "॥ बुद्धं शरणं गच्छामि ॥";
+    if (language === "english") return "॥ Buddham Saranam Gacchami ॥";
+    return "॥ बुद्धं शरणं गच्छामि ॥";
+  }
+  if (religion === "लिंगायत") {
+    if (language === "hindi") return "॥ ओम नमः शिवाय ॥";
+    if (language === "english") return "॥ Om Namah Shivaya ॥";
+    return "॥ ओम नमः शिवाय ॥";
+  }
+  if (religion === "ख्रिश्चन") {
+    if (language === "english") return "✝ God Bless ✝";
+    if (language === "hindi") return "✝ ईश्वर आपको आशीर्वाद दे ✝";
+    return "✝ देव तुम्हाला आशीर्वाद देवो ✝";
+  }
+  if (religion === "मुस्लीम") {
+    if (language === "hindi") return "॥ बिस्मिल्लाह ॥";
+    if (language === "english") return "॥ Bismillah ॥";
+    return "॥ बिस्मिल्लाह ॥";
+  }
+  // Other religions - no shubhmangal
+  if (language === "english") return "॥ Best Wishes ॥";
+  if (language === "hindi") return "॥ शुभकामनाएँ ॥";
+  return "॥ शुभेच्छा ॥";
+}
+
 import type React from "react";
 import { useEffect, useState } from "react";
 import type {
@@ -811,12 +848,14 @@ export function TemplateClassic({
   translations,
   fontFamily,
   qrDataUrl,
+  language = "marathi",
 }: {
   data: SavedData;
   hidden: Set<string>;
   translations?: Record<string, string>;
   fontFamily?: string;
   qrDataUrl?: string;
+  language?: string;
 }) {
   return (
     <div
@@ -905,7 +944,7 @@ export function TemplateClassic({
             fontWeight: 500,
           }}
         >
-          ॥ शुभमंगल सावधान ॥
+          {getFooterText(data.personal?.religion || "हिंदू", language)}
         </span>
       </div>
     </div>
@@ -931,12 +970,14 @@ function TemplateFloral({
   translations,
   fontFamily,
   qrDataUrl,
+  language = "marathi",
 }: {
   data: SavedData;
   hidden: Set<string>;
   translations?: Record<string, string>;
   fontFamily?: string;
   qrDataUrl?: string;
+  language?: string;
 }) {
   const flowers: Array<{
     top?: number | string;
@@ -1055,7 +1096,7 @@ function TemplateFloral({
             fontWeight: 500,
           }}
         >
-          ॥ शुभमंगल सावधान ॥
+          {getFooterText(data.personal?.religion || "हिंदू", language)}
         </span>
       </div>
     </div>
@@ -1078,12 +1119,14 @@ function TemplateRajeshahi({
   translations,
   fontFamily,
   qrDataUrl,
+  language = "marathi",
 }: {
   data: SavedData;
   hidden: Set<string>;
   translations?: Record<string, string>;
   fontFamily?: string;
   qrDataUrl?: string;
+  language?: string;
 }) {
   const dots = Array.from({ length: 18 });
   return (
@@ -1220,7 +1263,7 @@ function TemplateRajeshahi({
               fontWeight: 500,
             }}
           >
-            ॥ शुभमंगल सावधान ॥
+            {getFooterText(data.personal?.religion || "हिंदू", language)}
           </span>
         </div>
       </div>
@@ -1244,12 +1287,14 @@ function TemplateAadhunik({
   translations,
   fontFamily,
   qrDataUrl,
+  language = "marathi",
 }: {
   data: SavedData;
   hidden: Set<string>;
   translations?: Record<string, string>;
   fontFamily?: string;
   qrDataUrl?: string;
+  language?: string;
 }) {
   return (
     <div
@@ -1409,7 +1454,7 @@ function TemplateAadhunik({
               fontWeight: 500,
             }}
           >
-            ॥ शुभमंगल सावधान ॥
+            {getFooterText(data.personal?.religion || "हिंदू", language)}
           </span>
         </div>
       </div>
@@ -1462,12 +1507,14 @@ function TemplateShreshtha({
   translations,
   fontFamily,
   qrDataUrl,
+  language = "marathi",
 }: {
   data: SavedData;
   hidden: Set<string>;
   translations?: Record<string, string>;
   fontFamily?: string;
   qrDataUrl?: string;
+  language?: string;
 }) {
   return (
     <div
@@ -1574,7 +1621,7 @@ function TemplateShreshtha({
             fontWeight: 500,
           }}
         >
-          ॥ शुभमंगल सावधान ॥
+          {getFooterText(data.personal?.religion || "हिंदू", language)}
         </span>
       </div>
     </div>
@@ -1597,12 +1644,14 @@ function TemplateDaivi({
   translations,
   fontFamily,
   qrDataUrl,
+  language = "marathi",
 }: {
   data: SavedData;
   hidden: Set<string>;
   translations?: Record<string, string>;
   fontFamily?: string;
   qrDataUrl?: string;
+  language?: string;
 }) {
   return (
     <div
@@ -1714,7 +1763,7 @@ function TemplateDaivi({
               fontWeight: 500,
             }}
           >
-            ॥ शुभमंगल सावधान ॥
+            {getFooterText(data.personal?.religion || "हिंदू", language)}
           </span>
         </div>
       </div>
@@ -1731,6 +1780,7 @@ const templateMap: Record<
     translations?: Record<string, string>;
     fontFamily?: string;
     qrDataUrl?: string;
+    language?: string;
   }>
 > = {
   classic: TemplateClassic,
@@ -2021,6 +2071,7 @@ export default function BiodataPreview() {
               translations={T}
               fontFamily={selectedFont}
               qrDataUrl={qrDataUrl}
+              language={language}
             />
           </div>
         </div>
