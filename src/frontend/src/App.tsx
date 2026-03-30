@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/sonner";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import BiodataForm from "@/pages/BiodataForm";
 import BiodataPreview from "@/pages/BiodataPreview";
 import LandingPage from "@/pages/LandingPage";
@@ -46,8 +47,10 @@ declare module "@tanstack/react-router" {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-      <Toaster />
+      <LanguageProvider>
+        <RouterProvider router={router} />
+        <Toaster />
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }

@@ -18,36 +18,50 @@ function getFooterText(religion: string, language: string): string {
   if (religion === "हिंदू") {
     if (language === "hindi") return "॥ शुभमंगल सावधान ॥";
     if (language === "english") return "॥ Shubh Mangal Savdhan ॥";
+    if (language === "kannada") return "॥ ಶುಭಮಂಗಲ ಸಾವಧಾನ ॥";
+    if (language === "urdu") return "॥ شبھ منگل ساودھان ॥";
     return "॥ शुभमंगल सावधान ॥";
   }
   if (religion === "जैन") {
     if (language === "hindi") return "॥ जय जिनेन्द्र ॥";
     if (language === "english") return "॥ Jai Jinendra ॥";
+    if (language === "kannada") return "॥ ಜಯ ಜಿನೇಂದ್ರ ॥";
+    if (language === "urdu") return "॥ جے جنیندر ॥";
     return "॥ जय जिनेंद्र ॥";
   }
   if (religion === "बौद्ध") {
     if (language === "hindi") return "॥ बुद्धं शरणं गच्छामि ॥";
     if (language === "english") return "॥ Buddham Saranam Gacchami ॥";
+    if (language === "kannada") return "॥ ಬುದ್ಧಂ ಶರಣಂ ಗಚ್ಛಾಮಿ ॥";
+    if (language === "urdu") return "॥ بدھم شرنم گچھامی ॥";
     return "॥ बुद्धं शरणं गच्छामि ॥";
   }
   if (religion === "लिंगायत") {
     if (language === "hindi") return "॥ ओम नमः शिवाय ॥";
     if (language === "english") return "॥ Om Namah Shivaya ॥";
+    if (language === "kannada") return "॥ ಓಂ ನಮಃ ಶಿವಾಯ ॥";
+    if (language === "urdu") return "॥ اوم نمہ شواے ॥";
     return "॥ ओम नमः शिवाय ॥";
   }
   if (religion === "ख्रिश्चन") {
     if (language === "english") return "✝ God Bless ✝";
     if (language === "hindi") return "✝ ईश्वर आपको आशीर्वाद दे ✝";
+    if (language === "kannada") return "✝ ದೇವರ ಆಶೀರ್ವಾದ ✝";
+    if (language === "urdu") return "✝ خدا آپ کو برکت دے ✝";
     return "✝ देव तुम्हाला आशीर्वाद देवो ✝";
   }
   if (religion === "मुस्लीम") {
     if (language === "hindi") return "॥ बिस्मिल्लाह ॥";
     if (language === "english") return "॥ Bismillah ॥";
+    if (language === "kannada") return "॥ ಬಿಸ್ಮಿಲ್ಲಾ ॥";
+    if (language === "urdu") return "॥ بسم اللہ ॥";
     return "॥ बिस्मिल्लाह ॥";
   }
   // Other religions - no shubhmangal
   if (language === "english") return "॥ Best Wishes ॥";
   if (language === "hindi") return "॥ शुभकामनाएँ ॥";
+  if (language === "kannada") return "॥ ಶುಭಾಶಯಗಳು ॥";
+  if (language === "urdu") return "॥ نیک خواہشات ॥";
   return "॥ शुभेच्छा ॥";
 }
 
@@ -272,6 +286,82 @@ const TRANSLATIONS: Record<string, Record<string, string>> = {
     kaka: "Paternal Uncle",
     atya: "Aunt",
     pahune: "In-laws",
+  },
+  kannada: {
+    personalInfo: "ವ್ಯಕ್ತಿಗತ ಮಾಹಿತಿ",
+    familyInfo: "ಕೌಟುಂಬಿಕ ಮಾಹಿತಿ",
+    horoscope: "ಜಾತಕ / ಜನ್ಮಪತ್ರಿಕೆ",
+    contactInfo: "ಸಂಪರ್ಕ ಮಾಹಿತಿ",
+    name: "ಪೂರ್ಣ ಹೆಸರು",
+    dob: "ಹುಟ್ಟಿದ ದಿನಾಂಕ",
+    tob: "ಹುಟ್ಟಿದ ಸಮಯ",
+    pob: "ಹುಟ್ಟಿದ ಸ್ಥಳ",
+    height: "ಎತ್ತರ",
+    complexion: "ಬಣ್ಣ",
+    education: "ವಿದ್ಯಾಭ್ಯಾಸ",
+    occupation: "ವೃತ್ತಿ",
+    income: "ಮಾಸಿಕ ಆದಾಯ",
+    religion: "ಧರ್ಮ",
+    caste: "ಜಾತಿ",
+    gotra: "ಗೋತ್ರ",
+    manglik: "ಮಾಂಗಲಿಕ",
+    fatherName: "ತಂದೆಯ ಹೆಸರು",
+    fatherOccupation: "ತಂದೆಯ ವೃತ್ತಿ",
+    motherName: "ತಾಯಿಯ ಹೆಸರು",
+    motherOccupation: "ತಾಯಿಯ ವೃತ್ತಿ",
+    siblings: "ಒಡಹುಟ್ಟಿದವರು",
+    familyType: "ಕುಟುಂಬ ಪ್ರಕಾರ",
+    nativePlace: "ಮೂಲ ಊರು",
+    rashi: "ರಾಶಿ",
+    nakshatra: "ನಕ್ಷತ್ರ",
+    gan: "ಗಣ",
+    nadi: "ನಾಡಿ",
+    charan: "ಚರಣ",
+    phone: "ಫೋನ್",
+    email: "ಇಮೇಲ್",
+    address: "ವಿಳಾಸ",
+    mama: "ಮಾವ",
+    kaka: "ಚಿಕ್ಕಪ್ಪ",
+    atya: "ಅತ್ತೆ",
+    pahune: "ಅಳಿಯ/ಸೊಸೆ",
+  },
+  urdu: {
+    personalInfo: "ذاتی معلومات",
+    familyInfo: "خاندانی معلومات",
+    horoscope: "زائچہ / جنم پتری",
+    contactInfo: "رابطہ معلومات",
+    name: "پورا نام",
+    dob: "تاریخ پیدائش",
+    tob: "وقت پیدائش",
+    pob: "جائے پیدائش",
+    height: "قد",
+    complexion: "رنگ",
+    education: "تعلیم",
+    occupation: "پیشہ",
+    income: "ماہانہ آمدنی",
+    religion: "مذہب",
+    caste: "برادری",
+    gotra: "گوترا",
+    manglik: "مانگلک",
+    fatherName: "والد کا نام",
+    fatherOccupation: "والد کا پیشہ",
+    motherName: "والدہ کا نام",
+    motherOccupation: "والدہ کا پیشہ",
+    siblings: "بہن بھائی",
+    familyType: "خاندان کی قسم",
+    nativePlace: "آبائی شہر",
+    rashi: "برج",
+    nakshatra: "ستارہ",
+    gan: "گن",
+    nadi: "نادی",
+    charan: "چرن",
+    phone: "فون",
+    email: "ای میل",
+    address: "پتہ",
+    mama: "ماموں",
+    kaka: "چچا",
+    atya: "پھوپھی",
+    pahune: "داماد/بہو",
   },
 };
 

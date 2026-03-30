@@ -1,57 +1,118 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import { useSiteLang } from "@/contexts/LanguageContext";
+import { SITE_T } from "@/i18n/siteTranslations";
 import { Link } from "@tanstack/react-router";
 import { CheckCircle, ChevronRight, Download, Edit3, Star } from "lucide-react";
 import { motion } from "motion/react";
 
-const STEPS = [
-  {
-    icon: <Edit3 className="w-8 h-8" />,
-    title: "माहिती भरा",
-    subtitle: "Fill Details",
-    desc: "आपली वैयक्तिक, कौटुंबिक आणि कुंडली माहिती सोप्या फॉर्ममध्ये भरा.",
-  },
-  {
-    icon: <Star className="w-8 h-8" />,
-    title: "डिझाइन निवडा",
-    subtitle: "Choose Design",
-    desc: "आमच्या सुंदर पारंपारिक टेम्पलेट्समधून आपल्या पसंतीचे डिझाइन निवडा.",
-  },
-  {
-    icon: <Download className="w-8 h-8" />,
-    title: "डाउनलोड करा",
-    subtitle: "Download",
-    desc: "आपला तयार बायोडाटा पीडीएफ स्वरूपात डाउनलोड करा किंवा प्रिंट करा.",
-  },
-];
-
-const TESTIMONIALS = [
-  {
-    name: "प्रिया देशमुख",
-    location: "पुणे, महाराष्ट्र",
-    quote:
-      "लग्नसेतूवर बायोडाटा तयार करणे खूप सोपे होते. फक्त काही मिनिटांत सुंदर बायोडाटा तयार झाला!",
-    rating: 5,
-  },
-  {
-    name: "राहुल जोशी",
-    location: "नागपूर, महाराष्ट्र",
-    quote: "पारंपारिक डिझाइन बघून खूप आनंद झाला. आमच्या संपूर्ण कुटुंबाला हे आवडले.",
-    rating: 5,
-  },
-  {
-    name: "स्नेहा पाटील",
-    location: "मुंबई, महाराष्ट्र",
-    quote: "कुंडली माहिती आणि फोटो एकत्र सुंदर पद्धतीने मांडली जाते. खूप उपयुक्त आहे!",
-    rating: 5,
-  },
-];
-
 export default function LandingPage() {
+  const { language } = useSiteLang();
+  const T = SITE_T[language];
+  const isRtl = language === "urdu";
+
+  const STEPS = [
+    {
+      icon: <Edit3 className="w-8 h-8" />,
+      title: T.step1_title,
+      subtitle: T.step1_subtitle,
+      desc: T.step1_desc,
+    },
+    {
+      icon: <Star className="w-8 h-8" />,
+      title: T.step2_title,
+      subtitle: T.step2_subtitle,
+      desc: T.step2_desc,
+    },
+    {
+      icon: <Download className="w-8 h-8" />,
+      title: T.step3_title,
+      subtitle: T.step3_subtitle,
+      desc: T.step3_desc,
+    },
+  ];
+
+  const TESTIMONIALS = [
+    { name: T.t1_name, location: T.t1_loc, quote: T.t1_quote, rating: 5 },
+    { name: T.t2_name, location: T.t2_loc, quote: T.t2_quote, rating: 5 },
+    { name: T.t3_name, location: T.t3_loc, quote: T.t3_quote, rating: 5 },
+  ];
+
+  const TEMPLATES = [
+    {
+      id: "classic",
+      name: T.tpl_classic_name,
+      desc: T.tpl_classic_desc,
+      bg: "#fff",
+      border: "#8B1A1A",
+      header: "#8B1A1A",
+      headerText: "#fff8f0",
+      accent: "#f5e8e8",
+    },
+    {
+      id: "floral",
+      name: T.tpl_floral_name,
+      desc: T.tpl_floral_desc,
+      bg: "#FDF6EE",
+      border: "#C8956A",
+      header: "#9B4400",
+      headerText: "#fff8f0",
+      accent: "#fce8d4",
+    },
+    {
+      id: "rajeshahi",
+      name: T.tpl_rajeshahi_name,
+      desc: T.tpl_rajeshahi_desc,
+      bg: "#8B0000",
+      border: "#8B0000",
+      header: "#8B0000",
+      headerText: "#fff8f0",
+      accent: "#fffaf8",
+    },
+    {
+      id: "aadhunik",
+      name: T.tpl_aadhunik_name,
+      desc: T.tpl_aadhunik_desc,
+      bg: "#fff",
+      border: "#1a1a2e",
+      header: "#1a1a2e",
+      headerText: "#ffffff",
+      accent: "#f3f4f6",
+    },
+    {
+      id: "shreshtha",
+      name: T.tpl_shreshtha_name,
+      desc: T.tpl_shreshtha_desc,
+      bg: "#FAFAF0",
+      border: "#C9A84C",
+      header: "#8B6914",
+      headerText: "#FAFAF0",
+      accent: "#fdf5dc",
+    },
+    {
+      id: "daivi",
+      name: T.tpl_daivi_name,
+      desc: T.tpl_daivi_desc,
+      bg: "#0A1628",
+      border: "#C9A84C",
+      header: "#0A1628",
+      headerText: "#ffd700",
+      accent: "#112240",
+    },
+  ];
+
+  const PRICING_FEATURES = [
+    T.pricing_f1,
+    T.pricing_f2,
+    T.pricing_f3,
+    T.pricing_f4,
+  ];
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" dir={isRtl ? "rtl" : undefined}>
       <Header />
 
+      {/* Hero */}
       <section className="pt-[70px] hero-gradient overflow-hidden">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-24">
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -61,20 +122,27 @@ export default function LandingPage() {
               transition={{ duration: 0.7 }}
               className="order-2 md:order-1"
             >
-              <p className="font-devanagari text-sm font-semibold text-gold tracking-wide uppercase mb-3">
-                ✦ मराठी विवाह बायोडाटा ✦
+              <p
+                className="font-devanagari text-sm font-semibold text-gold tracking-wide uppercase mb-3"
+                dir={isRtl ? "rtl" : undefined}
+              >
+                {T.hero_badge}
               </p>
               <h1
                 className="font-serif-devanagari font-bold text-maroon leading-tight mb-4"
                 style={{ fontSize: "clamp(1.9rem, 5vw, 3rem)" }}
+                dir={isRtl ? "rtl" : undefined}
               >
-                तुमचा विवाह बायोडाटा
+                {T.hero_title1}
                 <br />
-                <span className="text-gold">सुंदर पद्धतीने</span> तयार करा
+                <span className="text-gold">{T.hero_title2}</span>
+                {T.hero_title3 ? <> {T.hero_title3}</> : null}
               </h1>
-              <p className="font-devanagari text-muted-foreground text-base md:text-lg leading-relaxed mb-8">
-                पारंपारिक मराठी बायोडाटा आता डिजिटल पद्धतीने — कुंडली, कौटुंबिक माहिती
-                आणि फोटोसह सहज तयार करा.
+              <p
+                className="font-devanagari text-muted-foreground text-base md:text-lg leading-relaxed mb-8"
+                dir={isRtl ? "rtl" : undefined}
+              >
+                {T.hero_desc}
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
@@ -82,7 +150,7 @@ export default function LandingPage() {
                   className="inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3.5 font-devanagari font-semibold text-base bg-maroon text-amber-50 hover:opacity-90 transition-opacity shadow-card"
                   data-ocid="hero.primary_button"
                 >
-                  बायोडाटा तयार करा <ChevronRight className="w-4 h-4" />
+                  {T.hero_cta} <ChevronRight className="w-4 h-4" />
                 </Link>
               </div>
             </motion.div>
@@ -102,7 +170,7 @@ export default function LandingPage() {
                     <div className="bg-amber-50 mx-2 mb-2 rounded-xl p-3">
                       <div className="text-center mb-2">
                         <div className="font-serif-devanagari text-maroon font-bold text-xs">
-                          ✦ विवाह बायोडाटा ✦
+                          {T.mock_title}
                         </div>
                       </div>
                       <div className="flex justify-center mb-2">
@@ -112,20 +180,17 @@ export default function LandingPage() {
                       </div>
                       <div className="text-center space-y-1">
                         <div className="font-serif-devanagari font-bold text-maroon text-sm">
-                          राधा देशपांडे
+                          {T.mock_name}
                         </div>
                         <div className="font-devanagari text-xs text-muted-foreground">
-                          वय: २५ वर्षे | उंची: ५'४"
+                          {T.mock_age_height}
                         </div>
                         <div className="font-devanagari text-xs text-muted-foreground">
-                          शिक्षण: B.E. (Computer)
+                          {T.mock_edu}
                         </div>
                       </div>
                       <div className="mt-2 border-t border-gold/30 pt-2 space-y-0.5">
-                        {[
-                          "वडिलांचे नाव: सुरेश देशपांडे",
-                          "राशी: कर्क | नक्षत्र: पुष्य",
-                        ].map((t) => (
+                        {[T.mock_father, T.mock_rashi].map((t) => (
                           <div
                             key={t}
                             className="font-devanagari text-[10px] text-foreground/70"
@@ -145,6 +210,7 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* How It Works */}
       <section id="how-it-works" className="py-20 bg-background">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <motion.div
@@ -155,13 +221,13 @@ export default function LandingPage() {
             className="text-center mb-14"
           >
             <p className="font-devanagari text-sm font-semibold text-gold tracking-widest uppercase mb-2">
-              ✦ सोप्या पायऱ्या ✦
+              {T.steps_badge}
             </p>
             <h2
               className="font-serif-devanagari font-bold text-maroon"
               style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)" }}
             >
-              फक्त ३ पायऱ्यांमध्ये तयार करा
+              {T.steps_title}
             </h2>
           </motion.div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -198,6 +264,7 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Testimonials */}
       <section className="py-20 bg-background">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <motion.div
@@ -208,13 +275,13 @@ export default function LandingPage() {
             className="text-center mb-14"
           >
             <p className="font-devanagari text-sm font-semibold text-gold tracking-widest uppercase mb-2">
-              ✦ अनुभव ✦
+              {T.testimonials_badge}
             </p>
             <h2
               className="font-serif-devanagari font-bold text-maroon"
               style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)" }}
             >
-              वापरकर्त्याचे अनुभव
+              {T.testimonials_title}
             </h2>
           </motion.div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -236,7 +303,10 @@ export default function LandingPage() {
                     />
                   ))}
                 </div>
-                <p className="font-devanagari text-foreground/80 text-sm leading-relaxed mb-5">
+                <p
+                  className="font-devanagari text-foreground/80 text-sm leading-relaxed mb-5"
+                  dir={isRtl ? "rtl" : undefined}
+                >
                   "{t.quote}"
                 </p>
                 <div className="flex items-center gap-3">
@@ -258,7 +328,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Templates Section */}
+      {/* Templates */}
       <section id="templates" className="py-20 bg-amber-50/30">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <motion.div
@@ -269,81 +339,20 @@ export default function LandingPage() {
             className="text-center mb-14"
           >
             <p className="font-devanagari text-sm font-semibold text-gold tracking-widest uppercase mb-2">
-              ✦ डिझाइन्स ✦
+              {T.templates_badge}
             </p>
             <h2
               className="font-serif-devanagari font-bold text-maroon"
               style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)" }}
             >
-              आमचे टेम्प्लेट्स
+              {T.templates_title}
             </h2>
             <p className="font-devanagari text-muted-foreground mt-3 text-sm">
-              ₹४९ मध्ये सर्व ६ सुंदर डिझाइन्स उपलब्ध
+              {T.templates_desc}
             </p>
           </motion.div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-            {[
-              {
-                id: "classic",
-                name: "क्लासिक",
-                desc: "पारंपारिक",
-                bg: "#fff",
-                border: "#8B1A1A",
-                header: "#8B1A1A",
-                headerText: "#fff8f0",
-                accent: "#f5e8e8",
-              },
-              {
-                id: "floral",
-                name: "फुलांचा",
-                desc: "फुलांची सजावट",
-                bg: "#FDF6EE",
-                border: "#C8956A",
-                header: "#9B4400",
-                headerText: "#fff8f0",
-                accent: "#fce8d4",
-              },
-              {
-                id: "rajeshahi",
-                name: "राजेशाही",
-                desc: "शाही लाल",
-                bg: "#8B0000",
-                border: "#8B0000",
-                header: "#8B0000",
-                headerText: "#fff8f0",
-                accent: "#fffaf8",
-              },
-              {
-                id: "aadhunik",
-                name: "आधुनिक",
-                desc: "स्वच्छ आधुनिक",
-                bg: "#fff",
-                border: "#1a1a2e",
-                header: "#1a1a2e",
-                headerText: "#ffffff",
-                accent: "#f3f4f6",
-              },
-              {
-                id: "shreshtha",
-                name: "श्रेष्ठ",
-                desc: "सोनेरी",
-                bg: "#FAFAF0",
-                border: "#C9A84C",
-                header: "#8B6914",
-                headerText: "#FAFAF0",
-                accent: "#fdf5dc",
-              },
-              {
-                id: "daivi",
-                name: "दैवी",
-                desc: "दैवी नील",
-                bg: "#0A1628",
-                border: "#C9A84C",
-                header: "#0A1628",
-                headerText: "#ffd700",
-                accent: "#112240",
-              },
-            ].map((tpl, i) => (
+            {TEMPLATES.map((tpl, i) => (
               <motion.div
                 key={tpl.id}
                 initial={{ opacity: 0, y: 32 }}
@@ -354,9 +363,7 @@ export default function LandingPage() {
                 className="rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all hover:-translate-y-1 cursor-pointer border-2"
                 style={{ borderColor: tpl.border }}
               >
-                {/* Mini biodata preview */}
                 <div style={{ background: tpl.bg }} className="p-3">
-                  {/* Header bar */}
                   <div
                     style={{ background: tpl.header }}
                     className="rounded-lg px-2 py-2 mb-2 text-center"
@@ -370,7 +377,7 @@ export default function LandingPage() {
                       }}
                       className="font-devanagari"
                     >
-                      ॥ श्री गणेशाय नमः ॥
+                      ।। श्री गणेशाय नमः ।।
                     </div>
                     <div
                       style={{
@@ -383,7 +390,6 @@ export default function LandingPage() {
                       विवाह बायोडाटा
                     </div>
                   </div>
-                  {/* Content area */}
                   <div
                     style={{ background: tpl.accent }}
                     className="rounded-lg p-2"
@@ -440,7 +446,6 @@ export default function LandingPage() {
                     ))}
                   </div>
                 </div>
-                {/* Template name footer */}
                 <div
                   style={{ background: tpl.header }}
                   className="px-3 py-2 flex items-center justify-between"
@@ -467,13 +472,13 @@ export default function LandingPage() {
               className="inline-flex items-center gap-2 rounded-xl px-6 py-3 font-devanagari font-semibold text-sm bg-maroon text-amber-50 hover:opacity-90 transition-opacity shadow-card"
               data-ocid="templates.cta.button"
             >
-              <ChevronRight className="w-4 h-4" /> सर्व टेम्प्लेट्स पाहा
+              <ChevronRight className="w-4 h-4" /> {T.templates_cta}
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Pricing Section */}
+      {/* Pricing */}
       <section id="pricing" className="py-20 bg-amber-50/50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <motion.div
@@ -484,16 +489,16 @@ export default function LandingPage() {
             className="text-center mb-14"
           >
             <p className="font-devanagari text-sm font-semibold text-gold tracking-widest uppercase mb-2">
-              ✦ किंमत ✦
+              {T.pricing_badge}
             </p>
             <h2
               className="font-serif-devanagari font-bold text-maroon"
               style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)" }}
             >
-              साधी व परवडणारी किंमत
+              {T.pricing_title}
             </h2>
             <p className="font-devanagari text-muted-foreground mt-3 text-sm">
-              एकदा पेमेंट करा — आयुष्यभर वापरा
+              {T.pricing_desc}
             </p>
           </motion.div>
 
@@ -508,21 +513,14 @@ export default function LandingPage() {
             >
               <div className="text-center">
                 <div className="font-display text-5xl font-bold text-maroon mb-1">
-                  ₹४९
+                  {T.pricing_price}
                 </div>
                 <div className="font-devanagari text-sm text-muted-foreground">
-                  एकदाच पेमेंट - सर्व ६ टेम्प्लेट्स
+                  {T.pricing_sub}
                 </div>
               </div>
               <ul className="flex flex-col gap-2">
-                {[
-                  "सर्व टेम्पलेट्स",
-                  "PDF डाउनलोड",
-                  "JPG डाउनलोड",
-                  "सर्व माहिती",
-                  "कस्टम फील्ड्स",
-                  "प्रिंट सुविधा",
-                ].map((f) => (
+                {PRICING_FEATURES.map((f) => (
                   <li key={f} className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 shrink-0 text-maroon" />
                     <span className="font-devanagari text-sm text-foreground/80">
@@ -536,17 +534,18 @@ export default function LandingPage() {
                 className="mt-2 w-full inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 font-devanagari font-semibold text-sm bg-maroon text-amber-50 hover:opacity-90 shadow-card transition-opacity"
                 data-ocid="pricing.basic.button"
               >
-                आत्ता सुरू करा <ChevronRight className="w-4 h-4" />
+                {T.pricing_cta} <ChevronRight className="w-4 h-4" />
               </Link>
             </motion.div>
           </div>
 
           <p className="text-center font-devanagari text-xs text-muted-foreground mt-8">
-            🔒 Razorpay द्वारे सुरक्षित पेमेंट — UPI, Credit/Debit Card, Net Banking
+            {T.pricing_secure}
           </p>
         </div>
       </section>
 
+      {/* CTA */}
       <section className="py-16 bg-maroon">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <motion.div
@@ -555,11 +554,17 @@ export default function LandingPage() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="font-serif-devanagari font-bold text-amber-100 text-2xl md:text-3xl mb-3">
-              आजच तुमचा बायोडाटा तयार करा!
+            <h2
+              className="font-serif-devanagari font-bold text-amber-100 text-2xl md:text-3xl mb-3"
+              dir={isRtl ? "rtl" : undefined}
+            >
+              {T.cta_title}
             </h2>
-            <p className="font-devanagari text-amber-200/80 text-base mb-7">
-              मोफत आणि सोपे — फक्त काही मिनिटांत.
+            <p
+              className="font-devanagari text-amber-200/80 text-base mb-7"
+              dir={isRtl ? "rtl" : undefined}
+            >
+              {T.cta_desc}
             </p>
             <Link
               to="/form"
@@ -567,7 +572,7 @@ export default function LandingPage() {
               data-ocid="cta.primary_button"
             >
               <CheckCircle className="w-5 h-5" />
-              आत्ता सुरू करा
+              {T.cta_btn}
             </Link>
           </motion.div>
         </div>

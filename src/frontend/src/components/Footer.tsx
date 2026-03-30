@@ -1,13 +1,21 @@
+import { useSiteLang } from "@/contexts/LanguageContext";
+import { SITE_T } from "@/i18n/siteTranslations";
 import { Link } from "@tanstack/react-router";
 import { Flower2, Heart, Mail } from "lucide-react";
 
 export default function Footer() {
+  const { language } = useSiteLang();
+  const T = SITE_T[language];
+  const isRtl = language === "urdu";
   const year = new Date().getFullYear();
   const utm = encodeURIComponent(
     typeof window !== "undefined" ? window.location.hostname : "",
   );
   return (
-    <footer className="bg-maroon-dark text-amber-100">
+    <footer
+      className="bg-maroon-dark text-amber-100"
+      dir={isRtl ? "rtl" : undefined}
+    >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           <div>
@@ -20,12 +28,12 @@ export default function Footer() {
               </span>
             </div>
             <p className="font-devanagari text-sm text-amber-200/80 leading-relaxed">
-              सुंदर आणि पारंपारिक मराठी विवाह बायोडाटा तयार करण्याचे सर्वोत्तम ठिकाण.
+              {T.footer_desc}
             </p>
           </div>
           <div>
             <h3 className="font-devanagari font-semibold text-amber-200 mb-4">
-              द्रुत दुवे
+              {T.footer_quicklinks}
             </h3>
             <ul className="space-y-2">
               <li>
@@ -34,7 +42,7 @@ export default function Footer() {
                   className="font-devanagari text-sm text-amber-100/70 hover:text-amber-200 transition-colors"
                   data-ocid="footer.link"
                 >
-                  होम
+                  {T.footer_home}
                 </Link>
               </li>
               <li>
@@ -43,7 +51,7 @@ export default function Footer() {
                   className="font-devanagari text-sm text-amber-100/70 hover:text-amber-200 transition-colors"
                   data-ocid="footer.link"
                 >
-                  बायोडाटा तयार करा
+                  {T.footer_create}
                 </Link>
               </li>
               <li>
@@ -52,14 +60,14 @@ export default function Footer() {
                   className="font-devanagari text-sm text-amber-100/70 hover:text-amber-200 transition-colors"
                   data-ocid="footer.link"
                 >
-                  टेम्पलेट्स
+                  {T.footer_templates}
                 </a>
               </li>
             </ul>
           </div>
           <div>
             <h3 className="font-devanagari font-semibold text-amber-200 mb-4">
-              संपर्क
+              {T.footer_contact}
             </h3>
             <ul className="space-y-2">
               <li className="flex items-center gap-2 text-sm text-amber-100/70">
@@ -71,7 +79,7 @@ export default function Footer() {
         </div>
         <div className="border-t border-amber-200/20 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-amber-200/60">
           <span className="font-devanagari">
-            © {year} लग्नसेतू. सर्व हक्क राखीव.
+            © {year} लग्नसेतू. {T.footer_rights}
           </span>
           <a
             href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${utm}`}

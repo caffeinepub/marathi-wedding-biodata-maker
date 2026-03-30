@@ -1,54 +1,31 @@
-# lagnasetu - Wedding Biodata Maker
+# लग्नसेतू — Full Website Language Switch
 
 ## Current State
-- Multi-step form with religion, language, font selection in Step 0
-- 6 templates: classic, floral, rajeshahi, aadhunik, shreshtha, daivi
-- All templates have hardcoded '॥ श्री गणेशाय नमः ॥' blessing
-- Form labels are all in Marathi regardless of language selection
-- QR code generated from phone/email using qrcode library, passed as qrDataUrl to templates
-- Payment modal (Dialog) with coupon code support; when coupon makes price 0, modal closes then window.print() called
-- PDF is generated via window.print() with @media print CSS
+Language selection (Marathi/Hindi/English/Kannada/Urdu) is only available in Step 0 of BiodataForm and only changes form labels. The LandingPage, Header, and Footer are all hardcoded in Marathi with no language switching.
 
 ## Requested Changes (Diff)
 
 ### Add
-- `getReligionBlessing(religion)` function returning religion-specific blessing text:
-  - हिंदू: "॥ श्री गणेशाय नमः ॥"
-  - जैन: "॥ णमो अरिहंताणं ॥"
-  - बौद्ध: "॥ नमो बुद्धाय ॥"
-  - लिंगायत: "॥ ओम नमः शिवाय ॥"
-  - ख्रिश्चन: "✝ God Bless ✝"
-  - मुस्लीम: "॥ बिस्मिल्लाह ॥"
-- `FORM_LABELS` translation object in BiodataForm.tsx for marathi/hindi/english for all form field labels
-- Print CSS rule: `[role="dialog"] { display: none !important; }` to prevent coupon/payment modal from showing in PDF
+- A global `LanguageContext` (React context + localStorage persistence) providing `language` and `setLanguage` across all pages
+- A language selector in the `Header` component (compact dropdown or pill-toggle showing all 5 languages: मराठी, हिंदी, English, ಕನ್ನಡ, اردو) visible on both landing page and form page
+- Full translation strings for LandingPage, Header, Footer in all 5 languages
+- `useSiteLanguage()` hook for consuming the global language context
 
 ### Modify
-- BiodataPreview.tsx: All 6 templates receive `religion` prop (from `data.personal.religion`) and show dynamic blessing text
-- BiodataForm.tsx: All form field labels use FORM_LABELS based on selected language (form.language). The `FL` component takes a `langKey` and the translation object. OPTIONAL_FIELDS labels also update per language.
-- BiodataPreview.tsx: The `qrDataUrl` img should NOT have any class that causes it to be hidden during print. Ensure it renders during window.print(). Also move QR code outside the columns layout so it's always visible.
-- PaymentModal.tsx / index.css: Add `@media print { [role="dialog"], .radix-dialog-overlay { display: none !important; } }` to prevent coupon box showing in PDF
+- `App.tsx`: Wrap app in `LanguageProvider`
+- `Header.tsx`: Add language selector; use translated nav text
+- `Footer.tsx`: Translate all text using global language
+- `LandingPage.tsx`: Translate hero text, steps, testimonials, templates section, pricing section, CTA section
+- `BiodataForm.tsx`: Read language from global context as default instead of local state (keep per-form override capability, but sync with global language on mount)
 
 ### Remove
-- Hardcoded "॥ श्री गणेशाय नमः ॥" text from all 6 templates (replaced with dynamic blessing)
+- Nothing removed
 
 ## Implementation Plan
-
-1. **BiodataPreview.tsx**:
-   - Add `getReligionBlessing(religion: string): string` function at top
-   - Add `religion` to template component props (all 6 templates + templateMap types)
-   - In each of the 6 template components, replace hardcoded blessing span with `{getReligionBlessing(data.personal.religion || 'हिंदू')}`
-   - In BiodataPreview main component, pass `religion` (from `data.personal.religion`) to `TemplateToRender`
-   - Ensure QR code renders in print (no class hiding it)
-
-2. **BiodataForm.tsx**:
-   - Add `FORM_LABELS` with marathi/hindi/english translations for all field labels
-   - Add step title translations for Hindi/English (STEP_TITLES should also translate)
-   - Modify `FL` component to accept language prop and render the correct label text
-   - Update all `<FL mr="..." en="...">` usages to use `FORM_LABELS[form.language].key` as the primary label
-   - When language is 'marathi', show Marathi as primary; when 'hindi', Hindi as primary; when 'english', English only
-   - Also translate OPTIONAL_FIELDS labels per language
-   - Translate 'पुढे'/'मागे' navigation buttons, add/remove sibling labels, etc.
-   - Input placeholders should also update per language
-
-3. **index.css**:
-   - In `@media print` block, add rule to hide radix dialog: `[data-radix-dialog-overlay], [data-radix-dialog-content], [role="dialog"] { display: none !important; }`
+1. Create `src/frontend/src/contexts/LanguageContext.tsx` with context, provider, and hook; 5 languages; localStorage persist
+2. Create `src/frontend/src/i18n/siteTranslations.ts` with full translation map for all site-level text (LandingPage, Header, Footer) in all 5 languages
+3. Update `App.tsx` to wrap with `LanguageProvider`
+4. Update `Header.tsx`: import `useSiteLanguage`, show language toggle pills (small, 5 options), translate nav links and CTA button
+5. Update `Footer.tsx`: import `useSiteLanguage`, translate all text
+6. Update `LandingPage.tsx`: import `useSiteLanguage`, use translated strings for all visible text
+7. Update `BiodataForm.tsx`: On Step 0 language change, also update global language context; on mount, initialize form language from global context

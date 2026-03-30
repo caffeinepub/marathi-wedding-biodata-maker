@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { useSiteLang } from "@/contexts/LanguageContext";
 import { useCreateOrUpdateBiodata } from "@/hooks/useQueries";
 import { useNavigate } from "@tanstack/react-router";
 import {
@@ -167,7 +168,7 @@ interface SiblingEntry {
 }
 
 type ReligionType = "हिंदू" | "जैन" | "बौद्ध" | "लिंगायत" | "ख्रिश्चन" | "मुस्लीम";
-type LanguageType = "marathi" | "hindi" | "english";
+type LanguageType = "marathi" | "hindi" | "english" | "kannada" | "urdu";
 
 interface FormState {
   personal: PersonalInfo;
@@ -287,6 +288,47 @@ const FORM_LABELS: Record<string, Record<string, string>> = {
     kakaInfo: "काका",
     atyaInfo: "आत्या",
     pahuneInfo: "पाहुणे",
+    photoUploadInstruction:
+      "बायोडाटावर दाखवण्यासाठी एक स्पष्ट फोटो अपलोड करा. JPG, PNG फॉर्मेट चालेल.",
+    photoSelectBtn: "फोटो निवडा",
+    photoRemoveBtn: "फोटो काढा",
+    photoLabel: "फोटो",
+    photoUploadTitle: "फोटो अपलोड करा",
+    customizeToggle: "⚙️ फील्ड कस्टमाइज करा",
+    customizeHint: "हवे ते फील्ड निवडा — अनावश्यक फील्ड काढू शकता",
+    siblingEmptyHint: "भाऊ/बहिणींची माहिती जोडण्यासाठी वरील बटण दाबा",
+    allTemplatesAvail: "फक्त ₹४९ मध्ये सर्व टेम्प्लेट्स उपलब्ध",
+    templateSelected: "✓ निवडले",
+    selectPlaceholder: "निवडा",
+    rashiPlaceholder: "राशी निवडा",
+    nakshatraPlaceholder: "नक्षत्र निवडा",
+    religionPlaceholder: "धर्म निवडा",
+    phoneNumber: "फोन नंबर टाका",
+    planetPlaceholder: "ग्रह",
+    sibling_bro: "भाऊ",
+    sibling_sis: "बहीण",
+    sibling_num: "क्र.",
+    placeOfBirth_placeholder: "उदा. पुणे",
+    height_placeholder: "उदा. ५ फूट",
+    education_placeholder: "उदा. B.E. Computer",
+    occupation_placeholder: "उदा. Software Engineer",
+    income_placeholder: "उदा. ₹50,000",
+    caste_placeholder: "उदा. ब्राह्मण",
+    gotra_placeholder: "उदा. कश्यप",
+    fatherOcc_placeholder: "उदा. सरकारी नोकरी",
+    motherOcc_placeholder: "उदा. गृहिणी",
+    mama_placeholder: "उदा. राम पाटील, शेती",
+    kaka_placeholder: "उदा. सुरेश देशमुख, व्यापार",
+    atya_placeholder: "उदा. सुनीता जोशी, गृहिणी",
+    pahune_placeholder: "उदा. विजय कुलकर्णी, डॉक्टर",
+    nativePlaceholder: "उदा. सातारा",
+    charan_placeholder: "उदा. ३",
+    address_placeholder: "उदा. १२३, मोहन नगर, पुणे - ४११०२१",
+    denomination_placeholder: "उदा. Catholic, Protestant",
+    panth_placeholder_muslim: "सुन्नी / शिया",
+    panth_placeholder_buddhist: "उदा. नवयान, थेरवाद",
+    sibName_placeholder: "नाव",
+    sibOcc_placeholder: "व्यवसाय",
     planetaryPositions: "ग्रह स्थिती",
   },
   hindi: {
@@ -347,6 +389,47 @@ const FORM_LABELS: Record<string, Record<string, string>> = {
     kakaInfo: "चाचा",
     atyaInfo: "बुआ",
     pahuneInfo: "समधी",
+    photoUploadInstruction:
+      "बायोडेटा पर दिखाने के लिए एक स्पष्ट फ़ोटो अपलोड करें. JPG, PNG फ़ॉर्मेट चलेगा.",
+    photoSelectBtn: "फ़ोटो चुनें",
+    photoRemoveBtn: "फ़ोटो हटाएं",
+    photoLabel: "फ़ोटो",
+    photoUploadTitle: "फ़ोटो अपलोड करें",
+    customizeToggle: "⚙️ फ़ील्ड कस्टमाइज़ करें",
+    customizeHint: "जो फ़ील्ड चाहिए चुनें — अनावश्यक फ़ील्ड हटा सकते हैं",
+    siblingEmptyHint: "भाई/बहनों की जानकारी जोड़ने के लिए ऊपर बटन दबाएं",
+    allTemplatesAvail: "सिर्फ ₹४९ में सभी टेम्पलेट उपलब्ध",
+    templateSelected: "✓ चुना",
+    selectPlaceholder: "चुनें",
+    rashiPlaceholder: "राशि चुनें",
+    nakshatraPlaceholder: "नक्षत्र चुनें",
+    religionPlaceholder: "धर्म चुनें",
+    phoneNumber: "फ़ोन नंबर डालें",
+    planetPlaceholder: "ग्रह",
+    sibling_bro: "भाई",
+    sibling_sis: "बहन",
+    sibling_num: "क्र.",
+    placeOfBirth_placeholder: "उदा. पुणे",
+    height_placeholder: "उदा. ५ फुट",
+    education_placeholder: "उदा. B.E. Computer",
+    occupation_placeholder: "उदा. Software Engineer",
+    income_placeholder: "उदा. ₹50,000",
+    caste_placeholder: "उदा. ब्राह्मण",
+    gotra_placeholder: "उदा. कश्यप",
+    fatherOcc_placeholder: "उदा. सरकारी नौकरी",
+    motherOcc_placeholder: "उदा. गृहिणी",
+    mama_placeholder: "उदा. राम पाटील, खेती",
+    kaka_placeholder: "उदा. सुरेश देशमुख, व्यापार",
+    atya_placeholder: "उदा. सुनीता जोशी, गृहिणी",
+    pahune_placeholder: "उदा. विजय कुलकर्णी, डॉक्टर",
+    nativePlaceholder: "उदा. सातारा",
+    charan_placeholder: "उदा. ३",
+    address_placeholder: "उदा. १२३, मोहन नगर, पुणे - ४११०२१",
+    denomination_placeholder: "उदा. Catholic, Protestant",
+    panth_placeholder_muslim: "सुन्नी / शिया",
+    panth_placeholder_buddhist: "उदा. नवयान, थेरवाद",
+    sibName_placeholder: "नाम",
+    sibOcc_placeholder: "व्यवसाय",
     planetaryPositions: "ग्रह स्थिति",
   },
   english: {
@@ -407,9 +490,399 @@ const FORM_LABELS: Record<string, Record<string, string>> = {
     kakaInfo: "Paternal Uncle",
     atyaInfo: "Aunt",
     pahuneInfo: "In-laws",
+    photoUploadInstruction:
+      "Upload a clear photo for your biodata. JPG, PNG format accepted.",
+    photoSelectBtn: "Choose Photo",
+    photoRemoveBtn: "Remove Photo",
+    photoLabel: "Photo",
+    photoUploadTitle: "Upload Photo",
+    customizeToggle: "⚙️ Customize Fields",
+    customizeHint: "Select fields you need — remove unnecessary ones",
+    siblingEmptyHint: "Press the button above to add sibling information",
+    allTemplatesAvail: "All templates available for just ₹49",
+    templateSelected: "✓ Selected",
+    selectPlaceholder: "Select",
+    rashiPlaceholder: "Select Rashi",
+    nakshatraPlaceholder: "Select Nakshatra",
+    religionPlaceholder: "Select Religion",
+    phoneNumber: "Enter phone number",
+    planetPlaceholder: "Planet",
+    sibling_bro: "Brother",
+    sibling_sis: "Sister",
+    sibling_num: "No.",
+    placeOfBirth_placeholder: "e.g. Pune",
+    height_placeholder: "e.g. 5 feet",
+    education_placeholder: "e.g. B.E. Computer",
+    occupation_placeholder: "e.g. Software Engineer",
+    income_placeholder: "e.g. ₹50,000",
+    caste_placeholder: "e.g. Brahmin",
+    gotra_placeholder: "e.g. Kashyap",
+    fatherOcc_placeholder: "e.g. Government Service",
+    motherOcc_placeholder: "e.g. Homemaker",
+    mama_placeholder: "e.g. Ram Patil, Farming",
+    kaka_placeholder: "e.g. Suresh Deshmukh, Business",
+    atya_placeholder: "e.g. Sunita Joshi, Homemaker",
+    pahune_placeholder: "e.g. Vijay Kulkarni, Doctor",
+    nativePlaceholder: "e.g. Satara",
+    charan_placeholder: "e.g. 3",
+    address_placeholder: "e.g. 123, Mohan Nagar, Pune - 411021",
+    denomination_placeholder: "e.g. Catholic, Protestant",
+    panth_placeholder_muslim: "Sunni / Shia",
+    panth_placeholder_buddhist: "e.g. Navayan, Theravada",
+    sibName_placeholder: "Name",
+    sibOcc_placeholder: "Occupation",
     planetaryPositions: "Planetary Positions",
   },
+  kannada: {
+    fullName: "ಪೂರ್ಣ ಹೆಸರು",
+    dob: "ಹುಟ್ಟಿದ ದಿನಾಂಕ",
+    tob: "ಹುಟ್ಟಿದ ಸಮಯ",
+    pob: "ಹುಟ್ಟಿದ ಸ್ಥಳ",
+    height: "ಎತ್ತರ",
+    complexion: "ಬಣ್ಣ",
+    education: "ವಿದ್ಯಾಭ್ಯಾಸ",
+    occupation: "ವೃತ್ತಿ",
+    income: "ಮಾಸಿಕ ಆದಾಯ",
+    religion: "ಧರ್ಮ",
+    caste: "ಜಾತಿ",
+    gotra: "ಗೋತ್ರ",
+    manglik: "ಮಾಂಗಲಿಕ",
+    fatherName: "ತಂದೆಯ ಹೆಸರು",
+    fatherOccupation: "ತಂದೆಯ ವೃತ್ತಿ",
+    motherName: "ತಾಯಿಯ ಹೆಸರು",
+    motherOccupation: "ತಾಯಿಯ ವೃತ್ತಿ",
+    siblings: "ಒಡಹುಟ್ಟಿದವರ ಮಾಹಿತಿ",
+    familyType: "ಕುಟುಂಬ ಪ್ರಕಾರ",
+    nativePlace: "ಮೂಲ ಊರು",
+    mama: "ಮಾವ",
+    kaka: "ಚಿಕ್ಕಪ್ಪ",
+    atya: "ಅತ್ತೆ",
+    pahune: "ಅಳಿಯ/ಸೊಸೆ",
+    phone: "ಫೋನ್ ನಂಬರ್",
+    email: "ಇಮೇಲ್",
+    address: "ವಿಳಾಸ",
+    photo: "ಫೋಟೋ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ",
+    denomination: "ಪಂಥ",
+    panth: "ಪಂಥ",
+    selectReligion: "ಧರ್ಮ ಆಯ್ಕೆ ಮಾಡಿ",
+    selectLanguage: "ಭಾಷೆ ಆಯ್ಕೆ ಮಾಡಿ",
+    selectFont: "ಫಾಂಟ್ ಆಯ್ಕೆ ಮಾಡಿ",
+    selectTemplate: "ಟೆಂಪ್ಲೇಟ್ ಆಯ್ಕೆ ಮಾಡಿ",
+    addSibling: "ಒಡಹುಟ್ಟಿದವರನ್ನು ಸೇರಿಸಿ",
+    type: "ಪ್ರಕಾರ",
+    name: "ಹೆಸರು",
+    maritalStatus: "ವೈವಾಹಿಕ ಸ್ಥಿತಿ",
+    workPost: "ಕೆಲಸ/ಹುದ್ದೆ",
+    next: "ಮುಂದೆ",
+    prev: "ಹಿಂದೆ",
+    submit: "ಬಯೋಡೇಟಾ ತಯಾರಿಸಿ ✓",
+    saving: "ಉಳಿಸಲಾಗುತ್ತಿದೆ...",
+    customize: "⚙️ ಕ್ಷೇತ್ರಗಳನ್ನು ಕಸ್ಟಮೈಸ್ ಮಾಡಿ",
+    rashi: "ರಾಶಿ",
+    nakshatra: "ನಕ್ಷತ್ರ",
+    gan: "ಗಣ",
+    nadi: "ನಾಡಿ",
+    charan: "ಚರಣ",
+    planetaryPos: "ಗ್ರಹ ಸ್ಥಾನ",
+    timeOfBirth: "ಹುಟ್ಟಿದ ಸಮಯ",
+    manglikStatus: "ಮಾಂಗಲಿಕ",
+    siblingsInfo: "ಒಡಹುಟ್ಟಿದವರ ಮಾಹಿತಿ",
+    mamaInfo: "ಮಾವ",
+    kakaInfo: "ಚಿಕ್ಕಪ್ಪ",
+    atyaInfo: "ಅತ್ತೆ",
+    pahuneInfo: "ಅಳಿಯ/ಸೊಸೆ",
+    photoUploadInstruction: "ಬಯೋಡೇಟಾಕ್ಕಾಗಿ ಸ್ಪಷ್ಟ ಫೋಟೋ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ. JPG, PNG ಸ್ವರೂಪ ಸ್ವೀಕಾರ್ಯ.",
+    photoSelectBtn: "ಫೋಟೋ ಆಯ್ಕೆ ಮಾಡಿ",
+    photoRemoveBtn: "ಫೋಟೋ ತೆಗೆದುಹಾಕಿ",
+    photoLabel: "ಫೋಟೋ",
+    photoUploadTitle: "ಫೋಟೋ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ",
+    customizeToggle: "⚙️ ಕ್ಷೇತ್ರಗಳನ್ನು ಕಸ್ಟಮೈಸ್ ಮಾಡಿ",
+    customizeHint: "ಬೇಕಾದ ಕ್ಷೇತ್ರಗಳನ್ನು ಆಯ್ಕೆ ಮಾಡಿ",
+    siblingEmptyHint: "ಒಡಹುಟ್ಟಿದವರ ಮಾಹಿತಿ ಸೇರಿಸಲು ಮೇಲಿನ ಗುಂಡಿ ಒತ್ತಿ",
+    allTemplatesAvail: "ಕೇವಲ ₹೪೯ ರಲ್ಲಿ ಎಲ್ಲಾ ಟೆಂಪ್ಲೇಟ್‌ಗಳು ಲಭ್ಯ",
+    templateSelected: "✓ ಆಯ್ಕೆಯಾಗಿದೆ",
+    selectPlaceholder: "ಆಯ್ಕೆ ಮಾಡಿ",
+    rashiPlaceholder: "ರಾಶಿ ಆಯ್ಕೆ ಮಾಡಿ",
+    nakshatraPlaceholder: "ನಕ್ಷತ್ರ ಆಯ್ಕೆ ಮಾಡಿ",
+    religionPlaceholder: "ಧರ್ಮ ಆಯ್ಕೆ ಮಾಡಿ",
+    phoneNumber: "ಫೋನ್ ನಂಬರ್ ನಮೂದಿಸಿ",
+    planetPlaceholder: "ಗ್ರಹ",
+    sibling_bro: "ಅಣ್ಣ/ತಮ್ಮ",
+    sibling_sis: "ಅಕ್ಕ/ತಂಗಿ",
+    sibling_num: "ಕ್ರ.",
+    placeOfBirth_placeholder: "ಉದಾ. ಬೆಂಗಳೂರು",
+    height_placeholder: "ಉದಾ. ೫ ಅಡಿ",
+    education_placeholder: "ಉದಾ. B.E. Computer",
+    occupation_placeholder: "ಉದಾ. Software Engineer",
+    income_placeholder: "ಉದಾ. ₹50,000",
+    caste_placeholder: "ಉದಾ. ಬ್ರಾಹ್ಮಣ",
+    gotra_placeholder: "ಉದಾ. ಕಶ್ಯಪ",
+    fatherOcc_placeholder: "ಉದಾ. ಸರ್ಕಾರಿ ನೌಕರಿ",
+    motherOcc_placeholder: "ಉದಾ. ಗೃಹಿಣಿ",
+    mama_placeholder: "ಉದಾ. ರಾಮ ಪಾಟೀಲ, ಕೃಷಿ",
+    kaka_placeholder: "ಉದಾ. ಸುರೇಶ ದೇಶಮುಖ, ವ್ಯಾಪಾರ",
+    atya_placeholder: "ಉದಾ. ಸುನೀತಾ ಜೋಶಿ, ಗೃಹಿಣಿ",
+    pahune_placeholder: "ಉದಾ. ವಿಜಯ ಕುಲಕರ್ಣಿ, ಡಾಕ್ಟರ್",
+    nativePlaceholder: "ಉದಾ. ಧಾರವಾಡ",
+    charan_placeholder: "ಉದಾ. ೩",
+    address_placeholder: "ಉದಾ. ೧೨೩, ಮೋಹನ ನಗರ, ಬೆಂಗಳೂರು",
+    denomination_placeholder: "ಉದಾ. Catholic, Protestant",
+    panth_placeholder_muslim: "ಸುನ್ನಿ / ಶಿಯಾ",
+    panth_placeholder_buddhist: "ಉದಾ. ನವಯಾನ, ಥೇರವಾದ",
+    sibName_placeholder: "ಹೆಸರು",
+    sibOcc_placeholder: "ವೃತ್ತಿ",
+    planetaryPositions: "ಗ್ರಹ ಸ್ಥಾನ",
+  },
+  urdu: {
+    fullName: "پورا نام",
+    dob: "تاریخ پیدائش",
+    tob: "وقت پیدائش",
+    pob: "جائے پیدائش",
+    height: "قد",
+    complexion: "رنگ",
+    education: "تعلیم",
+    occupation: "پیشہ",
+    income: "ماہانہ آمدنی",
+    religion: "مذہب",
+    caste: "برادری",
+    gotra: "گوترا",
+    manglik: "مانگلک",
+    fatherName: "والد کا نام",
+    fatherOccupation: "والد کا پیشہ",
+    motherName: "والدہ کا نام",
+    motherOccupation: "والدہ کا پیشہ",
+    siblings: "بہن بھائی کی معلومات",
+    familyType: "خاندان کی قسم",
+    nativePlace: "آبائی شہر",
+    mama: "ماموں",
+    kaka: "چچا",
+    atya: "پھوپھی",
+    pahune: "داماد/بہو",
+    phone: "فون نمبر",
+    email: "ای میل",
+    address: "پتہ",
+    photo: "فوٹو اپلوڈ کریں",
+    denomination: "فرقہ",
+    panth: "فرقہ",
+    selectReligion: "مذہب منتخب کریں",
+    selectLanguage: "زبان منتخب کریں",
+    selectFont: "فونٹ منتخب کریں",
+    selectTemplate: "ٹیمپلیٹ منتخب کریں",
+    addSibling: "بہن/بھائی شامل کریں",
+    type: "قسم",
+    name: "نام",
+    maritalStatus: "ازدواجی حیثیت",
+    workPost: "کام/عہدہ",
+    next: "آگے",
+    prev: "پیچھے",
+    submit: "بایوڈیٹا بنائیں ✓",
+    saving: "محفوظ ہو رہا ہے...",
+    customize: "⚙️ فیلڈز کسٹمائز کریں",
+    rashi: "برج",
+    nakshatra: "ستارہ",
+    gan: "گن",
+    nadi: "نادی",
+    charan: "چرن",
+    planetaryPos: "گرہوں کی پوزیشن",
+    timeOfBirth: "وقت پیدائش",
+    manglikStatus: "مانگلک",
+    siblingsInfo: "بہن بھائی کی معلومات",
+    mamaInfo: "ماموں",
+    kakaInfo: "چچا",
+    atyaInfo: "پھوپھی",
+    pahuneInfo: "داماد/بہو",
+    photoUploadInstruction:
+      "بایوڈیٹا کے لیے واضح فوٹو اپلوڈ کریں۔ JPG, PNG فارمیٹ قبول ہے۔",
+    photoSelectBtn: "فوٹو منتخب کریں",
+    photoRemoveBtn: "فوٹو ہٹائیں",
+    photoLabel: "فوٹو",
+    photoUploadTitle: "فوٹو اپلوڈ کریں",
+    customizeToggle: "⚙️ فیلڈز کسٹمائز کریں",
+    customizeHint: "مطلوبہ فیلڈز منتخب کریں",
+    siblingEmptyHint:
+      "بہن بھائی کی معلومات شامل کرنے کے لیے اوپر کا بٹن دبائیں",
+    allTemplatesAvail: "صرف ₹۴۹ میں تمام ٹیمپلیٹس دستیاب",
+    templateSelected: "✓ منتخب",
+    selectPlaceholder: "منتخب کریں",
+    rashiPlaceholder: "برج منتخب کریں",
+    nakshatraPlaceholder: "ستارہ منتخب کریں",
+    religionPlaceholder: "مذہب منتخب کریں",
+    phoneNumber: "فون نمبر درج کریں",
+    planetPlaceholder: "گرہ",
+    sibling_bro: "بھائی",
+    sibling_sis: "بہن",
+    sibling_num: "نمبر",
+    placeOfBirth_placeholder: "مثلاً پونے",
+    height_placeholder: "مثلاً ۵ فٹ",
+    education_placeholder: "مثلاً B.E. Computer",
+    occupation_placeholder: "مثلاً Software Engineer",
+    income_placeholder: "مثلاً ₹50,000",
+    caste_placeholder: "مثلاً شیخ",
+    gotra_placeholder: "مثلاً کشیپ",
+    fatherOcc_placeholder: "مثلاً سرکاری ملازمت",
+    motherOcc_placeholder: "مثلاً گھریلو خاتون",
+    mama_placeholder: "مثلاً رام پاٹل، کاشتکاری",
+    kaka_placeholder: "مثلاً سریش دیشمکھ، تجارت",
+    atya_placeholder: "مثلاً سنیتا جوشی، گھریلو خاتون",
+    pahune_placeholder: "مثلاً وجے کلکرنی، ڈاکٹر",
+    nativePlaceholder: "مثلاً پونے",
+    charan_placeholder: "مثلاً ۳",
+    address_placeholder: "مثلاً ۱۲۳، موہن نگر، پونے",
+    denomination_placeholder: "مثلاً سنی، شیعہ",
+    panth_placeholder_muslim: "سنی / شیعہ",
+    panth_placeholder_buddhist: "مثلاً نوایان، تھیراوادا",
+    sibName_placeholder: "نام",
+    sibOcc_placeholder: "پیشہ",
+    planetaryPositions: "گرہوں کی پوزیشن",
+  },
 };
+
+function getPlaceholderName(language: string, religion: string): string {
+  const map: Record<string, Record<string, string>> = {
+    marathi: {
+      हिंदू: "राधा देशपांडे",
+      जैन: "प्रिया जैन",
+      बौद्ध: "प्रिया कांबळे",
+      लिंगायत: "प्रिया पाटील",
+      ख्रिश्चन: "मेरी फर्नांडिस",
+      मुस्लीम: "आयेशा शेख",
+    },
+    hindi: {
+      हिंदू: "राधा शर्मा",
+      जैन: "प्रिया जैन",
+      बौद्ध: "प्रिया कुमारी",
+      लिंगायत: "प्रिया पाटिल",
+      ख्रिश्चन: "मेरी फर्नांडीज",
+      मुस्लीम: "आयशा खान",
+    },
+    english: {
+      हिंदू: "Radha Kulkarni",
+      जैन: "Priya Jain",
+      बौद्ध: "Priya Kamble",
+      लिंगायत: "Priya Patil",
+      ख्रिश्चन: "Mary Fernandes",
+      मुस्लीम: "Aisha Sheikh",
+    },
+    kannada: {
+      हिंदू: "ರಾಧಾ ದೇಶಪಾಂಡೆ",
+      जैन: "ಪ್ರಿಯಾ ಜೈನ್",
+      बौद्ध: "ಪ್ರಿಯಾ ಕಾಂಬ್ಳೆ",
+      लिंगायत: "ಪ್ರಿಯಾ ಪಾಟೀಲ್",
+      ख्रिश्चन: "ಮೇರಿ ಫರ್ನಾಂಡಿಸ್",
+      मुस्लीम: "ಆಯಿಶಾ ಶೇಖ್",
+    },
+    urdu: {
+      हिंदू: "رادھا دیشپانڈے",
+      जैन: "پریا جین",
+      बौद्ध: "پریا کامبلے",
+      लिंगायत: "پریا پاٹل",
+      ख्रिश्चन: "مریم فرنانڈیس",
+      मुस्लीम: "عائشہ شیخ",
+    },
+  };
+  return (
+    (map[language] || map.marathi)[religion] ||
+    (map[language] || map.marathi).हिंदू
+  );
+}
+
+function getPlaceholderFatherName(language: string, religion: string): string {
+  const map: Record<string, Record<string, string>> = {
+    marathi: {
+      हिंदू: "सुरेश देशपांडे",
+      जैन: "सुरेश जैन",
+      बौद्ध: "सुरेश कांबळे",
+      लिंगायत: "सुरेश पाटील",
+      ख्रिश्चन: "थॉमस फर्नांडिस",
+      मुस्लीम: "रहीम शेख",
+    },
+    hindi: {
+      हिंदू: "सुरेश शर्मा",
+      जैन: "सुरेश जैन",
+      बौद्ध: "सुरेश कुमार",
+      लिंगायत: "सुरेश पाटिल",
+      ख्रिश्चन: "थॉमस फर्नांडीज",
+      मुस्लीम: "रहीम खान",
+    },
+    english: {
+      हिंदू: "Suresh Deshmukh",
+      जैन: "Suresh Jain",
+      बौद्ध: "Suresh Kamble",
+      लिंगायत: "Suresh Patil",
+      ख्रिश्चन: "Thomas Fernandes",
+      मुस्लीम: "Rahim Sheikh",
+    },
+    kannada: {
+      हिंदू: "ಸುರೇಶ ದೇಶಪಾಂಡೆ",
+      जैन: "ಸುರೇಶ ಜೈನ್",
+      बौद्ध: "ಸುರೇಶ ಕಾಂಬ್ಳೆ",
+      लिंगायत: "ಸುರೇಶ ಪಾಟೀಲ್",
+      ख्रिश्चन: "ಥಾಮಸ್ ಫರ್ನಾಂಡಿಸ್",
+      मुस्लीम: "ರಹೀಮ್ ಶೇಖ್",
+    },
+    urdu: {
+      हिंदू: "سریش دیشمکھ",
+      जैन: "سریش جین",
+      बौद्ध: "سریش کامبلے",
+      लिंगायत: "سریش پاٹل",
+      ख्रिश्चन: "تھامس فرنانڈیس",
+      मुस्लीम: "رحیم شیخ",
+    },
+  };
+  return (
+    (map[language] || map.marathi)[religion] ||
+    (map[language] || map.marathi).हिंदू
+  );
+}
+
+function getPlaceholderMotherName(language: string, religion: string): string {
+  const map: Record<string, Record<string, string>> = {
+    marathi: {
+      हिंदू: "सुमित्रा देशपांडे",
+      जैन: "सुमित्रा जैन",
+      बौद्ध: "सुमित्रा कांबळे",
+      लिंगायत: "सुमित्रा पाटील",
+      ख्रिश्चन: "मेरी फर्नांडिस",
+      मुस्लीम: "रुखसाना शेख",
+    },
+    hindi: {
+      हिंदू: "सुमित्रा शर्मा",
+      जैन: "सुमित्रा जैन",
+      बौद्ध: "सुमित्रा कुमारी",
+      लिंगायत: "सुमित्रा पाटिल",
+      ख्रिश्चन: "मेरी फर्नांडीज",
+      मुस्लीम: "रुखसाना खान",
+    },
+    english: {
+      हिंदू: "Sumitra Deshmukh",
+      जैन: "Sumitra Jain",
+      बौद्ध: "Sumitra Kamble",
+      लिंगायत: "Sumitra Patil",
+      ख्रिश्चन: "Mary Fernandes",
+      मुस्लीम: "Rukhsana Sheikh",
+    },
+    kannada: {
+      हिंदू: "ಸುಮಿತ್ರಾ ದೇಶಪಾಂಡೆ",
+      जैन: "ಸುಮಿತ್ರಾ ಜೈನ್",
+      बौद्ध: "ಸುಮಿತ್ರಾ ಕಾಂಬ್ಳೆ",
+      लिंगायत: "ಸುಮಿತ್ರಾ ಪಾಟೀಲ್",
+      ख्रिश्चन: "ಮೇರಿ ಫರ್ನಾಂಡಿಸ್",
+      मुस्लीम: "ರುಕ್ಸಾನಾ ಶೇಖ್",
+    },
+    urdu: {
+      हिंदू: "سمترا دیشمکھ",
+      जैन: "سمترا جین",
+      बौद्ध: "سمترا کامبلے",
+      लिंगायत: "سمترا پاٹل",
+      ख्रिश्चन: "مریم فرنانڈیس",
+      मुस्लीम: "رخسانہ شیخ",
+    },
+  };
+  return (
+    (map[language] || map.marathi)[religion] ||
+    (map[language] || map.marathi).हिंदू
+  );
+}
 
 function getOptionalFieldsForStep(
   step: number,
@@ -484,7 +957,8 @@ function FieldCustomizer({
         data-ocid="form.customize.toggle"
       >
         <span className="font-devanagari text-sm font-semibold text-foreground">
-          ⚙️ फील्ड कस्टमाइज करा
+          {FORM_LABELS[language]?.customizeToggle ||
+            FORM_LABELS.marathi.customizeToggle}
         </span>
         {open ? (
           <ChevronUp className="w-4 h-4" />
@@ -495,7 +969,8 @@ function FieldCustomizer({
       {open && (
         <div className="px-4 py-3 bg-card">
           <p className="font-devanagari text-xs text-muted-foreground mb-3">
-            हवे ते फील्ड निवडा — अनावश्यक फील्ड काढू शकता
+            {FORM_LABELS[language]?.customizeHint ||
+              FORM_LABELS.marathi.customizeHint}
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {fields.map((f) => (
@@ -521,8 +996,12 @@ function FieldCustomizer({
 
 export default function BiodataForm() {
   const [step, setStep] = useState(0);
+  const { setLanguage: setSiteLang } = useSiteLang();
   const selectedPlan = "basic";
-  const [form, setForm] = useState<FormState>(defaultState);
+  const [form, setForm] = useState<FormState>(() => ({
+    ...defaultState,
+    language: (localStorage.getItem("siteLang") as LanguageType) || "marathi",
+  }));
   const FL_LABELS = FORM_LABELS[form.language] || FORM_LABELS.marathi;
   const [hiddenFields, setHiddenFields] = useState<Set<string>>(new Set());
   const [siblings, setSiblings] = useState<SiblingEntry[]>(() => {
@@ -753,7 +1232,9 @@ export default function BiodataForm() {
                           data-ocid="form.religion.select"
                           className="font-devanagari"
                         >
-                          <SelectValue placeholder="धर्म निवडा" />
+                          <SelectValue
+                            placeholder={FL_LABELS.religionPlaceholder}
+                          />
                         </SelectTrigger>
                         <SelectContent>
                           {(
@@ -786,22 +1267,26 @@ export default function BiodataForm() {
                           (Select Language)
                         </span>
                       </p>
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2">
                         {(
                           [
                             ["marathi", "मराठी"],
                             ["hindi", "हिंदी"],
                             ["english", "English"],
+                            ["kannada", "ಕನ್ನಡ"],
+                            ["urdu", "اردو"],
                           ] as [LanguageType, string][]
                         ).map(([val, label]) => (
                           <button
                             key={val}
                             type="button"
-                            onClick={() =>
-                              setForm((f) => ({ ...f, language: val }))
-                            }
+                            onClick={() => {
+                              setForm((f) => ({ ...f, language: val }));
+                              setSiteLang(val);
+                            }}
                             data-ocid={`form.language.${val}.toggle`}
-                            className={`flex-1 py-2 rounded-lg border-2 text-sm font-semibold transition-all ${form.language === val ? "border-maroon bg-maroon text-amber-50" : "border-border text-foreground hover:border-maroon/50"}`}
+                            dir={val === "urdu" ? "rtl" : undefined}
+                            className={`flex-1 min-w-[60px] py-2 rounded-lg border-2 text-sm font-semibold transition-all ${form.language === val ? "border-maroon bg-maroon text-amber-50" : "border-border text-foreground hover:border-maroon/50"}`}
                           >
                             {label}
                           </button>
@@ -855,7 +1340,7 @@ export default function BiodataForm() {
                     {/* Template selector */}
                     <div>
                       <p className="font-devanagari text-center text-maroon font-semibold text-sm mb-4">
-                        फक्त ₹४९ मध्ये सर्व टेम्प्लेट्स उपलब्ध
+                        {FL_LABELS.allTemplatesAvail}
                       </p>
                       <div className="border-t border-border pt-5">
                         <p className="font-devanagari font-semibold text-foreground text-sm mb-3">
@@ -914,7 +1399,7 @@ export default function BiodataForm() {
                                     className="text-xs font-devanagari font-semibold"
                                     style={{ color: t.color }}
                                   >
-                                    ✓ निवडले
+                                    {FL_LABELS.templateSelected}
                                   </div>
                                 )}
                               </button>
@@ -953,7 +1438,7 @@ export default function BiodataForm() {
                           <div className="w-24 h-28 rounded-lg border-2 border-dashed border-maroon/40 bg-amber-50 flex flex-col items-center justify-center gap-1 hover:border-maroon transition-colors">
                             <Upload className="w-6 h-6 text-maroon/50" />
                             <span className="font-devanagari text-[10px] text-muted-foreground text-center px-1">
-                              फोटो
+                              {FL_LABELS.photoLabel}
                             </span>
                           </div>
                         )}
@@ -968,14 +1453,10 @@ export default function BiodataForm() {
                       </button>
                       <div className="flex-1 space-y-1.5">
                         <div className="font-devanagari font-semibold text-sm text-foreground">
-                          फोटो अपलोड करा{" "}
-                          <span className="text-xs text-muted-foreground font-normal">
-                            (Upload Photo)
-                          </span>
+                          {FL_LABELS.photoUploadTitle}
                         </div>
                         <p className="font-devanagari text-xs text-muted-foreground leading-relaxed">
-                          बायोडाटावर दाखवण्यासाठी एक स्पष्ट फोटो अपलोड करा. JPG,
-                          PNG फॉर्मेट चालेल.
+                          {FL_LABELS.photoUploadInstruction}
                         </p>
                         {form.photoPreview && (
                           <button
@@ -989,7 +1470,7 @@ export default function BiodataForm() {
                             }
                             className="font-devanagari text-xs text-red-500 hover:text-red-700 underline"
                           >
-                            फोटो काढा
+                            {FL_LABELS.photoRemoveBtn}
                           </button>
                         )}
                         {!form.photoPreview && (
@@ -998,7 +1479,8 @@ export default function BiodataForm() {
                             onClick={() => fileRef.current?.click()}
                             className="inline-flex items-center gap-1.5 font-devanagari text-xs font-semibold text-maroon border border-maroon/30 rounded-lg px-3 py-1.5 hover:bg-maroon/5 transition-colors"
                           >
-                            <Upload className="w-3 h-3" /> फोटो निवडा
+                            <Upload className="w-3 h-3" />{" "}
+                            {FL_LABELS.photoSelectBtn}
                           </button>
                         )}
                       </div>
@@ -1008,7 +1490,10 @@ export default function BiodataForm() {
                       <div className="space-y-1.5">
                         <FL label={FL_LABELS.fullName} />
                         <Input
-                          placeholder="उदा. राधा देशपांडे"
+                          placeholder={getPlaceholderName(
+                            form.language,
+                            form.religion,
+                          )}
                           value={form.personal.name}
                           onChange={(e) => upP("name", e.target.value)}
                           data-ocid="personal.name.input"
@@ -1038,7 +1523,7 @@ export default function BiodataForm() {
                         <div className="space-y-1.5">
                           <FL label={FL_LABELS.pob} />
                           <Input
-                            placeholder="उदा. पुणे"
+                            placeholder={FL_LABELS.placeOfBirth_placeholder}
                             value={form.personal.placeOfBirth}
                             onChange={(e) =>
                               upP("placeOfBirth", e.target.value)
@@ -1052,7 +1537,7 @@ export default function BiodataForm() {
                       <div className="space-y-1.5">
                         <FL label={FL_LABELS.pob} />
                         <Input
-                          placeholder="उदा. पुणे"
+                          placeholder={FL_LABELS.placeOfBirth_placeholder}
                           value={form.personal.placeOfBirth}
                           onChange={(e) => upP("placeOfBirth", e.target.value)}
                           data-ocid="personal.pob.input"
@@ -1063,7 +1548,7 @@ export default function BiodataForm() {
                       <div className="space-y-1.5">
                         <FL label={FL_LABELS.height} />
                         <Input
-                          placeholder="उदा. ५ फूट"
+                          placeholder={FL_LABELS.height_placeholder}
                           value={form.personal.height}
                           onChange={(e) => upP("height", e.target.value)}
                           data-ocid="personal.height.input"
@@ -1077,7 +1562,9 @@ export default function BiodataForm() {
                             onValueChange={(v) => upP("complexion", v)}
                           >
                             <SelectTrigger data-ocid="personal.complexion.select">
-                              <SelectValue placeholder="निवडा" />
+                              <SelectValue
+                                placeholder={FL_LABELS.selectPlaceholder}
+                              />
                             </SelectTrigger>
                             <SelectContent>
                               {["गोरा", "सावळा", "गहू वर्ण", "श्याम"].map((c) => (
@@ -1098,7 +1585,7 @@ export default function BiodataForm() {
                       <div className="space-y-1.5">
                         <FL label={FL_LABELS.education} />
                         <Input
-                          placeholder="उदा. B.E. Computer"
+                          placeholder={FL_LABELS.education_placeholder}
                           value={form.personal.education}
                           onChange={(e) => upP("education", e.target.value)}
                           data-ocid="personal.education.input"
@@ -1107,7 +1594,7 @@ export default function BiodataForm() {
                       <div className="space-y-1.5">
                         <FL label={FL_LABELS.occupation} />
                         <Input
-                          placeholder="उदा. Software Engineer"
+                          placeholder={FL_LABELS.occupation_placeholder}
                           value={form.personal.occupation}
                           onChange={(e) => upP("occupation", e.target.value)}
                           data-ocid="personal.occupation.input"
@@ -1118,7 +1605,7 @@ export default function BiodataForm() {
                       <div className="space-y-1.5">
                         <FL label={FL_LABELS.income} />
                         <Input
-                          placeholder="उदा. ₹50,000"
+                          placeholder={FL_LABELS.income_placeholder}
                           value={form.personal.income}
                           onChange={(e) => upP("income", e.target.value)}
                           data-ocid="personal.income.input"
@@ -1138,7 +1625,7 @@ export default function BiodataForm() {
                         <div className="space-y-1.5">
                           <FL label={FL_LABELS.caste} />
                           <Input
-                            placeholder="उदा. ब्राह्मण"
+                            placeholder={FL_LABELS.caste_placeholder}
                             value={form.personal.caste}
                             onChange={(e) => upP("caste", e.target.value)}
                             data-ocid="personal.caste.input"
@@ -1151,7 +1638,7 @@ export default function BiodataForm() {
                         <div className="space-y-1.5">
                           <FL label={FL_LABELS.gotra} />
                           <Input
-                            placeholder="उदा. कश्यप"
+                            placeholder={FL_LABELS.gotra_placeholder}
                             value={form.personal.gotra}
                             onChange={(e) => upP("gotra", e.target.value)}
                             data-ocid="personal.gotra.input"
@@ -1180,7 +1667,7 @@ export default function BiodataForm() {
                       <div className="space-y-1.5">
                         <FL label={FL_LABELS.denomination} />
                         <Input
-                          placeholder="उदा. Catholic, Protestant"
+                          placeholder={FL_LABELS.denomination_placeholder}
                           value={(form.personal as any).denomination || ""}
                           onChange={(e) =>
                             upP("denomination" as any, e.target.value)
@@ -1198,8 +1685,8 @@ export default function BiodataForm() {
                         <Input
                           placeholder={
                             form.religion === "मुस्लीम"
-                              ? "सुन्नी / शिया"
-                              : "उदा. नवयान, थेरवाद"
+                              ? FL_LABELS.panth_placeholder_muslim
+                              : FL_LABELS.panth_placeholder_buddhist
                           }
                           value={(form.personal as any).denomination || ""}
                           onChange={(e) =>
@@ -1225,7 +1712,10 @@ export default function BiodataForm() {
                       <div className="space-y-1.5">
                         <FL label={FL_LABELS.fatherName} />
                         <Input
-                          placeholder="उदा. सुरेश देशपांडे"
+                          placeholder={getPlaceholderFatherName(
+                            form.language,
+                            form.religion,
+                          )}
                           value={form.family.fatherName}
                           onChange={(e) => upF("fatherName", e.target.value)}
                           data-ocid="family.father_name.input"
@@ -1235,7 +1725,7 @@ export default function BiodataForm() {
                         <div className="space-y-1.5">
                           <FL label={FL_LABELS.fatherOccupation} />
                           <Input
-                            placeholder="उदा. सरकारी नोकरी"
+                            placeholder={FL_LABELS.fatherOcc_placeholder}
                             value={form.family.fatherOccupation}
                             onChange={(e) =>
                               upF("fatherOccupation", e.target.value)
@@ -1249,7 +1739,10 @@ export default function BiodataForm() {
                       <div className="space-y-1.5">
                         <FL label={FL_LABELS.motherName} />
                         <Input
-                          placeholder="उदा. सुमित्रा देशपांडे"
+                          placeholder={getPlaceholderMotherName(
+                            form.language,
+                            form.religion,
+                          )}
                           value={form.family.motherName}
                           onChange={(e) => upF("motherName", e.target.value)}
                           data-ocid="family.mother_name.input"
@@ -1259,7 +1752,7 @@ export default function BiodataForm() {
                         <div className="space-y-1.5">
                           <FL label={FL_LABELS.motherOccupation} />
                           <Input
-                            placeholder="उदा. गृहिणी"
+                            placeholder={FL_LABELS.motherOcc_placeholder}
                             value={form.family.motherOccupation}
                             onChange={(e) =>
                               upF("motherOccupation", e.target.value)
@@ -1289,7 +1782,7 @@ export default function BiodataForm() {
                             className="text-sm text-muted-foreground italic"
                             data-ocid="family.siblings.empty_state"
                           >
-                            भाऊ/बहिणींची माहिती जोडण्यासाठी वरील बटण दाबा
+                            {FL_LABELS.siblingEmptyHint}
                           </p>
                         )}
                         <div className="space-y-3">
@@ -1301,7 +1794,7 @@ export default function BiodataForm() {
                             >
                               <div className="flex items-center justify-between">
                                 <span className="text-sm font-medium text-muted-foreground">
-                                  क्र. {idx + 1}
+                                  {FL_LABELS.sibling_num} {idx + 1}
                                 </span>
                                 <Button
                                   type="button"
@@ -1320,26 +1813,34 @@ export default function BiodataForm() {
                                     {FL_LABELS.type}
                                   </span>
                                   <div className="flex gap-1">
-                                    {(["भाऊ", "बहीण"] as const).map((t) => (
-                                      <button
-                                        key={t}
-                                        type="button"
-                                        onClick={() =>
-                                          updateSibling(sib.id, "type", t)
-                                        }
-                                        className={`flex-1 text-xs py-1 px-2 rounded border transition-colors ${sib.type === t ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border hover:bg-muted"}`}
-                                      >
-                                        {t}
-                                      </button>
-                                    ))}
+                                    {(["भाऊ", "बहीण"] as const).map(
+                                      (val, i) => {
+                                        const label =
+                                          i === 0
+                                            ? FL_LABELS.sibling_bro
+                                            : FL_LABELS.sibling_sis;
+                                        return (
+                                          <button
+                                            key={val}
+                                            type="button"
+                                            onClick={() =>
+                                              updateSibling(sib.id, "type", val)
+                                            }
+                                            className={`flex-1 text-xs py-1 px-2 rounded border transition-colors ${sib.type === val ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border hover:bg-muted"}`}
+                                          >
+                                            {label}
+                                          </button>
+                                        );
+                                      },
+                                    )}
                                   </div>
                                 </div>
                                 <div className="space-y-1">
                                   <span className="text-xs text-muted-foreground">
-                                    नाव
+                                    {FL_LABELS.name}
                                   </span>
                                   <Input
-                                    placeholder="नाव"
+                                    placeholder={FL_LABELS.sibName_placeholder}
                                     value={sib.name}
                                     onChange={(e) =>
                                       updateSibling(
@@ -1383,7 +1884,7 @@ export default function BiodataForm() {
                                     {FL_LABELS.workPost}
                                   </span>
                                   <Input
-                                    placeholder="व्यवसाय"
+                                    placeholder={FL_LABELS.sibOcc_placeholder}
                                     value={sib.occupation}
                                     onChange={(e) =>
                                       updateSibling(
@@ -1408,7 +1909,7 @@ export default function BiodataForm() {
                         <div className="space-y-1.5">
                           <FL label={FL_LABELS.mama} />
                           <Input
-                            placeholder="उदा. राम पाटील, शेती"
+                            placeholder={FL_LABELS.mama_placeholder}
                             value={form.family.mamaInfo}
                             onChange={(e) => upF("mamaInfo", e.target.value)}
                             data-ocid="family.mama.input"
@@ -1419,7 +1920,7 @@ export default function BiodataForm() {
                         <div className="space-y-1.5">
                           <FL label={FL_LABELS.kaka} />
                           <Input
-                            placeholder="उदा. सुरेश देशमुख, व्यापार"
+                            placeholder={FL_LABELS.kaka_placeholder}
                             value={form.family.kakaInfo}
                             onChange={(e) => upF("kakaInfo", e.target.value)}
                             data-ocid="family.kaka.input"
@@ -1430,7 +1931,7 @@ export default function BiodataForm() {
                         <div className="space-y-1.5">
                           <FL label={FL_LABELS.atya} />
                           <Input
-                            placeholder="उदा. सुनीता जोशी, गृहिणी"
+                            placeholder={FL_LABELS.atya_placeholder}
                             value={form.family.atyaInfo}
                             onChange={(e) => upF("atyaInfo", e.target.value)}
                             data-ocid="family.atya.input"
@@ -1441,7 +1942,7 @@ export default function BiodataForm() {
                         <div className="space-y-1.5">
                           <FL label={FL_LABELS.pahune} />
                           <Input
-                            placeholder="उदा. विजय कुलकर्णी, डॉक्टर"
+                            placeholder={FL_LABELS.pahune_placeholder}
                             value={form.family.pahuneInfo}
                             onChange={(e) => upF("pahuneInfo", e.target.value)}
                             data-ocid="family.pahune.input"
@@ -1478,7 +1979,7 @@ export default function BiodataForm() {
                         <div className="space-y-1.5">
                           <FL label={FL_LABELS.nativePlace} />
                           <Input
-                            placeholder="उदा. सातारा"
+                            placeholder={FL_LABELS.nativePlaceholder}
                             value={form.family.nativePlace}
                             onChange={(e) => upF("nativePlace", e.target.value)}
                             data-ocid="family.native.input"
@@ -1506,7 +2007,9 @@ export default function BiodataForm() {
                           onValueChange={(v) => upH("rashi", v)}
                         >
                           <SelectTrigger data-ocid="horoscope.rashi.select">
-                            <SelectValue placeholder="राशी निवडा" />
+                            <SelectValue
+                              placeholder={FL_LABELS.rashiPlaceholder}
+                            />
                           </SelectTrigger>
                           <SelectContent>
                             {RASHIS.map((r) => (
@@ -1528,7 +2031,9 @@ export default function BiodataForm() {
                           onValueChange={(v) => upH("nakshatra", v)}
                         >
                           <SelectTrigger data-ocid="horoscope.nakshatra.select">
-                            <SelectValue placeholder="नक्षत्र निवडा" />
+                            <SelectValue
+                              placeholder={FL_LABELS.nakshatraPlaceholder}
+                            />
                           </SelectTrigger>
                           <SelectContent className="max-h-48">
                             {NAKSHATRAS.map((n) => (
@@ -1552,7 +2057,9 @@ export default function BiodataForm() {
                           onValueChange={(v) => upH("gan", v)}
                         >
                           <SelectTrigger data-ocid="horoscope.gan.select">
-                            <SelectValue placeholder="निवडा" />
+                            <SelectValue
+                              placeholder={FL_LABELS.selectPlaceholder}
+                            />
                           </SelectTrigger>
                           <SelectContent>
                             {GANS.map((g) => (
@@ -1576,7 +2083,9 @@ export default function BiodataForm() {
                           onValueChange={(v) => upH("nadi", v)}
                         >
                           <SelectTrigger data-ocid="horoscope.nadi.select">
-                            <SelectValue placeholder="निवडा" />
+                            <SelectValue
+                              placeholder={FL_LABELS.selectPlaceholder}
+                            />
                           </SelectTrigger>
                           <SelectContent>
                             {NADIS.map((n) => (
@@ -1596,7 +2105,7 @@ export default function BiodataForm() {
                       <div className="space-y-1.5">
                         <FL label={FL_LABELS.charan} />
                         <Input
-                          placeholder="उदा. ३"
+                          placeholder={FL_LABELS.charan_placeholder}
                           value={form.horoscope.charan}
                           onChange={(e) => upH("charan", e.target.value)}
                           data-ocid="horoscope.charan.input"
@@ -1618,7 +2127,7 @@ export default function BiodataForm() {
                                 {i + 1}. {house}
                               </span>
                               <Input
-                                placeholder="ग्रह"
+                                placeholder={FL_LABELS.planetPlaceholder}
                                 value={
                                   form.horoscope.planetaryPositions[i] || ""
                                 }
@@ -1646,7 +2155,7 @@ export default function BiodataForm() {
                     <div className="space-y-1.5">
                       <FL label={FL_LABELS.phone} />
                       <Input
-                        placeholder="फोन नंबर टाका"
+                        placeholder={FL_LABELS.phoneNumber}
                         value={form.contact.phone}
                         onChange={(e) => upC("phone", e.target.value)}
                         data-ocid="contact.phone.input"
@@ -1668,7 +2177,7 @@ export default function BiodataForm() {
                       <div className="space-y-1.5">
                         <FL label={FL_LABELS.address} />
                         <Textarea
-                          placeholder="उदा. १२३, मोहन नगर, पुणे - ४११०२१"
+                          placeholder={FL_LABELS.address_placeholder}
                           value={form.contact.address}
                           onChange={(e) => upC("address", e.target.value)}
                           rows={3}
