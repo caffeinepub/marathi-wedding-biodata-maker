@@ -884,11 +884,71 @@ function getPlaceholderMotherName(language: string, religion: string): string {
   );
 }
 
+// Get religion-aware caste label for form
+function getCasteLabelForForm(language: string, religion: string): string {
+  if (religion === "मुस्लीम") {
+    if (language === "english") return "Community / Biradari";
+    if (language === "kannada") return "ಸಮುದಾಯ";
+    return "बिरादरी";
+  }
+  if (religion === "ख्रिश्चन") {
+    return "Denomination";
+  }
+  if (religion === "बौद्ध") {
+    if (language === "english") return "Community";
+    if (language === "hindi") return "समाज";
+    if (language === "kannada") return "ಸಮಾಜ";
+    return "समाज";
+  }
+  return (FORM_LABELS[language] || FORM_LABELS.marathi).caste;
+}
+
+// Get religion-aware relative labels for form
+function getRelativeFormLabels(
+  language: string,
+  religion: string,
+): { mama: string; kaka: string; atya: string; pahune: string } {
+  const L = FORM_LABELS[language] || FORM_LABELS.marathi;
+  if (religion === "मुस्लीम") {
+    if (language === "english")
+      return {
+        mama: "Maternal Uncle",
+        kaka: "Uncle (Chacha)",
+        atya: "Aunt (Fuphi)",
+        pahune: "Guest",
+      };
+    if (language === "hindi")
+      return { mama: "मामू", kaka: "चाचा", atya: "फुफी", pahune: "मेहमान" };
+    if (language === "kannada")
+      return { mama: "ಮಾಮಾ", kaka: "ಚಾಚಾ", atya: "ಫೂಫಿ", pahune: "ಅತಿಥಿ" };
+    if (language === "urdu")
+      return { mama: "ماموں", kaka: "چچا", atya: "پھوپھی", pahune: "مہمان" };
+    return { mama: "मामू", kaka: "चाचा", atya: "फुफी", pahune: "मेहमान" };
+  }
+  if (religion === "ख्रिश्चन") {
+    if (language === "kannada")
+      return { mama: "ಮಾವ", kaka: "ಚಿಕ್ಕಪ್ಪ", atya: "ಅತ್ತೆ", pahune: "ಅತಿಥಿ" };
+    if (language === "urdu")
+      return { mama: "ماموں", kaka: "چچا", atya: "خالہ", pahune: "مہمان" };
+    return {
+      mama: "Maternal Uncle",
+      kaka: "Uncle",
+      atya: "Aunt",
+      pahune: "Guest",
+    };
+  }
+  return { mama: L.mama, kaka: L.kaka, atya: L.atya, pahune: L.pahune };
+}
+
 function getOptionalFieldsForStep(
   step: number,
   lang: string,
+  religion = "हिंदू",
 ): { key: string; label: string }[] {
   const L = FORM_LABELS[lang] || FORM_LABELS.marathi;
+  const isNoHoroscope = ["ख्रिश्चन", "मुस्लीम"].includes(religion);
+  const isNoManglik = ["बौद्ध", "ख्रिश्चन", "मुस्लीम"].includes(religion);
+  const isNoGotra = ["बौद्ध", "ख्रिश्चन", "मुस्लीम"].includes(religion);
   const fields: Record<number, { key: string; label: string }[]> = {
     1: [
       { key: "timeOfBirth", label: L.tob },
@@ -896,26 +956,31 @@ function getOptionalFieldsForStep(
       { key: "income", label: L.income },
       { key: "religion", label: L.religion },
       { key: "caste", label: L.caste },
-      { key: "gotra", label: L.gotra },
-      { key: "manglikStatus", label: L.manglik },
+      ...(!isNoGotra ? [{ key: "gotra", label: L.gotra }] : []),
+      ...(!isNoManglik ? [{ key: "manglikStatus", label: L.manglik }] : []),
     ],
     2: [
       { key: "fatherOccupation", label: L.fatherOccupation },
       { key: "motherOccupation", label: L.motherOccupation },
       { key: "siblingsInfo", label: L.siblings },
-      { key: "mamaInfo", label: L.mama },
-      { key: "kakaInfo", label: L.kaka },
-      { key: "atyaInfo", label: L.atya },
-      { key: "pahuneInfo", label: L.pahune },
+      { key: "mamaInfo", label: getRelativeFormLabels(lang, religion).mama },
+      { key: "kakaInfo", label: getRelativeFormLabels(lang, religion).kaka },
+      { key: "atyaInfo", label: getRelativeFormLabels(lang, religion).atya },
+      {
+        key: "pahuneInfo",
+        label: getRelativeFormLabels(lang, religion).pahune,
+      },
       { key: "familyType", label: L.familyType },
       { key: "nativePlace", label: L.nativePlace },
     ],
-    3: [
-      { key: "gan", label: L.gan },
-      { key: "nadi", label: L.nadi },
-      { key: "charan", label: L.charan },
-      { key: "planetaryPositions", label: L.planetaryPos },
-    ],
+    3: isNoHoroscope
+      ? []
+      : [
+          { key: "gan", label: L.gan },
+          { key: "nadi", label: L.nadi },
+          { key: "charan", label: L.charan },
+          { key: "planetaryPositions", label: L.planetaryPos },
+        ],
     4: [
       { key: "email", label: L.email },
       { key: "address", label: L.address },
@@ -939,14 +1004,16 @@ function FieldCustomizer({
   hiddenFields,
   onToggle,
   language,
+  religion,
 }: {
   step: number;
   hiddenFields: Set<string>;
   onToggle: (key: string) => void;
   language: string;
+  religion: string;
 }) {
   const [open, setOpen] = useState(false);
-  const fields = getOptionalFieldsForStep(step, language);
+  const fields = getOptionalFieldsForStep(step, language, religion);
   if (!fields) return null;
   return (
     <div className="mb-5 rounded-xl border border-border overflow-hidden">
@@ -994,15 +1061,441 @@ function FieldCustomizer({
   );
 }
 
+// ─── Photo Crop Modal ─────────────────────────────────────────────────────────
+interface CropModalProps {
+  imageSrc: string;
+  onCrop: (croppedDataUrl: string) => void;
+  onCancel: () => void;
+  language: string;
+}
+
+function PhotoCropModal({
+  imageSrc,
+  onCrop,
+  onCancel,
+  language,
+}: CropModalProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [cropStart, setCropStart] = useState({ x: 0, y: 0 });
+  const [cropRect, setCropRect] = useState({ x: 0, y: 0, w: 150, h: 200 });
+  const [dragging, setDragging] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
+
+  const cropBtnLabel =
+    language === "english"
+      ? "Crop Photo"
+      : language === "hindi"
+        ? "फ़ोटो क्रॉप करें"
+        : language === "kannada"
+          ? "ಫೋಟೋ ಕ್ರಾಪ್ ಮಾಡಿ"
+          : language === "urdu"
+            ? "فوٹو کاٹیں"
+            : "फोटो Crop करा";
+  const cancelBtnLabel =
+    language === "english"
+      ? "Cancel"
+      : language === "hindi"
+        ? "रद्द करें"
+        : language === "kannada"
+          ? "ರದ್ದು"
+          : language === "urdu"
+            ? "منسوخ"
+            : "रद्द करा";
+  const titleLabel =
+    language === "english"
+      ? "Crop Photo"
+      : language === "hindi"
+        ? "फ़ोटो क्रॉप करें"
+        : language === "kannada"
+          ? "ಫೋಟೋ ಕ್ರಾಪ್"
+          : language === "urdu"
+            ? "فوٹو کاٹیں"
+            : "फोटो Crop करा";
+
+  useEffect(() => {
+    if (!imageSrc) return;
+    const img = new Image();
+    img.onload = () => {
+      imgRef.current = img;
+      setImgLoaded(true);
+      // Init crop rect to center 3:4 portrait crop
+      const maxW = Math.min(img.width, 300);
+      const w = maxW * 0.7;
+      const h = w * (4 / 3);
+      setCropRect({
+        x: (maxW - w) / 2,
+        y: ((img.height * maxW) / img.width - h) / 2,
+        w,
+        h,
+      });
+    };
+    img.src = imageSrc;
+  }, [imageSrc]);
+
+  useEffect(() => {
+    if (!imgLoaded || !canvasRef.current || !imgRef.current) return;
+    drawCanvas();
+  });
+
+  function getCanvasScale() {
+    if (!imgRef.current) return 1;
+    const maxW = Math.min(imgRef.current.width, 300);
+    return maxW / imgRef.current.width;
+  }
+
+  function drawCanvas() {
+    const canvas = canvasRef.current;
+    const img = imgRef.current;
+    if (!canvas || !img) return;
+    const scale = getCanvasScale();
+    canvas.width = img.width * scale;
+    canvas.height = img.height * scale;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    // Darken outside crop
+    ctx.fillStyle = "rgba(0,0,0,0.45)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Clear crop area
+    ctx.clearRect(cropRect.x, cropRect.y, cropRect.w, cropRect.h);
+    ctx.drawImage(
+      img,
+      cropRect.x / scale,
+      cropRect.y / scale,
+      cropRect.w / scale,
+      cropRect.h / scale,
+      cropRect.x,
+      cropRect.y,
+      cropRect.w,
+      cropRect.h,
+    );
+    // Draw crop border
+    ctx.strokeStyle = "#8B1A1A";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(cropRect.x, cropRect.y, cropRect.w, cropRect.h);
+    // Corner handles
+    const hs = 8;
+    ctx.fillStyle = "#8B1A1A";
+    for (const [hx, hy] of [
+      [cropRect.x, cropRect.y],
+      [cropRect.x + cropRect.w, cropRect.y],
+      [cropRect.x, cropRect.y + cropRect.h],
+      [cropRect.x + cropRect.w, cropRect.y + cropRect.h],
+    ]) {
+      ctx.fillRect(hx - hs / 2, hy - hs / 2, hs, hs);
+    }
+  }
+
+  function getCanvasPos(e: React.MouseEvent<HTMLCanvasElement>) {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return {
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY,
+    };
+  }
+
+  function handleMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
+    const pos = getCanvasPos(e);
+    setCropStart({ x: pos.x - cropRect.x, y: pos.y - cropRect.y });
+    setDragging(true);
+  }
+
+  function handleMouseMove(e: React.MouseEvent<HTMLCanvasElement>) {
+    if (!dragging || !canvasRef.current || !imgRef.current) return;
+    const canvas = canvasRef.current;
+    const pos = getCanvasPos(e);
+    let nx = pos.x - cropStart.x;
+    let ny = pos.y - cropStart.y;
+    nx = Math.max(0, Math.min(nx, canvas.width - cropRect.w));
+    ny = Math.max(0, Math.min(ny, canvas.height - cropRect.h));
+    setCropRect((r) => ({ ...r, x: nx, y: ny }));
+  }
+
+  function handleMouseUp() {
+    setDragging(false);
+  }
+
+  function handleCrop() {
+    const img = imgRef.current;
+    if (!img) return;
+    const scale = getCanvasScale();
+    const offCanvas = document.createElement("canvas");
+    const tw = Math.round(cropRect.w / scale);
+    const th = Math.round(cropRect.h / scale);
+    offCanvas.width = tw;
+    offCanvas.height = th;
+    const ctx = offCanvas.getContext("2d");
+    if (!ctx) return;
+    ctx.drawImage(
+      img,
+      Math.round(cropRect.x / scale),
+      Math.round(cropRect.y / scale),
+      tw,
+      th,
+      0,
+      0,
+      tw,
+      th,
+    );
+    onCrop(offCanvas.toDataURL("image/jpeg", 0.9));
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      data-ocid="photo.crop.modal"
+    >
+      <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden">
+        <div className="p-4 border-b border-border flex items-center justify-between">
+          <span className="font-devanagari font-bold text-base text-foreground">
+            {titleLabel}
+          </span>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="text-muted-foreground hover:text-foreground text-xl leading-none"
+            data-ocid="photo.crop.close_button"
+          >
+            ×
+          </button>
+        </div>
+        <div className="p-4 flex flex-col items-center gap-4">
+          <p className="font-devanagari text-xs text-muted-foreground text-center">
+            {language === "english"
+              ? "Drag the crop area to adjust position"
+              : language === "hindi"
+                ? "क्रॉप क्षेत्र को खींचकर समायोजित करें"
+                : "Crop क्षेत्र drag करून position बदला"}
+          </p>
+          {imgLoaded ? (
+            <canvas
+              ref={canvasRef}
+              className="max-w-full rounded-lg cursor-move touch-none"
+              style={{ maxHeight: 300 }}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+            />
+          ) : (
+            <div className="w-64 h-48 bg-muted rounded-lg flex items-center justify-center">
+              <span className="text-sm text-muted-foreground">Loading...</span>
+            </div>
+          )}
+          <div className="flex gap-3 w-full">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="flex-1 py-2 rounded-xl border border-border text-sm font-devanagari font-semibold text-muted-foreground hover:bg-muted transition-colors"
+              data-ocid="photo.crop.cancel_button"
+            >
+              {cancelBtnLabel}
+            </button>
+            <button
+              type="button"
+              onClick={handleCrop}
+              className="flex-1 py-2 rounded-xl bg-[#8B1A1A] text-white text-sm font-devanagari font-semibold hover:bg-[#6e1414] transition-colors"
+              data-ocid="photo.crop.confirm_button"
+            >
+              {cropBtnLabel}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Template Mini Preview ────────────────────────────────────────────────────
+function TemplateMiniPreview({
+  templateId,
+  color,
+}: { templateId: string; color: string }) {
+  const isDark = templateId === "daivi";
+  const isFloral = templateId === "floral";
+  const isRajeshahi = templateId === "rajeshahi";
+  const bg = isDark
+    ? "#0A1628"
+    : isFloral
+      ? "#fff5f0"
+      : isRajeshahi
+        ? "#fdf2f8"
+        : "#fff9f0";
+  const headerBg = color;
+  const textLine = isDark ? "rgba(255,255,255,0.5)" : `${color}60`;
+
+  return (
+    <svg
+      viewBox="0 0 90 120"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ width: 90, height: 120, borderRadius: 6, display: "block" }}
+      aria-label="Template Preview"
+    >
+      <title>Template Preview</title>
+      {/* Background */}
+      <rect width="90" height="120" fill={bg} rx="4" />
+      {/* Header bar */}
+      <rect width="90" height="22" fill={headerBg} rx="0" />
+      {/* Header text lines */}
+      <rect
+        x="8"
+        y="7"
+        width="40"
+        height="4"
+        rx="2"
+        fill="rgba(255,255,255,0.8)"
+      />
+      <rect
+        x="8"
+        y="14"
+        width="28"
+        height="3"
+        rx="1.5"
+        fill="rgba(255,255,255,0.5)"
+      />
+      {/* Photo placeholder */}
+      <rect
+        x="64"
+        y="4"
+        width="20"
+        height="26"
+        rx="2"
+        fill="rgba(255,255,255,0.2)"
+      />
+      <rect
+        x="69"
+        y="8"
+        width="10"
+        height="10"
+        rx="5"
+        fill="rgba(255,255,255,0.3)"
+      />
+      {/* Section header */}
+      <rect x="6" y="28" width="35" height="3" rx="1.5" fill={color} />
+      <rect x="6" y="28" width="78" height="0.5" fill={color} />
+      {/* Info rows */}
+      <rect x="6" y="34" width="22" height="2" rx="1" fill={textLine} />
+      <rect
+        x="32"
+        y="34"
+        width="50"
+        height="2"
+        rx="1"
+        fill={isDark ? "rgba(255,255,255,0.6)" : "#33333340"}
+      />
+      <rect x="6" y="39" width="22" height="2" rx="1" fill={textLine} />
+      <rect
+        x="32"
+        y="39"
+        width="40"
+        height="2"
+        rx="1"
+        fill={isDark ? "rgba(255,255,255,0.6)" : "#33333340"}
+      />
+      <rect x="6" y="44" width="22" height="2" rx="1" fill={textLine} />
+      <rect
+        x="32"
+        y="44"
+        width="45"
+        height="2"
+        rx="1"
+        fill={isDark ? "rgba(255,255,255,0.6)" : "#33333340"}
+      />
+      {/* Section 2 header */}
+      <rect x="6" y="52" width="35" height="3" rx="1.5" fill={color} />
+      <rect x="6" y="52" width="78" height="0.5" fill={color} />
+      {/* More rows */}
+      <rect x="6" y="58" width="22" height="2" rx="1" fill={textLine} />
+      <rect
+        x="32"
+        y="58"
+        width="48"
+        height="2"
+        rx="1"
+        fill={isDark ? "rgba(255,255,255,0.6)" : "#33333340"}
+      />
+      <rect x="6" y="63" width="22" height="2" rx="1" fill={textLine} />
+      <rect
+        x="32"
+        y="63"
+        width="36"
+        height="2"
+        rx="1"
+        fill={isDark ? "rgba(255,255,255,0.6)" : "#33333340"}
+      />
+      <rect x="6" y="68" width="22" height="2" rx="1" fill={textLine} />
+      <rect
+        x="32"
+        y="68"
+        width="42"
+        height="2"
+        rx="1"
+        fill={isDark ? "rgba(255,255,255,0.6)" : "#33333340"}
+      />
+      {/* Section 3 header */}
+      <rect x="6" y="76" width="35" height="3" rx="1.5" fill={color} />
+      <rect x="6" y="76" width="78" height="0.5" fill={color} />
+      <rect x="6" y="82" width="22" height="2" rx="1" fill={textLine} />
+      <rect
+        x="32"
+        y="82"
+        width="44"
+        height="2"
+        rx="1"
+        fill={isDark ? "rgba(255,255,255,0.6)" : "#33333340"}
+      />
+      <rect x="6" y="87" width="22" height="2" rx="1" fill={textLine} />
+      <rect
+        x="32"
+        y="87"
+        width="32"
+        height="2"
+        rx="1"
+        fill={isDark ? "rgba(255,255,255,0.6)" : "#33333340"}
+      />
+      {/* Footer */}
+      <rect x="6" y="108" width="78" height="0.5" fill={color} />
+      <rect
+        x="20"
+        y="112"
+        width="50"
+        height="2.5"
+        rx="1.25"
+        fill={color}
+        opacity="0.7"
+      />
+      {/* Floral decoration */}
+      {isFloral && <circle cx="85" cy="28" r="5" fill={`${color}30`} />}
+      {isFloral && <circle cx="85" cy="30" r="3" fill={`${color}50`} />}
+      {isDark && (
+        <rect
+          width="90"
+          height="120"
+          rx="4"
+          fill="none"
+          stroke={color}
+          strokeWidth="1.5"
+        />
+      )}
+    </svg>
+  );
+}
+
 export default function BiodataForm() {
   const [step, setStep] = useState(0);
   const { setLanguage: setSiteLang } = useSiteLang();
   const selectedPlan = "basic";
   const [form, setForm] = useState<FormState>(() => ({
     ...defaultState,
-    language: (localStorage.getItem("siteLang") as LanguageType) || "marathi",
+    language: "marathi",
   }));
   const FL_LABELS = FORM_LABELS[form.language] || FORM_LABELS.marathi;
+  const REL_LABELS = getRelativeFormLabels(form.language, form.religion);
   const [hiddenFields, setHiddenFields] = useState<Set<string>>(new Set());
   const [siblings, setSiblings] = useState<SiblingEntry[]>(() => {
     try {
@@ -1058,6 +1551,7 @@ export default function BiodataForm() {
   }, []);
 
   const fileRef = useRef<HTMLInputElement>(null);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
   const navigate = useNavigate();
   const mutation = useCreateOrUpdateBiodata();
 
@@ -1092,11 +1586,28 @@ export default function BiodataForm() {
   function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    setForm((f) => ({
-      ...f,
-      photoFile: file,
-      photoPreview: URL.createObjectURL(file),
-    }));
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setCropSrc(ev.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+    // Reset input so same file can be selected again
+    e.target.value = "";
+  }
+
+  function handleCropDone(croppedDataUrl: string) {
+    // Convert dataUrl to File
+    fetch(croppedDataUrl)
+      .then((r) => r.blob())
+      .then((blob) => {
+        const file = new File([blob], "photo.jpg", { type: "image/jpeg" });
+        setForm((f) => ({
+          ...f,
+          photoFile: file,
+          photoPreview: croppedDataUrl,
+        }));
+        setCropSrc(null);
+      });
   }
 
   async function handleSubmit() {
@@ -1131,6 +1642,7 @@ export default function BiodataForm() {
     sessionStorage.setItem("biodataLanguage", form.language);
     sessionStorage.setItem("biodataFont", form.selectedFont);
     sessionStorage.setItem("biodataReligion", form.religion);
+    localStorage.setItem("biodataReligion", form.religion);
     sessionStorage.setItem(
       "biodataFormData",
       JSON.stringify({
@@ -1149,870 +1661,125 @@ export default function BiodataForm() {
   const progress = ((step + 1) / STEP_TITLES.length) * 100;
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Flower2 className="w-5 h-5 text-maroon" />
-            <span className="font-serif-devanagari font-bold text-maroon text-xl">
-              लग्नसेतू
-            </span>
+    <>
+      {cropSrc && (
+        <PhotoCropModal
+          imageSrc={cropSrc}
+          language={form.language}
+          onCrop={handleCropDone}
+          onCancel={() => setCropSrc(null)}
+        />
+      )}
+      <div className="min-h-screen bg-background py-8 px-4">
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Flower2 className="w-5 h-5 text-maroon" />
+              <span className="font-serif-devanagari font-bold text-maroon text-xl">
+                लग्नसेतू
+              </span>
+            </div>
+            <h1 className="font-serif-devanagari font-bold text-maroon text-2xl mb-1">
+              बायोडाटा तयार करा
+            </h1>
+            <p className="font-devanagari text-sm text-muted-foreground">
+              Create Your Wedding Biodata
+            </p>
           </div>
-          <h1 className="font-serif-devanagari font-bold text-maroon text-2xl mb-1">
-            बायोडाटा तयार करा
-          </h1>
-          <p className="font-devanagari text-sm text-muted-foreground">
-            Create Your Wedding Biodata
-          </p>
-        </div>
 
-        <div className="mb-8">
-          <div className="flex justify-between mb-2">
-            {STEP_TITLES.map((t, i) => (
-              <div key={t.mr} className="flex-1 text-center">
-                <div
-                  className={`w-7 h-7 rounded-full mx-auto mb-1 flex items-center justify-center text-xs font-bold border-2 transition-colors ${
-                    i < step
-                      ? "bg-maroon border-maroon text-amber-50"
-                      : i === step
-                        ? "border-maroon text-maroon bg-amber-50"
-                        : "border-border text-muted-foreground"
-                  }`}
+          <div className="mb-8">
+            <div className="flex justify-between mb-2">
+              {STEP_TITLES.map((t, i) => (
+                <div key={t.mr} className="flex-1 text-center">
+                  <div
+                    className={`w-7 h-7 rounded-full mx-auto mb-1 flex items-center justify-center text-xs font-bold border-2 transition-colors ${
+                      i < step
+                        ? "bg-maroon border-maroon text-amber-50"
+                        : i === step
+                          ? "border-maroon text-maroon bg-amber-50"
+                          : "border-border text-muted-foreground"
+                    }`}
+                  >
+                    {i + 1}
+                  </div>
+                  <div className="font-devanagari text-[10px] hidden sm:block text-muted-foreground">
+                    {t.mr}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Progress value={progress} className="h-1.5" />
+          </div>
+
+          <div className="bg-card rounded-2xl shadow-card border border-border overflow-hidden">
+            <div className="bg-maroon px-6 py-4">
+              <h2 className="font-serif-devanagari font-bold text-amber-100 text-xl">
+                {STEP_TITLES[step].mr}
+              </h2>
+              <p className="text-amber-200/70 text-sm">
+                {STEP_TITLES[step].en}
+              </p>
+            </div>
+
+            <div className="p-6 md:p-8">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={step}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  {i + 1}
-                </div>
-                <div className="font-devanagari text-[10px] hidden sm:block text-muted-foreground">
-                  {t.mr}
-                </div>
-              </div>
-            ))}
-          </div>
-          <Progress value={progress} className="h-1.5" />
-        </div>
-
-        <div className="bg-card rounded-2xl shadow-card border border-border overflow-hidden">
-          <div className="bg-maroon px-6 py-4">
-            <h2 className="font-serif-devanagari font-bold text-amber-100 text-xl">
-              {STEP_TITLES[step].mr}
-            </h2>
-            <p className="text-amber-200/70 text-sm">{STEP_TITLES[step].en}</p>
-          </div>
-
-          <div className="p-6 md:p-8">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={step}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                {/* Step 0 - Plan + Template Selection */}
-                {step === 0 && (
-                  <div className="space-y-6">
-                    {/* Religion Selector */}
-                    <div className="space-y-2">
-                      <p className="font-devanagari font-semibold text-foreground text-sm">
-                        {FL_LABELS.selectReligion}{" "}
-                        <span className="text-xs text-muted-foreground font-normal">
-                          (Select Religion)
-                        </span>
-                      </p>
-                      <Select
-                        value={form.religion}
-                        onValueChange={(v) =>
-                          setForm((f) => ({
-                            ...f,
-                            religion: v as ReligionType,
-                            personal: { ...f.personal, religion: v },
-                          }))
-                        }
-                      >
-                        <SelectTrigger
-                          data-ocid="form.religion.select"
-                          className="font-devanagari"
-                        >
-                          <SelectValue
-                            placeholder={FL_LABELS.religionPlaceholder}
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {(
-                            [
-                              "हिंदू",
-                              "जैन",
-                              "बौद्ध",
-                              "लिंगायत",
-                              "ख्रिश्चन",
-                              "मुस्लीम",
-                            ] as ReligionType[]
-                          ).map((r) => (
-                            <SelectItem
-                              key={r}
-                              value={r}
-                              className="font-devanagari"
-                            >
-                              {r}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Language Selector */}
-                    <div className="space-y-2">
-                      <p className="font-devanagari font-semibold text-foreground text-sm">
-                        {FL_LABELS.selectLanguage}{" "}
-                        <span className="text-xs text-muted-foreground font-normal">
-                          (Select Language)
-                        </span>
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {(
-                          [
-                            ["marathi", "मराठी"],
-                            ["hindi", "हिंदी"],
-                            ["english", "English"],
-                            ["kannada", "ಕನ್ನಡ"],
-                            ["urdu", "اردو"],
-                          ] as [LanguageType, string][]
-                        ).map(([val, label]) => (
-                          <button
-                            key={val}
-                            type="button"
-                            onClick={() => {
-                              setForm((f) => ({ ...f, language: val }));
-                              setSiteLang(val);
-                            }}
-                            data-ocid={`form.language.${val}.toggle`}
-                            dir={val === "urdu" ? "rtl" : undefined}
-                            className={`flex-1 min-w-[60px] py-2 rounded-lg border-2 text-sm font-semibold transition-all ${form.language === val ? "border-maroon bg-maroon text-amber-50" : "border-border text-foreground hover:border-maroon/50"}`}
-                          >
-                            {label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Font Selector */}
-                    <div className="space-y-2">
-                      <p className="font-devanagari font-semibold text-foreground text-sm">
-                        {FL_LABELS.selectFont}{" "}
-                        <span className="text-xs text-muted-foreground font-normal">
-                          (Select Font)
-                        </span>
-                      </p>
-                      <div className="grid grid-cols-2 gap-2">
-                        {(
-                          [
-                            "Laila",
-                            "Hind",
-                            "Noto Sans Devanagari",
-                            "Mukta",
-                          ] as string[]
-                        ).map((font) => (
-                          <button
-                            key={font}
-                            type="button"
-                            onClick={() =>
-                              setForm((f) => ({ ...f, selectedFont: font }))
-                            }
-                            data-ocid={`form.font.${font.replace(/\s+/g, "-")}.toggle`}
-                            className={`py-2.5 px-3 rounded-lg border-2 text-sm transition-all ${form.selectedFont === font ? "border-maroon bg-maroon/5" : "border-border hover:border-maroon/50"}`}
-                            style={{ fontFamily: `'${font}', sans-serif` }}
-                          >
-                            <span
-                              style={{ fontFamily: `'${font}', sans-serif` }}
-                            >
-                              {font === "Noto Sans Devanagari" ? "Noto" : font}
-                            </span>
-                            <span
-                              className="text-xs text-muted-foreground ml-1.5"
-                              style={{ fontFamily: `'${font}', sans-serif` }}
-                            >
-                              अ
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Template selector */}
-                    <div>
-                      <p className="font-devanagari text-center text-maroon font-semibold text-sm mb-4">
-                        {FL_LABELS.allTemplatesAvail}
-                      </p>
-                      <div className="border-t border-border pt-5">
-                        <p className="font-devanagari font-semibold text-foreground text-sm mb-3">
-                          {FL_LABELS.selectTemplate}{" "}
-                          <span className="text-xs text-muted-foreground font-normal">
-                            (Select Template)
-                          </span>
-                        </p>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                          {TEMPLATES_CONFIG.map((t) => {
-                            const isSelected = form.template === t.id;
-                            return (
-                              <button
-                                key={t.id}
-                                type="button"
-                                onClick={() => {
-                                  selectTemplate(t.id);
-                                }}
-                                data-ocid={`template.select.${t.id}`}
-                                className={`relative flex flex-col gap-2 p-3 rounded-xl border-2 text-left transition-all ${
-                                  isSelected
-                                    ? "border-2 shadow-md"
-                                    : "border-border hover:border-gray-300"
-                                }`}
-                                style={{
-                                  borderColor: isSelected ? t.color : undefined,
-                                }}
-                              >
-                                <div className="flex items-center gap-2">
-                                  <div
-                                    style={{
-                                      width: 28,
-                                      height: 28,
-                                      background: t.color,
-                                      borderRadius: 6,
-                                      flexShrink: 0,
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                      fontSize: 14,
-                                    }}
-                                  >
-                                    {t.emoji}
-                                  </div>
-                                  <div>
-                                    <div className="font-devanagari font-semibold text-sm text-foreground">
-                                      {t.name}
-                                    </div>
-                                    <div className="font-devanagari text-xs text-muted-foreground">
-                                      {t.desc}
-                                    </div>
-                                  </div>
-                                </div>
-                                {isSelected && (
-                                  <div
-                                    className="text-xs font-devanagari font-semibold"
-                                    style={{ color: t.color }}
-                                  >
-                                    {FL_LABELS.templateSelected}
-                                  </div>
-                                )}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 1 - Personal Info */}
-                {step === 1 && (
-                  <div className="space-y-5">
-                    <FieldCustomizer
-                      step={1}
-                      hiddenFields={hiddenFields}
-                      onToggle={toggleField}
-                      language={form.language}
-                    />
-
-                    {/* Photo Upload */}
-                    <div className="flex items-start gap-5 p-4 bg-muted/50 rounded-xl border border-border">
-                      <button
-                        type="button"
-                        className="relative cursor-pointer flex-shrink-0"
-                        onClick={() => fileRef.current?.click()}
-                      >
-                        {form.photoPreview ? (
-                          <img
-                            src={form.photoPreview}
-                            alt="Profile"
-                            className="w-24 h-28 object-cover rounded-lg border-2 border-maroon shadow"
-                          />
-                        ) : (
-                          <div className="w-24 h-28 rounded-lg border-2 border-dashed border-maroon/40 bg-amber-50 flex flex-col items-center justify-center gap-1 hover:border-maroon transition-colors">
-                            <Upload className="w-6 h-6 text-maroon/50" />
-                            <span className="font-devanagari text-[10px] text-muted-foreground text-center px-1">
-                              {FL_LABELS.photoLabel}
-                            </span>
-                          </div>
-                        )}
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          ref={fileRef}
-                          onChange={handlePhoto}
-                          data-ocid="personal.photo.upload_button"
-                        />
-                      </button>
-                      <div className="flex-1 space-y-1.5">
-                        <div className="font-devanagari font-semibold text-sm text-foreground">
-                          {FL_LABELS.photoUploadTitle}
-                        </div>
-                        <p className="font-devanagari text-xs text-muted-foreground leading-relaxed">
-                          {FL_LABELS.photoUploadInstruction}
-                        </p>
-                        {form.photoPreview && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setForm((f) => ({
-                                ...f,
-                                photoFile: null,
-                                photoPreview: null,
-                              }))
-                            }
-                            className="font-devanagari text-xs text-red-500 hover:text-red-700 underline"
-                          >
-                            {FL_LABELS.photoRemoveBtn}
-                          </button>
-                        )}
-                        {!form.photoPreview && (
-                          <button
-                            type="button"
-                            onClick={() => fileRef.current?.click()}
-                            className="inline-flex items-center gap-1.5 font-devanagari text-xs font-semibold text-maroon border border-maroon/30 rounded-lg px-3 py-1.5 hover:bg-maroon/5 transition-colors"
-                          >
-                            <Upload className="w-3 h-3" />{" "}
-                            {FL_LABELS.photoSelectBtn}
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="grid sm:grid-cols-2 gap-5">
-                      <div className="space-y-1.5">
-                        <FL label={FL_LABELS.fullName} />
-                        <Input
-                          placeholder={getPlaceholderName(
-                            form.language,
-                            form.religion,
-                          )}
-                          value={form.personal.name}
-                          onChange={(e) => upP("name", e.target.value)}
-                          data-ocid="personal.name.input"
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <FL label={FL_LABELS.dob} />
-                        <Input
-                          type="date"
-                          value={form.personal.dateOfBirth}
-                          onChange={(e) => upP("dateOfBirth", e.target.value)}
-                          data-ocid="personal.dob.input"
-                        />
-                      </div>
-                    </div>
-                    {!hiddenFields.has("timeOfBirth") && (
-                      <div className="grid sm:grid-cols-2 gap-5">
-                        <div className="space-y-1.5">
-                          <FL label={FL_LABELS.tob} />
-                          <Input
-                            type="time"
-                            value={form.personal.timeOfBirth}
-                            onChange={(e) => upP("timeOfBirth", e.target.value)}
-                            data-ocid="personal.tob.input"
-                          />
-                        </div>
-                        <div className="space-y-1.5">
-                          <FL label={FL_LABELS.pob} />
-                          <Input
-                            placeholder={FL_LABELS.placeOfBirth_placeholder}
-                            value={form.personal.placeOfBirth}
-                            onChange={(e) =>
-                              upP("placeOfBirth", e.target.value)
-                            }
-                            data-ocid="personal.pob.input"
-                          />
-                        </div>
-                      </div>
-                    )}
-                    {hiddenFields.has("timeOfBirth") && (
-                      <div className="space-y-1.5">
-                        <FL label={FL_LABELS.pob} />
-                        <Input
-                          placeholder={FL_LABELS.placeOfBirth_placeholder}
-                          value={form.personal.placeOfBirth}
-                          onChange={(e) => upP("placeOfBirth", e.target.value)}
-                          data-ocid="personal.pob.input"
-                        />
-                      </div>
-                    )}
-                    <div className="grid sm:grid-cols-2 gap-5">
-                      <div className="space-y-1.5">
-                        <FL label={FL_LABELS.height} />
-                        <Input
-                          placeholder={FL_LABELS.height_placeholder}
-                          value={form.personal.height}
-                          onChange={(e) => upP("height", e.target.value)}
-                          data-ocid="personal.height.input"
-                        />
-                      </div>
-                      {!hiddenFields.has("complexion") && (
-                        <div className="space-y-1.5">
-                          <FL label={FL_LABELS.complexion} />
-                          <Select
-                            value={form.personal.complexion}
-                            onValueChange={(v) => upP("complexion", v)}
-                          >
-                            <SelectTrigger data-ocid="personal.complexion.select">
-                              <SelectValue
-                                placeholder={FL_LABELS.selectPlaceholder}
-                              />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {["गोरा", "सावळा", "गहू वर्ण", "श्याम"].map((c) => (
-                                <SelectItem
-                                  key={c}
-                                  value={c}
-                                  className="font-devanagari"
-                                >
-                                  {c}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      )}
-                    </div>
-                    <div className="grid sm:grid-cols-2 gap-5">
-                      <div className="space-y-1.5">
-                        <FL label={FL_LABELS.education} />
-                        <Input
-                          placeholder={FL_LABELS.education_placeholder}
-                          value={form.personal.education}
-                          onChange={(e) => upP("education", e.target.value)}
-                          data-ocid="personal.education.input"
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <FL label={FL_LABELS.occupation} />
-                        <Input
-                          placeholder={FL_LABELS.occupation_placeholder}
-                          value={form.personal.occupation}
-                          onChange={(e) => upP("occupation", e.target.value)}
-                          data-ocid="personal.occupation.input"
-                        />
-                      </div>
-                    </div>
-                    {!hiddenFields.has("income") && (
-                      <div className="space-y-1.5">
-                        <FL label={FL_LABELS.income} />
-                        <Input
-                          placeholder={FL_LABELS.income_placeholder}
-                          value={form.personal.income}
-                          onChange={(e) => upP("income", e.target.value)}
-                          data-ocid="personal.income.input"
-                        />
-                      </div>
-                    )}
-                    <div className="grid sm:grid-cols-2 gap-5">
-                      {!hiddenFields.has("religion") && (
-                        <div className="space-y-1.5">
-                          <FL label={FL_LABELS.religion} />
-                          <div className="h-10 px-3 flex items-center rounded-md border border-input bg-muted font-devanagari text-sm">
-                            {form.religion}
-                          </div>
-                        </div>
-                      )}
-                      {!hiddenFields.has("caste") && (
-                        <div className="space-y-1.5">
-                          <FL label={FL_LABELS.caste} />
-                          <Input
-                            placeholder={FL_LABELS.caste_placeholder}
-                            value={form.personal.caste}
-                            onChange={(e) => upP("caste", e.target.value)}
-                            data-ocid="personal.caste.input"
-                          />
-                        </div>
-                      )}
-                    </div>
-                    {!hiddenFields.has("gotra") &&
-                      !["बौद्ध", "ख्रिश्चन", "मुस्लीम"].includes(form.religion) && (
-                        <div className="space-y-1.5">
-                          <FL label={FL_LABELS.gotra} />
-                          <Input
-                            placeholder={FL_LABELS.gotra_placeholder}
-                            value={form.personal.gotra}
-                            onChange={(e) => upP("gotra", e.target.value)}
-                            data-ocid="personal.gotra.input"
-                          />
-                        </div>
-                      )}
-                    {!hiddenFields.has("manglikStatus") &&
-                      !["ख्रिश्चन", "मुस्लीम", "बौद्ध"].includes(form.religion) && (
-                        <div className="flex items-center gap-3 p-4 bg-muted rounded-xl">
-                          <Switch
-                            checked={form.personal.manglikStatus}
-                            onCheckedChange={(v) => upP("manglikStatus", v)}
-                            data-ocid="personal.manglik.switch"
-                          />
-                          <span className="font-devanagari font-semibold text-sm">
-                            मांगलिक{" "}
-                            <span className="text-xs text-muted-foreground font-sans">
-                              (Manglik Status)
-                            </span>
-                          </span>
-                        </div>
-                      )}
-
-                    {/* Denomination for Christian */}
-                    {form.religion === "ख्रिश्चन" && (
-                      <div className="space-y-1.5">
-                        <FL label={FL_LABELS.denomination} />
-                        <Input
-                          placeholder={FL_LABELS.denomination_placeholder}
-                          value={(form.personal as any).denomination || ""}
-                          onChange={(e) =>
-                            upP("denomination" as any, e.target.value)
-                          }
-                          data-ocid="personal.denomination.input"
-                        />
-                      </div>
-                    )}
-
-                    {/* Panth for Buddhist / Muslim */}
-                    {(form.religion === "बौद्ध" ||
-                      form.religion === "मुस्लीम") && (
-                      <div className="space-y-1.5">
-                        <FL label={FL_LABELS.panth} />
-                        <Input
-                          placeholder={
-                            form.religion === "मुस्लीम"
-                              ? FL_LABELS.panth_placeholder_muslim
-                              : FL_LABELS.panth_placeholder_buddhist
-                          }
-                          value={(form.personal as any).denomination || ""}
-                          onChange={(e) =>
-                            upP("denomination" as any, e.target.value)
-                          }
-                          data-ocid="personal.panth.input"
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Step 2 - Family Info */}
-                {step === 2 && (
-                  <div className="space-y-5">
-                    <FieldCustomizer
-                      step={2}
-                      hiddenFields={hiddenFields}
-                      onToggle={toggleField}
-                      language={form.language}
-                    />
-                    <div className="grid sm:grid-cols-2 gap-5">
-                      <div className="space-y-1.5">
-                        <FL label={FL_LABELS.fatherName} />
-                        <Input
-                          placeholder={getPlaceholderFatherName(
-                            form.language,
-                            form.religion,
-                          )}
-                          value={form.family.fatherName}
-                          onChange={(e) => upF("fatherName", e.target.value)}
-                          data-ocid="family.father_name.input"
-                        />
-                      </div>
-                      {!hiddenFields.has("fatherOccupation") && (
-                        <div className="space-y-1.5">
-                          <FL label={FL_LABELS.fatherOccupation} />
-                          <Input
-                            placeholder={FL_LABELS.fatherOcc_placeholder}
-                            value={form.family.fatherOccupation}
-                            onChange={(e) =>
-                              upF("fatherOccupation", e.target.value)
-                            }
-                            data-ocid="family.father_occ.input"
-                          />
-                        </div>
-                      )}
-                    </div>
-                    <div className="grid sm:grid-cols-2 gap-5">
-                      <div className="space-y-1.5">
-                        <FL label={FL_LABELS.motherName} />
-                        <Input
-                          placeholder={getPlaceholderMotherName(
-                            form.language,
-                            form.religion,
-                          )}
-                          value={form.family.motherName}
-                          onChange={(e) => upF("motherName", e.target.value)}
-                          data-ocid="family.mother_name.input"
-                        />
-                      </div>
-                      {!hiddenFields.has("motherOccupation") && (
-                        <div className="space-y-1.5">
-                          <FL label={FL_LABELS.motherOccupation} />
-                          <Input
-                            placeholder={FL_LABELS.motherOcc_placeholder}
-                            value={form.family.motherOccupation}
-                            onChange={(e) =>
-                              upF("motherOccupation", e.target.value)
-                            }
-                            data-ocid="family.mother_occ.input"
-                          />
-                        </div>
-                      )}
-                    </div>
-                    {!hiddenFields.has("siblingsInfo") && (
+                  {/* Step 0 - Plan + Template Selection */}
+                  {step === 0 && (
+                    <div className="space-y-6">
+                      {/* Religion Selector */}
                       <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <FL label={FL_LABELS.siblings} />
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            onClick={addSibling}
-                            data-ocid="family.siblings.button"
-                            className="text-xs h-7 px-2"
-                          >
-                            ➕ {FL_LABELS.addSibling}
-                          </Button>
-                        </div>
-                        {siblings.length === 0 && (
-                          <p
-                            className="text-sm text-muted-foreground italic"
-                            data-ocid="family.siblings.empty_state"
-                          >
-                            {FL_LABELS.siblingEmptyHint}
-                          </p>
-                        )}
-                        <div className="space-y-3">
-                          {siblings.map((sib, idx) => (
-                            <div
-                              key={sib.id}
-                              className="border rounded-lg p-3 bg-muted/30 space-y-2"
-                              data-ocid={`family.siblings.item.${idx + 1}`}
-                            >
-                              <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium text-muted-foreground">
-                                  {FL_LABELS.sibling_num} {idx + 1}
-                                </span>
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => removeSibling(sib.id)}
-                                  data-ocid={`family.siblings.delete_button.${idx + 1}`}
-                                  className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-                                >
-                                  ✕
-                                </Button>
-                              </div>
-                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                <div className="space-y-1">
-                                  <span className="text-xs text-muted-foreground">
-                                    {FL_LABELS.type}
-                                  </span>
-                                  <div className="flex gap-1">
-                                    {(["भाऊ", "बहीण"] as const).map(
-                                      (val, i) => {
-                                        const label =
-                                          i === 0
-                                            ? FL_LABELS.sibling_bro
-                                            : FL_LABELS.sibling_sis;
-                                        return (
-                                          <button
-                                            key={val}
-                                            type="button"
-                                            onClick={() =>
-                                              updateSibling(sib.id, "type", val)
-                                            }
-                                            className={`flex-1 text-xs py-1 px-2 rounded border transition-colors ${sib.type === val ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border hover:bg-muted"}`}
-                                          >
-                                            {label}
-                                          </button>
-                                        );
-                                      },
-                                    )}
-                                  </div>
-                                </div>
-                                <div className="space-y-1">
-                                  <span className="text-xs text-muted-foreground">
-                                    {FL_LABELS.name}
-                                  </span>
-                                  <Input
-                                    placeholder={FL_LABELS.sibName_placeholder}
-                                    value={sib.name}
-                                    onChange={(e) =>
-                                      updateSibling(
-                                        sib.id,
-                                        "name",
-                                        e.target.value,
-                                      )
-                                    }
-                                    className="h-8 text-sm"
-                                    data-ocid={`family.siblings.input.${idx + 1}`}
-                                  />
-                                </div>
-                                <div className="space-y-1">
-                                  <span className="text-xs text-muted-foreground">
-                                    {FL_LABELS.maritalStatus}
-                                  </span>
-                                  <Select
-                                    value={sib.maritalStatus}
-                                    onValueChange={(v) =>
-                                      updateSibling(sib.id, "maritalStatus", v)
-                                    }
-                                  >
-                                    <SelectTrigger
-                                      className="h-8 text-sm"
-                                      data-ocid={`family.siblings.select.${idx + 1}`}
-                                    >
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="अविवाहित">
-                                        अविवाहित
-                                      </SelectItem>
-                                      <SelectItem value="विवाहित">
-                                        विवाहित
-                                      </SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                                <div className="space-y-1">
-                                  <span className="text-xs text-muted-foreground">
-                                    {FL_LABELS.workPost}
-                                  </span>
-                                  <Input
-                                    placeholder={FL_LABELS.sibOcc_placeholder}
-                                    value={sib.occupation}
-                                    onChange={(e) =>
-                                      updateSibling(
-                                        sib.id,
-                                        "occupation",
-                                        e.target.value,
-                                      )
-                                    }
-                                    className="h-8 text-sm"
-                                    data-ocid={`family.siblings.input.${idx + 1}`}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {/* मामा, काका, आत्या, पाहुणे */}
-                    <div className="grid sm:grid-cols-2 gap-5">
-                      {!hiddenFields.has("mamaInfo") && (
-                        <div className="space-y-1.5">
-                          <FL label={FL_LABELS.mama} />
-                          <Input
-                            placeholder={FL_LABELS.mama_placeholder}
-                            value={form.family.mamaInfo}
-                            onChange={(e) => upF("mamaInfo", e.target.value)}
-                            data-ocid="family.mama.input"
-                          />
-                        </div>
-                      )}
-                      {!hiddenFields.has("kakaInfo") && (
-                        <div className="space-y-1.5">
-                          <FL label={FL_LABELS.kaka} />
-                          <Input
-                            placeholder={FL_LABELS.kaka_placeholder}
-                            value={form.family.kakaInfo}
-                            onChange={(e) => upF("kakaInfo", e.target.value)}
-                            data-ocid="family.kaka.input"
-                          />
-                        </div>
-                      )}
-                      {!hiddenFields.has("atyaInfo") && (
-                        <div className="space-y-1.5">
-                          <FL label={FL_LABELS.atya} />
-                          <Input
-                            placeholder={FL_LABELS.atya_placeholder}
-                            value={form.family.atyaInfo}
-                            onChange={(e) => upF("atyaInfo", e.target.value)}
-                            data-ocid="family.atya.input"
-                          />
-                        </div>
-                      )}
-                      {!hiddenFields.has("pahuneInfo") && (
-                        <div className="space-y-1.5">
-                          <FL label={FL_LABELS.pahune} />
-                          <Input
-                            placeholder={FL_LABELS.pahune_placeholder}
-                            value={form.family.pahuneInfo}
-                            onChange={(e) => upF("pahuneInfo", e.target.value)}
-                            data-ocid="family.pahune.input"
-                          />
-                        </div>
-                      )}
-                    </div>
-                    <div className="grid sm:grid-cols-2 gap-5">
-                      {!hiddenFields.has("familyType") && (
-                        <div className="space-y-1.5">
-                          <FL label={FL_LABELS.familyType} />
-                          <Select
-                            value={form.family.familyType}
-                            onValueChange={(v) => upF("familyType", v)}
-                          >
-                            <SelectTrigger data-ocid="family.type.select">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {["एकत्र", "विभक्त"].map((t) => (
-                                <SelectItem
-                                  key={t}
-                                  value={t}
-                                  className="font-devanagari"
-                                >
-                                  {t}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      )}
-                      {!hiddenFields.has("nativePlace") && (
-                        <div className="space-y-1.5">
-                          <FL label={FL_LABELS.nativePlace} />
-                          <Input
-                            placeholder={FL_LABELS.nativePlaceholder}
-                            value={form.family.nativePlace}
-                            onChange={(e) => upF("nativePlace", e.target.value)}
-                            data-ocid="family.native.input"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 3 - Horoscope */}
-                {step === 3 && (
-                  <div className="space-y-5">
-                    <FieldCustomizer
-                      step={3}
-                      hiddenFields={hiddenFields}
-                      onToggle={toggleField}
-                      language={form.language}
-                    />
-                    <div className="grid sm:grid-cols-2 gap-5">
-                      <div className="space-y-1.5">
-                        <FL label={FL_LABELS.rashi} />
+                        <p className="font-devanagari font-semibold text-foreground text-sm">
+                          {FL_LABELS.selectReligion}{" "}
+                          <span className="text-xs text-muted-foreground font-normal">
+                            (Select Religion)
+                          </span>
+                        </p>
                         <Select
-                          value={form.horoscope.rashi}
-                          onValueChange={(v) => upH("rashi", v)}
+                          value={form.religion}
+                          onValueChange={(v) => {
+                            const newReligion = v as ReligionType;
+                            const resetLang =
+                              newReligion !== "मुस्लीम" &&
+                              form.language === "urdu";
+                            if (resetLang) setSiteLang("marathi");
+                            localStorage.setItem(
+                              "biodataReligion",
+                              newReligion,
+                            );
+                            setForm((f) => ({
+                              ...f,
+                              religion: newReligion,
+                              language: resetLang ? "marathi" : f.language,
+                              personal: { ...f.personal, religion: v },
+                            }));
+                          }}
                         >
-                          <SelectTrigger data-ocid="horoscope.rashi.select">
+                          <SelectTrigger
+                            data-ocid="form.religion.select"
+                            className="font-devanagari"
+                          >
                             <SelectValue
-                              placeholder={FL_LABELS.rashiPlaceholder}
+                              placeholder={FL_LABELS.religionPlaceholder}
                             />
                           </SelectTrigger>
                           <SelectContent>
-                            {RASHIS.map((r) => (
+                            {(
+                              [
+                                "हिंदू",
+                                "जैन",
+                                "बौद्ध",
+                                "लिंगायत",
+                                "ख्रिश्चन",
+                                "मुस्लीम",
+                              ] as ReligionType[]
+                            ).map((r) => (
                               <SelectItem
                                 key={r}
                                 value={r}
@@ -2024,232 +1791,1042 @@ export default function BiodataForm() {
                           </SelectContent>
                         </Select>
                       </div>
-                      <div className="space-y-1.5">
-                        <FL label={FL_LABELS.nakshatra} />
-                        <Select
-                          value={form.horoscope.nakshatra}
-                          onValueChange={(v) => upH("nakshatra", v)}
-                        >
-                          <SelectTrigger data-ocid="horoscope.nakshatra.select">
-                            <SelectValue
-                              placeholder={FL_LABELS.nakshatraPlaceholder}
-                            />
-                          </SelectTrigger>
-                          <SelectContent className="max-h-48">
-                            {NAKSHATRAS.map((n) => (
-                              <SelectItem
-                                key={n}
-                                value={n}
-                                className="font-devanagari"
-                              >
-                                {n}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    {!hiddenFields.has("gan") && (
-                      <div className="space-y-1.5">
-                        <FL label={FL_LABELS.gan} />
-                        <Select
-                          value={form.horoscope.gan}
-                          onValueChange={(v) => upH("gan", v)}
-                        >
-                          <SelectTrigger data-ocid="horoscope.gan.select">
-                            <SelectValue
-                              placeholder={FL_LABELS.selectPlaceholder}
-                            />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {GANS.map((g) => (
-                              <SelectItem
-                                key={g}
-                                value={g}
-                                className="font-devanagari"
-                              >
-                                {g}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
-                    {!hiddenFields.has("nadi") && (
-                      <div className="space-y-1.5">
-                        <FL label={FL_LABELS.nadi} />
-                        <Select
-                          value={form.horoscope.nadi}
-                          onValueChange={(v) => upH("nadi", v)}
-                        >
-                          <SelectTrigger data-ocid="horoscope.nadi.select">
-                            <SelectValue
-                              placeholder={FL_LABELS.selectPlaceholder}
-                            />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {NADIS.map((n) => (
-                              <SelectItem
-                                key={n}
-                                value={n}
-                                className="font-devanagari"
-                              >
-                                {n}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
-                    {!hiddenFields.has("charan") && (
-                      <div className="space-y-1.5">
-                        <FL label={FL_LABELS.charan} />
-                        <Input
-                          placeholder={FL_LABELS.charan_placeholder}
-                          value={form.horoscope.charan}
-                          onChange={(e) => upH("charan", e.target.value)}
-                          data-ocid="horoscope.charan.input"
-                        />
-                      </div>
-                    )}
-                    {!hiddenFields.has("planetaryPositions") && (
-                      <div>
-                        <p className="font-devanagari font-semibold text-foreground mb-3">
-                          {FL_LABELS.planetaryPos}{" "}
-                          <span className="text-xs font-sans text-muted-foreground">
-                            (Planetary Positions)
+
+                      {/* Language Selector */}
+                      <div className="space-y-2">
+                        <p className="font-devanagari font-semibold text-foreground text-sm">
+                          {FL_LABELS.selectLanguage}{" "}
+                          <span className="text-xs text-muted-foreground font-normal">
+                            (Select Language)
                           </span>
                         </p>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                          {HOUSES.map((house, i) => (
-                            <div key={house} className="space-y-1">
-                              <span className="font-devanagari text-xs text-muted-foreground">
-                                {i + 1}. {house}
-                              </span>
-                              <Input
-                                placeholder={FL_LABELS.planetPlaceholder}
-                                value={
-                                  form.horoscope.planetaryPositions[i] || ""
-                                }
-                                onChange={(e) => upPlanet(i, e.target.value)}
-                                className="text-xs"
-                                data-ocid={`horoscope.house.input.${i + 1}`}
-                              />
-                            </div>
+                        <div className="flex flex-wrap gap-2">
+                          {(
+                            [
+                              ["marathi", "मराठी"],
+                              ["hindi", "हिंदी"],
+                              ["english", "English"],
+                              ["kannada", "ಕನ್ನಡ"],
+                              ...(form.religion === "मुस्लीम"
+                                ? [["urdu", "اردو"]]
+                                : []),
+                            ] as [LanguageType, string][]
+                          ).map(([val, label]) => (
+                            <button
+                              key={val}
+                              type="button"
+                              onClick={() => {
+                                setForm((f) => ({ ...f, language: val }));
+                                setSiteLang(val);
+                              }}
+                              data-ocid={`form.language.${val}.toggle`}
+                              dir={val === "urdu" ? "rtl" : undefined}
+                              className={`flex-1 min-w-[60px] py-2 rounded-lg border-2 text-sm font-semibold transition-all ${form.language === val ? "border-maroon bg-maroon text-amber-50" : "border-border text-foreground hover:border-maroon/50"}`}
+                            >
+                              {label}
+                            </button>
                           ))}
                         </div>
                       </div>
-                    )}
-                  </div>
-                )}
 
-                {/* Step 4 - Contact & Photo */}
-                {step === 4 && (
-                  <div className="space-y-5">
-                    <FieldCustomizer
-                      step={4}
-                      hiddenFields={hiddenFields}
-                      onToggle={toggleField}
-                      language={form.language}
-                    />
-                    <div className="space-y-1.5">
-                      <FL label={FL_LABELS.phone} />
-                      <Input
-                        placeholder={FL_LABELS.phoneNumber}
-                        value={form.contact.phone}
-                        onChange={(e) => upC("phone", e.target.value)}
-                        data-ocid="contact.phone.input"
-                      />
+                      {/* Font Selector */}
+                      <div className="space-y-2">
+                        <p className="font-devanagari font-semibold text-foreground text-sm">
+                          {FL_LABELS.selectFont}{" "}
+                          <span className="text-xs text-muted-foreground font-normal">
+                            (Select Font)
+                          </span>
+                        </p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {(
+                            [
+                              "Laila",
+                              "Hind",
+                              "Noto Sans Devanagari",
+                              "Mukta",
+                            ] as string[]
+                          ).map((font) => (
+                            <button
+                              key={font}
+                              type="button"
+                              onClick={() =>
+                                setForm((f) => ({ ...f, selectedFont: font }))
+                              }
+                              data-ocid={`form.font.${font.replace(/\s+/g, "-")}.toggle`}
+                              className={`py-2.5 px-3 rounded-lg border-2 text-sm transition-all ${form.selectedFont === font ? "border-maroon bg-maroon/5" : "border-border hover:border-maroon/50"}`}
+                              style={{ fontFamily: `'${font}', sans-serif` }}
+                            >
+                              <span
+                                style={{ fontFamily: `'${font}', sans-serif` }}
+                              >
+                                {font === "Noto Sans Devanagari"
+                                  ? "Noto"
+                                  : font}
+                              </span>
+                              <span
+                                className="text-xs text-muted-foreground ml-1.5"
+                                style={{ fontFamily: `'${font}', sans-serif` }}
+                              >
+                                अ
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Template selector */}
+                      <div>
+                        <p className="font-devanagari text-center text-maroon font-semibold text-sm mb-4">
+                          {FL_LABELS.allTemplatesAvail}
+                        </p>
+                        <div className="border-t border-border pt-5">
+                          <p className="font-devanagari font-semibold text-foreground text-sm mb-3">
+                            {FL_LABELS.selectTemplate}{" "}
+                            <span className="text-xs text-muted-foreground font-normal">
+                              (Select Template)
+                            </span>
+                          </p>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            {TEMPLATES_CONFIG.map((t) => {
+                              const isSelected = form.template === t.id;
+                              return (
+                                <button
+                                  key={t.id}
+                                  type="button"
+                                  onClick={() => {
+                                    selectTemplate(t.id);
+                                  }}
+                                  data-ocid={`template.select.${t.id}`}
+                                  className={`relative flex flex-col gap-2 p-3 rounded-xl border-2 text-left transition-all ${
+                                    isSelected
+                                      ? "border-2 shadow-md"
+                                      : "border-border hover:border-gray-300"
+                                  }`}
+                                  style={{
+                                    borderColor: isSelected
+                                      ? t.color
+                                      : undefined,
+                                  }}
+                                >
+                                  {/* Mini preview */}
+                                  <div className="flex justify-center mb-1">
+                                    <TemplateMiniPreview
+                                      templateId={t.id}
+                                      color={t.color}
+                                    />
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <div
+                                      style={{
+                                        width: 20,
+                                        height: 20,
+                                        background: t.color,
+                                        borderRadius: 4,
+                                        flexShrink: 0,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        fontSize: 11,
+                                      }}
+                                    >
+                                      {t.emoji}
+                                    </div>
+                                    <div>
+                                      <div className="font-devanagari font-semibold text-sm text-foreground">
+                                        {t.name}
+                                      </div>
+                                      <div className="font-devanagari text-xs text-muted-foreground">
+                                        {t.desc}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  {isSelected && (
+                                    <div
+                                      className="text-xs font-devanagari font-semibold"
+                                      style={{ color: t.color }}
+                                    >
+                                      {FL_LABELS.templateSelected}
+                                    </div>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    {!hiddenFields.has("email") && (
-                      <div className="space-y-1.5">
-                        <FL label={FL_LABELS.email} />
-                        <Input
-                          type="email"
-                          placeholder="example@email.com"
-                          value={form.contact.email}
-                          onChange={(e) => upC("email", e.target.value)}
-                          data-ocid="contact.email.input"
-                        />
-                      </div>
-                    )}
-                    {!hiddenFields.has("address") && (
-                      <div className="space-y-1.5">
-                        <FL label={FL_LABELS.address} />
-                        <Textarea
-                          placeholder={FL_LABELS.address_placeholder}
-                          value={form.contact.address}
-                          onChange={(e) => upC("address", e.target.value)}
-                          rows={3}
-                          data-ocid="contact.address.textarea"
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
-          </div>
+                  )}
 
-          <div className="px-6 md:px-8 pb-6 flex justify-between">
-            <Button
-              variant="outline"
-              onClick={() => {
-                const skipHoroscope = ["ख्रिश्चन", "मुस्लीम"].includes(
-                  form.religion,
-                );
-                const prevStep =
-                  skipHoroscope && step === 4 ? 2 : Math.max(0, step - 1);
-                setStep(prevStep);
-              }}
-              disabled={step === 0}
-              className="font-devanagari gap-2"
-              data-ocid="form.prev.button"
-            >
-              <ChevronLeft className="w-4 h-4" /> {FL_LABELS.prev}
-            </Button>
-            {step === 0 ? (
+                  {/* Step 1 - Personal Info */}
+                  {step === 1 && (
+                    <div className="space-y-5">
+                      <FieldCustomizer
+                        step={1}
+                        hiddenFields={hiddenFields}
+                        onToggle={toggleField}
+                        language={form.language}
+                        religion={form.religion}
+                      />
+
+                      {/* Photo Upload */}
+                      <div className="flex items-start gap-5 p-4 bg-muted/50 rounded-xl border border-border">
+                        <button
+                          type="button"
+                          className="relative cursor-pointer flex-shrink-0"
+                          onClick={() => fileRef.current?.click()}
+                        >
+                          {form.photoPreview ? (
+                            <img
+                              src={form.photoPreview}
+                              alt="Profile"
+                              className="w-24 h-28 object-cover rounded-lg border-2 border-maroon shadow"
+                            />
+                          ) : (
+                            <div className="w-24 h-28 rounded-lg border-2 border-dashed border-maroon/40 bg-amber-50 flex flex-col items-center justify-center gap-1 hover:border-maroon transition-colors">
+                              <Upload className="w-6 h-6 text-maroon/50" />
+                              <span className="font-devanagari text-[10px] text-muted-foreground text-center px-1">
+                                {FL_LABELS.photoLabel}
+                              </span>
+                            </div>
+                          )}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            ref={fileRef}
+                            onChange={handlePhoto}
+                            data-ocid="personal.photo.upload_button"
+                          />
+                        </button>
+                        <div className="flex-1 space-y-1.5">
+                          <div className="font-devanagari font-semibold text-sm text-foreground">
+                            {FL_LABELS.photoUploadTitle}
+                          </div>
+                          <p className="font-devanagari text-xs text-muted-foreground leading-relaxed">
+                            {FL_LABELS.photoUploadInstruction}
+                          </p>
+                          {form.photoPreview && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setForm((f) => ({
+                                  ...f,
+                                  photoFile: null,
+                                  photoPreview: null,
+                                }))
+                              }
+                              className="font-devanagari text-xs text-red-500 hover:text-red-700 underline"
+                            >
+                              {FL_LABELS.photoRemoveBtn}
+                            </button>
+                          )}
+                          {!form.photoPreview && (
+                            <button
+                              type="button"
+                              onClick={() => fileRef.current?.click()}
+                              className="inline-flex items-center gap-1.5 font-devanagari text-xs font-semibold text-maroon border border-maroon/30 rounded-lg px-3 py-1.5 hover:bg-maroon/5 transition-colors"
+                            >
+                              <Upload className="w-3 h-3" />{" "}
+                              {FL_LABELS.photoSelectBtn}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="grid sm:grid-cols-2 gap-5">
+                        <div className="space-y-1.5">
+                          <FL label={FL_LABELS.fullName} />
+                          <Input
+                            placeholder={getPlaceholderName(
+                              form.language,
+                              form.religion,
+                            )}
+                            value={form.personal.name}
+                            onChange={(e) => upP("name", e.target.value)}
+                            data-ocid="personal.name.input"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <FL label={FL_LABELS.dob} />
+                          <Input
+                            type="date"
+                            value={form.personal.dateOfBirth}
+                            onChange={(e) => upP("dateOfBirth", e.target.value)}
+                            data-ocid="personal.dob.input"
+                          />
+                        </div>
+                      </div>
+                      {!hiddenFields.has("timeOfBirth") && (
+                        <div className="grid sm:grid-cols-2 gap-5">
+                          <div className="space-y-1.5">
+                            <FL label={FL_LABELS.tob} />
+                            <Input
+                              type="time"
+                              value={form.personal.timeOfBirth}
+                              onChange={(e) =>
+                                upP("timeOfBirth", e.target.value)
+                              }
+                              data-ocid="personal.tob.input"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <FL label={FL_LABELS.pob} />
+                            <Input
+                              placeholder={FL_LABELS.placeOfBirth_placeholder}
+                              value={form.personal.placeOfBirth}
+                              onChange={(e) =>
+                                upP("placeOfBirth", e.target.value)
+                              }
+                              data-ocid="personal.pob.input"
+                            />
+                          </div>
+                        </div>
+                      )}
+                      {hiddenFields.has("timeOfBirth") && (
+                        <div className="space-y-1.5">
+                          <FL label={FL_LABELS.pob} />
+                          <Input
+                            placeholder={FL_LABELS.placeOfBirth_placeholder}
+                            value={form.personal.placeOfBirth}
+                            onChange={(e) =>
+                              upP("placeOfBirth", e.target.value)
+                            }
+                            data-ocid="personal.pob.input"
+                          />
+                        </div>
+                      )}
+                      <div className="grid sm:grid-cols-2 gap-5">
+                        <div className="space-y-1.5">
+                          <FL label={FL_LABELS.height} />
+                          <Input
+                            placeholder={FL_LABELS.height_placeholder}
+                            value={form.personal.height}
+                            onChange={(e) => upP("height", e.target.value)}
+                            data-ocid="personal.height.input"
+                          />
+                        </div>
+                        {!hiddenFields.has("complexion") && (
+                          <div className="space-y-1.5">
+                            <FL label={FL_LABELS.complexion} />
+                            <Select
+                              value={form.personal.complexion}
+                              onValueChange={(v) => upP("complexion", v)}
+                            >
+                              <SelectTrigger data-ocid="personal.complexion.select">
+                                <SelectValue
+                                  placeholder={FL_LABELS.selectPlaceholder}
+                                />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {["गोरा", "सावळा", "गहू वर्ण", "श्याम"].map(
+                                  (c) => (
+                                    <SelectItem
+                                      key={c}
+                                      value={c}
+                                      className="font-devanagari"
+                                    >
+                                      {c}
+                                    </SelectItem>
+                                  ),
+                                )}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                      </div>
+                      <div className="grid sm:grid-cols-2 gap-5">
+                        <div className="space-y-1.5">
+                          <FL label={FL_LABELS.education} />
+                          <Input
+                            placeholder={FL_LABELS.education_placeholder}
+                            value={form.personal.education}
+                            onChange={(e) => upP("education", e.target.value)}
+                            data-ocid="personal.education.input"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <FL label={FL_LABELS.occupation} />
+                          <Input
+                            placeholder={FL_LABELS.occupation_placeholder}
+                            value={form.personal.occupation}
+                            onChange={(e) => upP("occupation", e.target.value)}
+                            data-ocid="personal.occupation.input"
+                          />
+                        </div>
+                      </div>
+                      {!hiddenFields.has("income") && (
+                        <div className="space-y-1.5">
+                          <FL label={FL_LABELS.income} />
+                          <Input
+                            placeholder={FL_LABELS.income_placeholder}
+                            value={form.personal.income}
+                            onChange={(e) => upP("income", e.target.value)}
+                            data-ocid="personal.income.input"
+                          />
+                        </div>
+                      )}
+                      <div className="grid sm:grid-cols-2 gap-5">
+                        {!hiddenFields.has("religion") && (
+                          <div className="space-y-1.5">
+                            <FL label={FL_LABELS.religion} />
+                            <div className="h-10 px-3 flex items-center rounded-md border border-input bg-muted font-devanagari text-sm">
+                              {form.religion}
+                            </div>
+                          </div>
+                        )}
+                        {!hiddenFields.has("caste") && (
+                          <div className="space-y-1.5">
+                            <FL
+                              label={getCasteLabelForForm(
+                                form.language,
+                                form.religion,
+                              )}
+                            />
+                            <Input
+                              placeholder={FL_LABELS.caste_placeholder}
+                              value={form.personal.caste}
+                              onChange={(e) => upP("caste", e.target.value)}
+                              data-ocid="personal.caste.input"
+                            />
+                          </div>
+                        )}
+                      </div>
+                      {!hiddenFields.has("gotra") &&
+                        !["बौद्ध", "ख्रिश्चन", "मुस्लीम"].includes(
+                          form.religion,
+                        ) && (
+                          <div className="space-y-1.5">
+                            <FL label={FL_LABELS.gotra} />
+                            <Input
+                              placeholder={FL_LABELS.gotra_placeholder}
+                              value={form.personal.gotra}
+                              onChange={(e) => upP("gotra", e.target.value)}
+                              data-ocid="personal.gotra.input"
+                            />
+                          </div>
+                        )}
+                      {!hiddenFields.has("manglikStatus") &&
+                        !["ख्रिश्चन", "मुस्लीम", "बौद्ध"].includes(
+                          form.religion,
+                        ) && (
+                          <div className="flex items-center gap-3 p-4 bg-muted rounded-xl">
+                            <Switch
+                              checked={form.personal.manglikStatus}
+                              onCheckedChange={(v) => upP("manglikStatus", v)}
+                              data-ocid="personal.manglik.switch"
+                            />
+                            <span className="font-devanagari font-semibold text-sm">
+                              {FL_LABELS.manglikStatus}
+                            </span>
+                          </div>
+                        )}
+
+                      {/* Denomination for Christian */}
+                      {form.religion === "ख्रिश्चन" && (
+                        <div className="space-y-1.5">
+                          <FL label={FL_LABELS.denomination} />
+                          <Input
+                            placeholder={FL_LABELS.denomination_placeholder}
+                            value={(form.personal as any).denomination || ""}
+                            onChange={(e) =>
+                              upP("denomination" as any, e.target.value)
+                            }
+                            data-ocid="personal.denomination.input"
+                          />
+                        </div>
+                      )}
+
+                      {/* Panth for Buddhist / Muslim */}
+                      {(form.religion === "बौद्ध" ||
+                        form.religion === "मुस्लीम") && (
+                        <div className="space-y-1.5">
+                          <FL label={FL_LABELS.panth} />
+                          <Input
+                            placeholder={
+                              form.religion === "मुस्लीम"
+                                ? FL_LABELS.panth_placeholder_muslim
+                                : FL_LABELS.panth_placeholder_buddhist
+                            }
+                            value={(form.personal as any).denomination || ""}
+                            onChange={(e) =>
+                              upP("denomination" as any, e.target.value)
+                            }
+                            data-ocid="personal.panth.input"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Step 2 - Family Info */}
+                  {step === 2 && (
+                    <div className="space-y-5">
+                      <FieldCustomizer
+                        step={2}
+                        hiddenFields={hiddenFields}
+                        onToggle={toggleField}
+                        language={form.language}
+                        religion={form.religion}
+                      />
+                      <div className="grid sm:grid-cols-2 gap-5">
+                        <div className="space-y-1.5">
+                          <FL label={FL_LABELS.fatherName} />
+                          <Input
+                            placeholder={getPlaceholderFatherName(
+                              form.language,
+                              form.religion,
+                            )}
+                            value={form.family.fatherName}
+                            onChange={(e) => upF("fatherName", e.target.value)}
+                            data-ocid="family.father_name.input"
+                          />
+                        </div>
+                        {!hiddenFields.has("fatherOccupation") && (
+                          <div className="space-y-1.5">
+                            <FL label={FL_LABELS.fatherOccupation} />
+                            <Input
+                              placeholder={FL_LABELS.fatherOcc_placeholder}
+                              value={form.family.fatherOccupation}
+                              onChange={(e) =>
+                                upF("fatherOccupation", e.target.value)
+                              }
+                              data-ocid="family.father_occ.input"
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <div className="grid sm:grid-cols-2 gap-5">
+                        <div className="space-y-1.5">
+                          <FL label={FL_LABELS.motherName} />
+                          <Input
+                            placeholder={getPlaceholderMotherName(
+                              form.language,
+                              form.religion,
+                            )}
+                            value={form.family.motherName}
+                            onChange={(e) => upF("motherName", e.target.value)}
+                            data-ocid="family.mother_name.input"
+                          />
+                        </div>
+                        {!hiddenFields.has("motherOccupation") && (
+                          <div className="space-y-1.5">
+                            <FL label={FL_LABELS.motherOccupation} />
+                            <Input
+                              placeholder={FL_LABELS.motherOcc_placeholder}
+                              value={form.family.motherOccupation}
+                              onChange={(e) =>
+                                upF("motherOccupation", e.target.value)
+                              }
+                              data-ocid="family.mother_occ.input"
+                            />
+                          </div>
+                        )}
+                      </div>
+                      {!hiddenFields.has("siblingsInfo") && (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <FL label={FL_LABELS.siblings} />
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              onClick={addSibling}
+                              data-ocid="family.siblings.button"
+                              className="text-xs h-7 px-2"
+                            >
+                              ➕ {FL_LABELS.addSibling}
+                            </Button>
+                          </div>
+                          {siblings.length === 0 && (
+                            <p
+                              className="text-sm text-muted-foreground italic"
+                              data-ocid="family.siblings.empty_state"
+                            >
+                              {FL_LABELS.siblingEmptyHint}
+                            </p>
+                          )}
+                          <div className="space-y-3">
+                            {siblings.map((sib, idx) => (
+                              <div
+                                key={sib.id}
+                                className="border rounded-lg p-3 bg-muted/30 space-y-2"
+                                data-ocid={`family.siblings.item.${idx + 1}`}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <span className="text-sm font-medium text-muted-foreground">
+                                    {FL_LABELS.sibling_num} {idx + 1}
+                                  </span>
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => removeSibling(sib.id)}
+                                    data-ocid={`family.siblings.delete_button.${idx + 1}`}
+                                    className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                                  >
+                                    ✕
+                                  </Button>
+                                </div>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                  <div className="space-y-1">
+                                    <span className="text-xs text-muted-foreground">
+                                      {FL_LABELS.type}
+                                    </span>
+                                    <div className="flex gap-1">
+                                      {(["भाऊ", "बहीण"] as const).map(
+                                        (val, i) => {
+                                          const label =
+                                            i === 0
+                                              ? FL_LABELS.sibling_bro
+                                              : FL_LABELS.sibling_sis;
+                                          return (
+                                            <button
+                                              key={val}
+                                              type="button"
+                                              onClick={() =>
+                                                updateSibling(
+                                                  sib.id,
+                                                  "type",
+                                                  val,
+                                                )
+                                              }
+                                              className={`flex-1 text-xs py-1 px-2 rounded border transition-colors ${sib.type === val ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border hover:bg-muted"}`}
+                                            >
+                                              {label}
+                                            </button>
+                                          );
+                                        },
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="space-y-1">
+                                    <span className="text-xs text-muted-foreground">
+                                      {FL_LABELS.name}
+                                    </span>
+                                    <Input
+                                      placeholder={
+                                        FL_LABELS.sibName_placeholder
+                                      }
+                                      value={sib.name}
+                                      onChange={(e) =>
+                                        updateSibling(
+                                          sib.id,
+                                          "name",
+                                          e.target.value,
+                                        )
+                                      }
+                                      className="h-8 text-sm"
+                                      data-ocid={`family.siblings.input.${idx + 1}`}
+                                    />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <span className="text-xs text-muted-foreground">
+                                      {FL_LABELS.maritalStatus}
+                                    </span>
+                                    <Select
+                                      value={sib.maritalStatus}
+                                      onValueChange={(v) =>
+                                        updateSibling(
+                                          sib.id,
+                                          "maritalStatus",
+                                          v,
+                                        )
+                                      }
+                                    >
+                                      <SelectTrigger
+                                        className="h-8 text-sm"
+                                        data-ocid={`family.siblings.select.${idx + 1}`}
+                                      >
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="अविवाहित">
+                                          अविवाहित
+                                        </SelectItem>
+                                        <SelectItem value="विवाहित">
+                                          विवाहित
+                                        </SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  <div className="space-y-1">
+                                    <span className="text-xs text-muted-foreground">
+                                      {FL_LABELS.workPost}
+                                    </span>
+                                    <Input
+                                      placeholder={FL_LABELS.sibOcc_placeholder}
+                                      value={sib.occupation}
+                                      onChange={(e) =>
+                                        updateSibling(
+                                          sib.id,
+                                          "occupation",
+                                          e.target.value,
+                                        )
+                                      }
+                                      className="h-8 text-sm"
+                                      data-ocid={`family.siblings.input.${idx + 1}`}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {/* मामा, काका, आत्या, पाहुणे */}
+                      <div className="grid sm:grid-cols-2 gap-5">
+                        {!hiddenFields.has("mamaInfo") && (
+                          <div className="space-y-1.5">
+                            <FL label={REL_LABELS.mama} />
+                            <Input
+                              placeholder={FL_LABELS.mama_placeholder}
+                              value={form.family.mamaInfo}
+                              onChange={(e) => upF("mamaInfo", e.target.value)}
+                              data-ocid="family.mama.input"
+                            />
+                          </div>
+                        )}
+                        {!hiddenFields.has("kakaInfo") && (
+                          <div className="space-y-1.5">
+                            <FL label={REL_LABELS.kaka} />
+                            <Input
+                              placeholder={FL_LABELS.kaka_placeholder}
+                              value={form.family.kakaInfo}
+                              onChange={(e) => upF("kakaInfo", e.target.value)}
+                              data-ocid="family.kaka.input"
+                            />
+                          </div>
+                        )}
+                        {!hiddenFields.has("atyaInfo") && (
+                          <div className="space-y-1.5">
+                            <FL label={REL_LABELS.atya} />
+                            <Input
+                              placeholder={FL_LABELS.atya_placeholder}
+                              value={form.family.atyaInfo}
+                              onChange={(e) => upF("atyaInfo", e.target.value)}
+                              data-ocid="family.atya.input"
+                            />
+                          </div>
+                        )}
+                        {!hiddenFields.has("pahuneInfo") && (
+                          <div className="space-y-1.5">
+                            <FL label={REL_LABELS.pahune} />
+                            <Input
+                              placeholder={FL_LABELS.pahune_placeholder}
+                              value={form.family.pahuneInfo}
+                              onChange={(e) =>
+                                upF("pahuneInfo", e.target.value)
+                              }
+                              data-ocid="family.pahune.input"
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <div className="grid sm:grid-cols-2 gap-5">
+                        {!hiddenFields.has("familyType") && (
+                          <div className="space-y-1.5">
+                            <FL label={FL_LABELS.familyType} />
+                            <Select
+                              value={form.family.familyType}
+                              onValueChange={(v) => upF("familyType", v)}
+                            >
+                              <SelectTrigger data-ocid="family.type.select">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {["एकत्र", "विभक्त"].map((t) => (
+                                  <SelectItem
+                                    key={t}
+                                    value={t}
+                                    className="font-devanagari"
+                                  >
+                                    {t}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                        {!hiddenFields.has("nativePlace") && (
+                          <div className="space-y-1.5">
+                            <FL label={FL_LABELS.nativePlace} />
+                            <Input
+                              placeholder={FL_LABELS.nativePlaceholder}
+                              value={form.family.nativePlace}
+                              onChange={(e) =>
+                                upF("nativePlace", e.target.value)
+                              }
+                              data-ocid="family.native.input"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 3 - Horoscope */}
+                  {step === 3 && (
+                    <div className="space-y-5">
+                      <FieldCustomizer
+                        step={3}
+                        hiddenFields={hiddenFields}
+                        onToggle={toggleField}
+                        language={form.language}
+                        religion={form.religion}
+                      />
+                      <div className="grid sm:grid-cols-2 gap-5">
+                        <div className="space-y-1.5">
+                          <FL label={FL_LABELS.rashi} />
+                          <Select
+                            value={form.horoscope.rashi}
+                            onValueChange={(v) => upH("rashi", v)}
+                          >
+                            <SelectTrigger data-ocid="horoscope.rashi.select">
+                              <SelectValue
+                                placeholder={FL_LABELS.rashiPlaceholder}
+                              />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {RASHIS.map((r) => (
+                                <SelectItem
+                                  key={r}
+                                  value={r}
+                                  className="font-devanagari"
+                                >
+                                  {r}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-1.5">
+                          <FL label={FL_LABELS.nakshatra} />
+                          <Select
+                            value={form.horoscope.nakshatra}
+                            onValueChange={(v) => upH("nakshatra", v)}
+                          >
+                            <SelectTrigger data-ocid="horoscope.nakshatra.select">
+                              <SelectValue
+                                placeholder={FL_LABELS.nakshatraPlaceholder}
+                              />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-48">
+                              {NAKSHATRAS.map((n) => (
+                                <SelectItem
+                                  key={n}
+                                  value={n}
+                                  className="font-devanagari"
+                                >
+                                  {n}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      {!hiddenFields.has("gan") && (
+                        <div className="space-y-1.5">
+                          <FL label={FL_LABELS.gan} />
+                          <Select
+                            value={form.horoscope.gan}
+                            onValueChange={(v) => upH("gan", v)}
+                          >
+                            <SelectTrigger data-ocid="horoscope.gan.select">
+                              <SelectValue
+                                placeholder={FL_LABELS.selectPlaceholder}
+                              />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {GANS.map((g) => (
+                                <SelectItem
+                                  key={g}
+                                  value={g}
+                                  className="font-devanagari"
+                                >
+                                  {g}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                      {!hiddenFields.has("nadi") && (
+                        <div className="space-y-1.5">
+                          <FL label={FL_LABELS.nadi} />
+                          <Select
+                            value={form.horoscope.nadi}
+                            onValueChange={(v) => upH("nadi", v)}
+                          >
+                            <SelectTrigger data-ocid="horoscope.nadi.select">
+                              <SelectValue
+                                placeholder={FL_LABELS.selectPlaceholder}
+                              />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {NADIS.map((n) => (
+                                <SelectItem
+                                  key={n}
+                                  value={n}
+                                  className="font-devanagari"
+                                >
+                                  {n}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                      {!hiddenFields.has("charan") && (
+                        <div className="space-y-1.5">
+                          <FL label={FL_LABELS.charan} />
+                          <Input
+                            placeholder={FL_LABELS.charan_placeholder}
+                            value={form.horoscope.charan}
+                            onChange={(e) => upH("charan", e.target.value)}
+                            data-ocid="horoscope.charan.input"
+                          />
+                        </div>
+                      )}
+                      {!hiddenFields.has("planetaryPositions") && (
+                        <div>
+                          <p className="font-devanagari font-semibold text-foreground mb-3">
+                            {FL_LABELS.planetaryPos}{" "}
+                            <span className="text-xs font-sans text-muted-foreground">
+                              (Planetary Positions)
+                            </span>
+                          </p>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            {HOUSES.map((house, i) => (
+                              <div key={house} className="space-y-1">
+                                <span className="font-devanagari text-xs text-muted-foreground">
+                                  {i + 1}. {house}
+                                </span>
+                                <Input
+                                  placeholder={FL_LABELS.planetPlaceholder}
+                                  value={
+                                    form.horoscope.planetaryPositions[i] || ""
+                                  }
+                                  onChange={(e) => upPlanet(i, e.target.value)}
+                                  className="text-xs"
+                                  data-ocid={`horoscope.house.input.${i + 1}`}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Step 4 - Contact & Photo */}
+                  {step === 4 && (
+                    <div className="space-y-5">
+                      <FieldCustomizer
+                        step={4}
+                        hiddenFields={hiddenFields}
+                        onToggle={toggleField}
+                        language={form.language}
+                        religion={form.religion}
+                      />
+                      <div className="space-y-1.5">
+                        <FL label={FL_LABELS.phone} />
+                        <Input
+                          placeholder={FL_LABELS.phoneNumber}
+                          value={form.contact.phone}
+                          onChange={(e) => upC("phone", e.target.value)}
+                          data-ocid="contact.phone.input"
+                        />
+                      </div>
+                      {!hiddenFields.has("email") && (
+                        <div className="space-y-1.5">
+                          <FL label={FL_LABELS.email} />
+                          <Input
+                            type="email"
+                            placeholder="example@email.com"
+                            value={form.contact.email}
+                            onChange={(e) => upC("email", e.target.value)}
+                            data-ocid="contact.email.input"
+                          />
+                        </div>
+                      )}
+                      {!hiddenFields.has("address") && (
+                        <div className="space-y-1.5">
+                          <FL label={FL_LABELS.address} />
+                          <Textarea
+                            placeholder={FL_LABELS.address_placeholder}
+                            value={form.contact.address}
+                            onChange={(e) => upC("address", e.target.value)}
+                            rows={3}
+                            data-ocid="contact.address.textarea"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            <div className="px-6 md:px-8 pb-6 flex justify-between">
               <Button
-                onClick={() => {
-                  if (!selectedPlan) {
-                    toast.error("कृपया प्लान निवडा");
-                    return;
-                  }
-                  sessionStorage.setItem("selectedPlan", selectedPlan);
-                  setStep(1);
-                }}
-                className="font-devanagari gap-2 bg-maroon hover:opacity-90"
-                data-ocid="form.next.button"
-              >
-                {FL_LABELS.next} <ChevronRight className="w-4 h-4" />
-              </Button>
-            ) : step < STEP_TITLES.length - 1 ? (
-              <Button
+                variant="outline"
                 onClick={() => {
                   const skipHoroscope = ["ख्रिश्चन", "मुस्लीम"].includes(
                     form.religion,
                   );
-                  const nextStep = skipHoroscope && step === 2 ? 4 : step + 1;
-                  setStep(nextStep);
+                  const prevStep =
+                    skipHoroscope && step === 4 ? 2 : Math.max(0, step - 1);
+                  setStep(prevStep);
                 }}
-                className="font-devanagari gap-2 bg-maroon hover:opacity-90"
-                data-ocid="form.next.button"
+                disabled={step === 0}
+                className="font-devanagari gap-2"
+                data-ocid="form.prev.button"
               >
-                {FL_LABELS.next} <ChevronRight className="w-4 h-4" />
+                <ChevronLeft className="w-4 h-4" /> {FL_LABELS.prev}
               </Button>
-            ) : (
-              <Button
-                onClick={handleSubmit}
-                disabled={mutation.isPending}
-                className="font-devanagari gap-2 bg-maroon hover:opacity-90"
-                data-ocid="form.submit_button"
-              >
-                {mutation.isPending ? FL_LABELS.saving : FL_LABELS.submit}
-              </Button>
-            )}
+              {step === 0 ? (
+                <Button
+                  onClick={() => {
+                    if (!selectedPlan) {
+                      toast.error("कृपया प्लान निवडा");
+                      return;
+                    }
+                    sessionStorage.setItem("selectedPlan", selectedPlan);
+                    setStep(1);
+                  }}
+                  className="font-devanagari gap-2 bg-maroon hover:opacity-90"
+                  data-ocid="form.next.button"
+                >
+                  {FL_LABELS.next} <ChevronRight className="w-4 h-4" />
+                </Button>
+              ) : step < STEP_TITLES.length - 1 ? (
+                <Button
+                  onClick={() => {
+                    const skipHoroscope = ["ख्रिश्चन", "मुस्लीम"].includes(
+                      form.religion,
+                    );
+                    const nextStep = skipHoroscope && step === 2 ? 4 : step + 1;
+                    setStep(nextStep);
+                  }}
+                  className="font-devanagari gap-2 bg-maroon hover:opacity-90"
+                  data-ocid="form.next.button"
+                >
+                  {FL_LABELS.next} <ChevronRight className="w-4 h-4" />
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleSubmit}
+                  disabled={mutation.isPending}
+                  className="font-devanagari gap-2 bg-maroon hover:opacity-90"
+                  data-ocid="form.submit_button"
+                >
+                  {mutation.isPending ? FL_LABELS.saving : FL_LABELS.submit}
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

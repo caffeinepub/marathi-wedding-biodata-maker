@@ -1,31 +1,34 @@
-# लग्नसेतू — Full Website Language Switch
+# lagnasetu
 
 ## Current State
-Language selection (Marathi/Hindi/English/Kannada/Urdu) is only available in Step 0 of BiodataForm and only changes form labels. The LandingPage, Header, and Footer are all hardcoded in Marathi with no language switching.
+- Marathi Wedding Biodata Maker with 6 templates, multi-religion, multi-language support
+- Languages: Marathi, Hindi, English, Kannada, Urdu
+- Religions: Hindu, Jain, Lingayat, Buddhist, Christian, Muslim
+- BiodataForm.tsx handles multi-step form
+- BiodataPreview.tsx handles preview and PDF
+- siteTranslations.ts has all i18n strings
 
 ## Requested Changes (Diff)
 
 ### Add
-- A global `LanguageContext` (React context + localStorage persistence) providing `language` and `setLanguage` across all pages
-- A language selector in the `Header` component (compact dropdown or pill-toggle showing all 5 languages: मराठी, हिंदी, English, ಕನ್ನಡ, اردو) visible on both landing page and form page
-- Full translation strings for LandingPage, Header, Footer in all 5 languages
-- `useSiteLanguage()` hook for consuming the global language context
+- Photo crop/adjust UI after photo upload in form (step 1)
+- Mini template preview thumbnails in step 0 when selecting templates
+- काका/मामा/आत्या/पाहुणे field labels should be religion-aware (e.g., Muslim: चाचा/मामू/फुफी/मेहमान, Christian: Uncle/Maternal Uncle/Aunt/Guest)
 
 ### Modify
-- `App.tsx`: Wrap app in `LanguageProvider`
-- `Header.tsx`: Add language selector; use translated nav text
-- `Footer.tsx`: Translate all text using global language
-- `LandingPage.tsx`: Translate hero text, steps, testimonials, templates section, pricing section, CTA section
-- `BiodataForm.tsx`: Read language from global context as default instead of local state (keep per-form override capability, but sync with global language on mount)
+- Default language on first load must always be Marathi (not system/browser language)
+- Template caste label: Muslim → "बिरादरी", Christian → "Denomination", Buddhist → "समाज", Hindu/Jain/Lingayat → "जात" — this must appear correctly in TEMPLATES (BiodataPreview) not just form
+- मांगलिक preview: show "होय" when true, "नाही" when false (not true/false)
+- Gotra field: show only for Hindu/Jain/Lingayat, hide for Muslim/Christian/Buddhist (both in form AND in template preview)
 
 ### Remove
 - Nothing removed
 
 ## Implementation Plan
-1. Create `src/frontend/src/contexts/LanguageContext.tsx` with context, provider, and hook; 5 languages; localStorage persist
-2. Create `src/frontend/src/i18n/siteTranslations.ts` with full translation map for all site-level text (LandingPage, Header, Footer) in all 5 languages
-3. Update `App.tsx` to wrap with `LanguageProvider`
-4. Update `Header.tsx`: import `useSiteLanguage`, show language toggle pills (small, 5 options), translate nav links and CTA button
-5. Update `Footer.tsx`: import `useSiteLanguage`, translate all text
-6. Update `LandingPage.tsx`: import `useSiteLanguage`, use translated strings for all visible text
-7. Update `BiodataForm.tsx`: On Step 0 language change, also update global language context; on mount, initialize form language from global context
+1. Fix default language to Marathi on first load (localStorage fallback to 'mr')
+2. Fix caste label in ALL 6 template renderers in BiodataPreview.tsx to use religion-aware label (same logic as form)
+3. Fix मांगलिक display: replace true/false with होय/नाही (language-aware: yes/no in English, हाँ/नहीं in Hindi etc.)
+4. Fix Gotra field visibility in templates — hide for Muslim/Christian/Buddhist
+5. Add religion-aware labels for काका/मामा/आत्या/पाहुणे fields in form and templates
+6. Add photo crop UI (canvas-based simple crop tool after upload)
+7. Add mini template preview thumbnails in step 0

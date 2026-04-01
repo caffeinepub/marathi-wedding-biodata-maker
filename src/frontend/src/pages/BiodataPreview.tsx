@@ -2,16 +2,50 @@ import PaymentModal from "@/components/PaymentModal";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, Download } from "lucide-react";
-function getReligionBlessing(religion: string): string {
-  const blessings: Record<string, string> = {
-    हिंदू: "॥ श्री गणेशाय नमः ॥",
-    जैन: "॥ णमो अरिहंताणं ॥",
-    बौद्ध: "॥ नमो बुद्धाय ॥",
-    लिंगायत: "॥ ओम नमः शिवाय ॥",
-    ख्रिश्चन: "✝ God Bless ✝",
-    मुस्लीम: "॥ बिस्मिल्लाह ॥",
-  };
-  return blessings[religion] || "॥ श्री गणेशाय नमः ॥";
+function getReligionBlessing(religion: string, language = "marathi"): string {
+  if (religion === "हिंदू") {
+    if (language === "hindi") return "॥ श्री गणेशाय नमः ॥";
+    if (language === "english") return "॥ Shri Ganeshaya Namah ॥";
+    if (language === "kannada") return "॥ ಶ್ರೀ ಗಣೇಶಾಯ ನಮಃ ॥";
+    if (language === "urdu") return "॥ شری گنیشا نماہ ॥";
+    return "॥ श्री गणेशाय नमः ॥";
+  }
+  if (religion === "जैन") {
+    if (language === "hindi") return "॥ णमो अरिहंताणं ॥";
+    if (language === "english") return "॥ Namo Arihantanam ॥";
+    if (language === "kannada") return "॥ ನಮೋ ಅರಿಹಂತಾಣಂ ॥";
+    if (language === "urdu") return "॥ نمو اریہنتانم ॥";
+    return "॥ णमो अरिहंताणं ॥";
+  }
+  if (religion === "बौद्ध") {
+    if (language === "hindi") return "॥ नमो बुद्धाय ॥";
+    if (language === "english") return "॥ Namo Buddhaya ॥";
+    if (language === "kannada") return "॥ ನಮೋ ಬುದ್ಧಾಯ ॥";
+    if (language === "urdu") return "॥ نمو بدھائے ॥";
+    return "॥ नमो बुद्धाय ॥";
+  }
+  if (religion === "लिंगायत") {
+    if (language === "hindi") return "॥ ओम नमः शिवाय ॥";
+    if (language === "english") return "॥ Om Namah Shivaya ॥";
+    if (language === "kannada") return "॥ ಓಂ ನಮಃ ಶಿವಾಯ ॥";
+    if (language === "urdu") return "॥ اوم نمہ شواے ॥";
+    return "॥ ओम नमः शिवाय ॥";
+  }
+  if (religion === "ख्रिश्चन") {
+    if (language === "english") return "✝ God Bless ✝";
+    if (language === "hindi") return "✝ ईश्वर आपको आशीर्वाद दे ✝";
+    if (language === "kannada") return "✝ ದೇವರ ಆಶೀರ್ವಾದ ✝";
+    if (language === "urdu") return "✝ خدا آپ کو برکت دے ✝";
+    return "✝ देव तुम्हाला आशीर्वाद देवो ✝";
+  }
+  if (religion === "मुस्लीम") {
+    if (language === "hindi") return "॥ बिस्मिल्लाह ॥";
+    if (language === "english") return "॥ Bismillah ॥";
+    if (language === "kannada") return "॥ ಬಿಸ್ಮಿಲ್ಲಾ ॥";
+    if (language === "urdu") return "॥ بسم اللہ ॥";
+    return "॥ बिस्मिल्लाह ॥";
+  }
+  return "॥ श्री गणेशाय नमः ॥";
 }
 
 function getFooterText(religion: string, language: string): string {
@@ -210,6 +244,8 @@ const TRANSLATIONS: Record<string, Record<string, string>> = {
     kaka: "काका",
     atya: "आत्या",
     pahune: "पाहुणे",
+    yes: "होय",
+    no: "नाही",
   },
   hindi: {
     personalInfo: "व्यक्तिगत जानकारी",
@@ -248,6 +284,8 @@ const TRANSLATIONS: Record<string, Record<string, string>> = {
     kaka: "काका",
     atya: "बुआ",
     pahune: "मेहमान",
+    yes: "हाँ",
+    no: "नहीं",
   },
   english: {
     personalInfo: "Personal Information",
@@ -286,6 +324,8 @@ const TRANSLATIONS: Record<string, Record<string, string>> = {
     kaka: "Paternal Uncle",
     atya: "Aunt",
     pahune: "In-laws",
+    yes: "Yes",
+    no: "No",
   },
   kannada: {
     personalInfo: "ವ್ಯಕ್ತಿಗತ ಮಾಹಿತಿ",
@@ -324,6 +364,8 @@ const TRANSLATIONS: Record<string, Record<string, string>> = {
     kaka: "ಚಿಕ್ಕಪ್ಪ",
     atya: "ಅತ್ತೆ",
     pahune: "ಅಳಿಯ/ಸೊಸೆ",
+    yes: "ಹೌದು",
+    no: "ಇಲ್ಲ",
   },
   urdu: {
     personalInfo: "ذاتی معلومات",
@@ -362,8 +404,65 @@ const TRANSLATIONS: Record<string, Record<string, string>> = {
     kaka: "چچا",
     atya: "پھوپھی",
     pahune: "داماد/بہو",
+    yes: "ہاں",
+    no: "نہیں",
   },
 };
+
+// Get religion-aware relative labels
+function getRelativeLabels(
+  religion: string,
+  T: Record<string, string>,
+): { mama: string; kaka: string; atya: string; pahune: string } {
+  const isEnglish = T.yes === "Yes";
+  const isHindi = T.yes === "हाँ";
+  const isKannada = T.yes === "ಹೌದು";
+  const isUrdu = T.yes === "ہاں";
+  if (religion === "मुस्लीम") {
+    if (isEnglish)
+      return {
+        mama: "Maternal Uncle",
+        kaka: "Uncle (Chacha)",
+        atya: "Aunt (Fuphi)",
+        pahune: "Guest",
+      };
+    if (isHindi)
+      return { mama: "मामू", kaka: "चाचा", atya: "फुफी", pahune: "मेहमान" };
+    if (isKannada)
+      return { mama: "ಮಾಮಾ", kaka: "ಚಾಚಾ", atya: "ಫೂಫಿ", pahune: "ಅತಿಥಿ" };
+    if (isUrdu)
+      return { mama: "ماموں", kaka: "چچا", atya: "پھوپھی", pahune: "مہمان" };
+    return { mama: "मामू", kaka: "चाचा", atya: "फुफी", pahune: "मेहमान" };
+  }
+  if (religion === "ख्रिश्चन") {
+    if (isKannada)
+      return { mama: "ಮಾವ", kaka: "ಚಿಕ್ಕಪ್ಪ", atya: "ಅತ್ತೆ", pahune: "ಅತಿಥಿ" };
+    if (isUrdu)
+      return { mama: "ماموں", kaka: "چچا", atya: "خالہ", pahune: "مہمان" };
+    return {
+      mama: "Maternal Uncle",
+      kaka: "Uncle",
+      atya: "Aunt",
+      pahune: "Guest",
+    };
+  }
+  return {
+    mama: T.mama || "मामा",
+    kaka: T.kaka || "काका",
+    atya: T.atya || "आत्या",
+    pahune: T.pahune || "पाहुणे",
+  };
+}
+
+// Get manglik display string
+function getManglikDisplay(
+  value: boolean | string | null | undefined,
+  T: Record<string, string>,
+): string | null {
+  if (value === null || value === undefined || value === "") return null;
+  const boolVal = value === true || value === "true";
+  return boolVal ? T.yes || "होय" : T.no || "नाही";
+}
 
 function parseSiblings(raw: string): SiblingEntry[] | null {
   try {
@@ -467,6 +566,9 @@ function BiodataContent({
   qrDataUrl,
 }: ContentProps) {
   const T = translations || TRANSLATIONS.marathi;
+  const _religion = (data.personal as any)?.religion || "हिंदू";
+  const _noGotra = ["बौद्ध", "ख्रिश्चन", "मुस्लीम"].includes(_religion);
+  const _relLabels = getRelativeLabels(_religion, T);
   const fontFamilyStr = propFont
     ? `'${propFont}', 'Noto Sans Devanagari', 'Hind', Arial, sans-serif`
     : "'Noto Sans Devanagari', 'Hind', Arial, sans-serif";
@@ -647,12 +749,16 @@ function BiodataContent({
           {!hidden.has("income") && (
             <R label={T.income} value={data.personal.income} />
           )}
-          {!hidden.has("gotra") && (
+          {!hidden.has("gotra") && !_noGotra && (
             <R label={T.gotra} value={data.personal.gotra} />
           )}
-          {!hidden.has("manglikStatus") && (
-            <R label={T.manglik} value={data.personal.manglikStatus} />
-          )}
+          {!hidden.has("manglikStatus") &&
+            getManglikDisplay(data.personal.manglikStatus, T) !== null && (
+              <R
+                label={T.manglik}
+                value={getManglikDisplay(data.personal.manglikStatus, T)}
+              />
+            )}
         </div>
       </div>
 
@@ -733,16 +839,16 @@ function BiodataContent({
           <R label={T.siblings} value={data.family.siblingsInfo} />
         )}
         {!hidden.has("mamaInfo") && data.family.mamaInfo && (
-          <R label={T.mama} value={data.family.mamaInfo} />
+          <R label={_relLabels.mama} value={data.family.mamaInfo} />
         )}
         {!hidden.has("kakaInfo") && data.family.kakaInfo && (
-          <R label={T.kaka} value={data.family.kakaInfo} />
+          <R label={_relLabels.kaka} value={data.family.kakaInfo} />
         )}
         {!hidden.has("atyaInfo") && data.family.atyaInfo && (
-          <R label={T.atya} value={data.family.atyaInfo} />
+          <R label={_relLabels.atya} value={data.family.atyaInfo} />
         )}
         {!hidden.has("pahuneInfo") && data.family.pahuneInfo && (
-          <R label={T.pahune} value={data.family.pahuneInfo} />
+          <R label={_relLabels.pahune} value={data.family.pahuneInfo} />
         )}
       </div>
 
@@ -982,7 +1088,7 @@ export function TemplateClassic({
             fontWeight: 500,
           }}
         >
-          {getReligionBlessing(data.personal?.religion || "हिंदू")}
+          {getReligionBlessing(data.personal?.religion || "हिंदू", language)}
         </span>
       </div>
       <div
@@ -1135,7 +1241,7 @@ function TemplateFloral({
             fontWeight: 500,
           }}
         >
-          {getReligionBlessing(data.personal?.religion || "हिंदू")}
+          {getReligionBlessing(data.personal?.religion || "हिंदू", language)}
         </span>
       </div>
       <div style={{ textAlign: "center", marginBottom: 18 }}>
@@ -1304,7 +1410,7 @@ function TemplateRajeshahi({
               fontWeight: 500,
             }}
           >
-            {getReligionBlessing(data.personal?.religion || "हिंदू")}
+            {getReligionBlessing(data.personal?.religion || "हिंदू", language)}
           </span>
         </div>
         <div
@@ -1649,7 +1755,7 @@ function TemplateShreshtha({
             fontWeight: 500,
           }}
         >
-          {getReligionBlessing(data.personal?.religion || "हिंदू")}
+          {getReligionBlessing(data.personal?.religion || "हिंदू", language)}
         </span>
       </div>
       <div
@@ -1802,7 +1908,7 @@ function TemplateDaivi({
               fontWeight: 500,
             }}
           >
-            {getReligionBlessing(data.personal?.religion || "हिंदू")}
+            {getReligionBlessing(data.personal?.religion || "हिंदू", language)}
           </span>
         </div>
         <div style={{ textAlign: "center", marginBottom: 20 }}>
