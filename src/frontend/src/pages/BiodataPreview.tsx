@@ -2145,6 +2145,8 @@ export default function BiodataPreview() {
         open={showPaymentModal}
         onOpenChange={setShowPaymentModal}
         onSuccess={handlePaymentSuccess}
+        biodataName={data.personal?.name}
+        selectedTemplate={activeTemplate}
       />
       <div className="min-h-screen bg-background py-8 px-4">
         <div className="no-print max-w-3xl mx-auto mb-6 flex items-center justify-between flex-wrap gap-3">

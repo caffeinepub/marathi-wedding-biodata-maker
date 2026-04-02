@@ -9,7 +9,8 @@ import { motion } from "motion/react";
 export default function LandingPage() {
   const { language } = useSiteLang();
   const T = SITE_T[language];
-  const isRtl = language === "urdu";
+  // const isRtl = language === "urdu"; // TODO: re-enable Muslim/Urdu
+  const isRtl = false;
 
   const STEPS = [
     {
@@ -144,10 +145,15 @@ export default function LandingPage() {
               >
                 {T.hero_desc}
               </p>
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100 text-maroon text-xs font-devanagari font-semibold border border-amber-200">
+                    ✅ {T.trust_badge}
+                  </span>
+                </div>
                 <Link
                   to="/form"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3.5 font-devanagari font-semibold text-base bg-maroon text-amber-50 hover:opacity-90 transition-opacity shadow-card"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl px-8 py-4 font-devanagari font-semibold text-base bg-maroon text-amber-50 hover:opacity-90 transition-opacity shadow-card"
                   data-ocid="hero.primary_button"
                 >
                   {T.hero_cta} <ChevronRight className="w-4 h-4" />

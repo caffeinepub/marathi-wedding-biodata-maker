@@ -6,7 +6,8 @@ import { Flower2, Heart, Mail } from "lucide-react";
 export default function Footer() {
   const { language } = useSiteLang();
   const T = SITE_T[language];
-  const isRtl = language === "urdu";
+  // const isRtl = language === "urdu"; // TODO: re-enable Muslim/Urdu
+  const isRtl = false;
   const year = new Date().getFullYear();
   const utm = encodeURIComponent(
     typeof window !== "undefined" ? window.location.hostname : "",
@@ -63,6 +64,15 @@ export default function Footer() {
                   {T.footer_templates}
                 </a>
               </li>
+              <li>
+                <Link
+                  to="/about"
+                  className="font-devanagari text-sm text-amber-100/70 hover:text-amber-200 transition-colors"
+                  data-ocid="footer.about.link"
+                >
+                  {T.footer_about || "आमच्याबद्दल"}
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
@@ -81,15 +91,24 @@ export default function Footer() {
           <span className="font-devanagari">
             © {year} लग्नसेतू. {T.footer_rights}
           </span>
-          <a
-            href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${utm}`}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-1 hover:text-amber-200 transition-colors"
-          >
-            Built with <Heart className="w-3 h-3 fill-current" /> using
-            caffeine.ai
-          </a>
+          <div className="flex items-center gap-4">
+            <a
+              href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${utm}`}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-1 hover:text-amber-200 transition-colors"
+            >
+              Built with <Heart className="w-3 h-3 fill-current" /> using
+              caffeine.ai
+            </a>
+            <Link
+              to="/admin"
+              className="text-amber-200/30 hover:text-amber-200/60 transition-colors"
+              data-ocid="footer.admin.link"
+            >
+              Admin
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

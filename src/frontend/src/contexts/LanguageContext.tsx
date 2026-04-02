@@ -1,7 +1,8 @@
 import type React from "react";
 import { createContext, useContext, useState } from "react";
 
-export type SiteLang = "marathi" | "hindi" | "english" | "kannada" | "urdu";
+export type SiteLang = "marathi" | "hindi" | "english" | "kannada";
+// | "urdu"; // TODO: re-enable Muslim/Urdu
 
 interface LanguageContextType {
   language: SiteLang;
@@ -16,7 +17,10 @@ const LanguageContext = createContext<LanguageContextType>({
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<SiteLang>(() => {
     try {
-      return (localStorage.getItem("siteLang") as SiteLang) || "marathi";
+      const stored = localStorage.getItem("siteLang");
+      // TODO: re-enable Muslim/Urdu — remove the urdu fallback below
+      if (stored === "urdu") return "marathi";
+      return (stored as SiteLang) || "marathi";
     } catch {
       return "marathi";
     }

@@ -167,8 +167,8 @@ interface SiblingEntry {
   occupation: string;
 }
 
-type ReligionType = "हिंदू" | "जैन" | "बौद्ध" | "लिंगायत" | "ख्रिश्चन" | "मुस्लीम";
-type LanguageType = "marathi" | "hindi" | "english" | "kannada" | "urdu";
+type ReligionType = "हिंदू" | "जैन" | "बौद्ध" | "लिंगायत" | "ख्रिश्चन"; // | "मुस्लीम" // TODO: re-enable Muslim/Urdu
+type LanguageType = "marathi" | "hindi" | "english" | "kannada"; // | "urdu" // TODO: re-enable Muslim/Urdu
 
 interface FormState {
   personal: PersonalInfo;
@@ -1494,6 +1494,14 @@ export default function BiodataForm() {
     ...defaultState,
     language: "marathi",
   }));
+  const [showDraftBanner, setShowDraftBanner] = useState(() => {
+    try {
+      return !!localStorage.getItem("lagnasetu_draft");
+    } catch {
+      return false;
+    }
+  });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const FL_LABELS = FORM_LABELS[form.language] || FORM_LABELS.marathi;
   const REL_LABELS = getRelativeFormLabels(form.language, form.religion);
   const [hiddenFields, setHiddenFields] = useState<Set<string>>(new Set());
@@ -1549,6 +1557,80 @@ export default function BiodataForm() {
       }
     }
   }, []);
+
+  // Auto-save form data to localStorage with debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        const draft = {
+          form: { ...form, photoFile: null },
+          step,
+          siblings,
+        };
+        localStorage.setItem("lagnasetu_draft", JSON.stringify(draft));
+      } catch {
+        /* ignore */
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [form, step, siblings]);
+
+  // Check for saved draft on mount
+  useEffect(() => {
+    try {
+      const draft = localStorage.getItem("lagnasetu_draft");
+      if (draft) setShowDraftBanner(true);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  function loadDraft() {
+    try {
+      const draft = JSON.parse(
+        localStorage.getItem("lagnasetu_draft") || "null",
+      );
+      if (draft) {
+        setForm({ ...draft.form, photoFile: null });
+        if (draft.step !== undefined) setStep(draft.step);
+        if (Array.isArray(draft.siblings)) setSiblings(draft.siblings);
+        if (draft.form?.language) setSiteLang(draft.form.language);
+      }
+    } catch {
+      /* ignore */
+    }
+    setShowDraftBanner(false);
+  }
+
+  function clearDraft() {
+    try {
+      localStorage.removeItem("lagnasetu_draft");
+    } catch {
+      /* ignore */
+    }
+    setShowDraftBanner(false);
+  }
+
+  // Validation helper
+  function getRequiredErrorMsg(lang: string): string {
+    if (lang === "hindi") return "यह फ़ील्ड आवश्यक है";
+    if (lang === "english") return "This field is required";
+    if (lang === "kannada") return "ಈ ಕ್ಷೇತ್ರ ಅಗತ್ಯವಿದೆ";
+    return "हे क्षेत्र आवश्यक आहे";
+  }
+
+  function validateCurrentStep(): boolean {
+    const errors: Record<string, string> = {};
+    const errMsg = getRequiredErrorMsg(form.language);
+    if (step === 1) {
+      if (!form.personal.name?.trim()) errors.name = errMsg;
+    }
+    if (step === 2) {
+      if (!form.family.fatherName?.trim()) errors.fatherName = errMsg;
+    }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  }
 
   const fileRef = useRef<HTMLInputElement>(null);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
@@ -1654,6 +1736,11 @@ export default function BiodataForm() {
         photoPreview: form.photoPreview,
       }),
     );
+    try {
+      localStorage.removeItem("lagnasetu_draft");
+    } catch {
+      /* ignore */
+    }
     toast.success("बायोडाटा तयार झाला!");
     navigate({ to: "/preview" });
   }
@@ -1672,6 +1759,34 @@ export default function BiodataForm() {
       )}
       <div className="min-h-screen bg-background py-8 px-4">
         <div className="max-w-2xl mx-auto">
+          {showDraftBanner && (
+            <div
+              className="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2"
+              data-ocid="form.draft.panel"
+            >
+              <p className="font-devanagari text-sm text-amber-900 flex-1">
+                📋 आपला अर्धवट भरलेला बायोडाटा सापडला.
+              </p>
+              <div className="flex gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={loadDraft}
+                  className="font-devanagari text-xs font-semibold text-maroon border border-maroon/30 px-3 py-1.5 rounded-lg hover:bg-maroon/5 transition-colors"
+                  data-ocid="form.draft.resume_button"
+                >
+                  पुन्हा सुरू करा
+                </button>
+                <button
+                  type="button"
+                  onClick={clearDraft}
+                  className="font-devanagari text-xs font-semibold text-muted-foreground border border-border px-3 py-1.5 rounded-lg hover:bg-muted transition-colors"
+                  data-ocid="form.draft.new_button"
+                >
+                  नवीन सुरू करा
+                </button>
+              </div>
+            </div>
+          )}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-2">
               <Flower2 className="w-5 h-5 text-maroon" />
@@ -1745,10 +1860,9 @@ export default function BiodataForm() {
                           value={form.religion}
                           onValueChange={(v) => {
                             const newReligion = v as ReligionType;
-                            const resetLang =
-                              newReligion !== "मुस्लीम" &&
-                              form.language === "urdu";
-                            if (resetLang) setSiteLang("marathi");
+                            // TODO: re-enable Muslim/Urdu — resetLang was for urdu language reset
+                            // const resetLang = newReligion !== "मुस्लीम" && form.language === "urdu";
+                            // if (resetLang) setSiteLang("marathi");
                             localStorage.setItem(
                               "biodataReligion",
                               newReligion,
@@ -1756,7 +1870,8 @@ export default function BiodataForm() {
                             setForm((f) => ({
                               ...f,
                               religion: newReligion,
-                              language: resetLang ? "marathi" : f.language,
+                              // language: resetLang ? "marathi" : f.language, // TODO: re-enable Muslim/Urdu
+                              language: f.language,
                               personal: { ...f.personal, religion: v },
                             }));
                           }}
@@ -1777,7 +1892,7 @@ export default function BiodataForm() {
                                 "बौद्ध",
                                 "लिंगायत",
                                 "ख्रिश्चन",
-                                "मुस्लीम",
+                                // "मुस्लीम", // TODO: re-enable Muslim/Urdu
                               ] as ReligionType[]
                             ).map((r) => (
                               <SelectItem
@@ -1807,9 +1922,8 @@ export default function BiodataForm() {
                               ["hindi", "हिंदी"],
                               ["english", "English"],
                               ["kannada", "ಕನ್ನಡ"],
-                              ...(form.religion === "मुस्लीम"
-                                ? [["urdu", "اردو"]]
-                                : []),
+                              // TODO: re-enable Muslim/Urdu — urdu shown only for Muslim religion
+                              // ...(form.religion === "मुस्लीम" ? [["urdu", "اردو"]] : []),
                             ] as [LanguageType, string][]
                           ).map(([val, label]) => (
                             <button
@@ -1820,7 +1934,7 @@ export default function BiodataForm() {
                                 setSiteLang(val);
                               }}
                               data-ocid={`form.language.${val}.toggle`}
-                              dir={val === "urdu" ? "rtl" : undefined}
+                              // dir={val === "urdu" ? "rtl" : undefined} // TODO: re-enable Muslim/Urdu
                               className={`flex-1 min-w-[60px] py-2 rounded-lg border-2 text-sm font-semibold transition-all ${form.language === val ? "border-maroon bg-maroon text-amber-50" : "border-border text-foreground hover:border-maroon/50"}`}
                             >
                               {label}
@@ -2042,9 +2156,26 @@ export default function BiodataForm() {
                               form.religion,
                             )}
                             value={form.personal.name}
-                            onChange={(e) => upP("name", e.target.value)}
+                            onChange={(e) => {
+                              upP("name", e.target.value);
+                              if (e.target.value.trim())
+                                setFormErrors((prev) => {
+                                  const n = { ...prev };
+                                  n.name = "";
+                                  return n;
+                                });
+                            }}
+                            className={formErrors.name ? "border-red-500" : ""}
                             data-ocid="personal.name.input"
                           />
+                          {formErrors.name && (
+                            <p
+                              className="text-red-500 text-xs font-devanagari mt-1"
+                              data-ocid="personal.name.error_state"
+                            >
+                              {formErrors.name}
+                            </p>
+                          )}
                         </div>
                         <div className="space-y-1.5">
                           <FL label={FL_LABELS.dob} />
@@ -2237,15 +2368,16 @@ export default function BiodataForm() {
                       )}
 
                       {/* Panth for Buddhist / Muslim */}
-                      {(form.religion === "बौद्ध" ||
-                        form.religion === "मुस्लीम") && (
+                      {/* TODO: re-enable Muslim/Urdu — add "मुस्लीम" back to condition below */}
+                      {form.religion === "बौद्ध" && (
                         <div className="space-y-1.5">
                           <FL label={FL_LABELS.panth} />
                           <Input
                             placeholder={
-                              form.religion === "मुस्लीम"
-                                ? FL_LABELS.panth_placeholder_muslim
-                                : FL_LABELS.panth_placeholder_buddhist
+                              // form.religion === "मुस्लीम" // TODO: re-enable Muslim/Urdu
+                              //   ? FL_LABELS.panth_placeholder_muslim
+                              //   :
+                              FL_LABELS.panth_placeholder_buddhist
                             }
                             value={(form.personal as any).denomination || ""}
                             onChange={(e) =>
@@ -2277,9 +2409,28 @@ export default function BiodataForm() {
                               form.religion,
                             )}
                             value={form.family.fatherName}
-                            onChange={(e) => upF("fatherName", e.target.value)}
+                            onChange={(e) => {
+                              upF("fatherName", e.target.value);
+                              if (e.target.value.trim())
+                                setFormErrors((prev) => {
+                                  const n = { ...prev };
+                                  n.fatherName = "";
+                                  return n;
+                                });
+                            }}
+                            className={
+                              formErrors.fatherName ? "border-red-500" : ""
+                            }
                             data-ocid="family.father_name.input"
                           />
+                          {formErrors.fatherName && (
+                            <p
+                              className="text-red-500 text-xs font-devanagari mt-1"
+                              data-ocid="family.father_name.error_state"
+                            >
+                              {formErrors.fatherName}
+                            </p>
+                          )}
                         </div>
                         {!hiddenFields.has("fatherOccupation") && (
                           <div className="space-y-1.5">
@@ -2802,6 +2953,7 @@ export default function BiodataForm() {
               ) : step < STEP_TITLES.length - 1 ? (
                 <Button
                   onClick={() => {
+                    if (!validateCurrentStep()) return;
                     const skipHoroscope = ["ख्रिश्चन", "मुस्लीम"].includes(
                       form.religion,
                     );

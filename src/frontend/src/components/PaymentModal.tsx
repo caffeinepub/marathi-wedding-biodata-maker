@@ -15,6 +15,8 @@ interface PaymentModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: (planId: string) => void;
+  biodataName?: string;
+  selectedTemplate?: string;
 }
 
 const BASE_PRICE = 49;
@@ -35,6 +37,8 @@ export default function PaymentModal({
   open,
   onOpenChange,
   onSuccess,
+  biodataName,
+  selectedTemplate,
 }: PaymentModalProps) {
   const { openCheckout } = useRazorpay();
   const [couponInput, setCouponInput] = useState("");
@@ -68,11 +72,31 @@ export default function PaymentModal({
     setCouponError("");
   }
 
+  function recordOrder(finalPrice: number) {
+    try {
+      const orders = JSON.parse(
+        localStorage.getItem("lagnasetu_orders") || "[]",
+      );
+      orders.push({
+        name: biodataName || "अज्ञात",
+        template: selectedTemplate || "classic",
+        amount: finalPrice,
+        date: new Date().toLocaleDateString("mr-IN"),
+        coupon: appliedCoupon || null,
+      });
+      localStorage.setItem("lagnasetu_orders", JSON.stringify(orders));
+      localStorage.removeItem("lagnasetu_draft");
+    } catch {
+      /* ignore storage errors */
+    }
+  }
+
   function handlePay() {
     const finalPrice = getDiscountedPrice();
 
     // Free - skip Razorpay
     if (finalPrice === 0) {
+      recordOrder(finalPrice);
       sessionStorage.setItem("biodataPaidPlan", "basic");
       onOpenChange(false);
       onSuccess("basic");
@@ -87,6 +111,7 @@ export default function PaymentModal({
       description: "विवाह बायोडाटा डाउनलोड",
       handler: (response: any) => {
         console.log("Payment success:", response);
+        recordOrder(finalPrice);
         sessionStorage.setItem("biodataPaidPlan", "basic");
         onOpenChange(false);
         onSuccess("basic");
