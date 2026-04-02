@@ -1967,6 +1967,440 @@ function TemplateDaivi({
   );
 }
 
+// ─── Template 7: पारंपारिक ────────────────────────────────────────────────────
+const paramparikTheme: ThemeConfig = {
+  bg: "#FFFDF5",
+  textColor: "#2a1a00",
+  sectionColor: "#B8860B",
+  labelColor: "#7a5c00",
+  accentBg: "#FFF8DC",
+  borderColor: "#D4A017",
+};
+
+function TemplateParamparik({
+  data,
+  hidden,
+  translations,
+  fontFamily,
+  qrDataUrl,
+  language = "marathi",
+}: {
+  data: SavedData;
+  hidden: Set<string>;
+  translations?: Record<string, string>;
+  fontFamily?: string;
+  qrDataUrl?: string;
+  language?: string;
+}) {
+  return (
+    <div
+      style={{
+        background: "#FFFDF5",
+        fontFamily: fontFamily
+          ? `'${fontFamily}', 'Noto Sans Devanagari', 'Hind', Arial, sans-serif`
+          : "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
+        maxWidth: 794,
+        margin: "0 auto",
+        padding: "28px 30px 24px",
+        boxSizing: "border-box" as const,
+        position: "relative" as const,
+      }}
+    >
+      {/* Outer double border */}
+      <div
+        style={{
+          border: "3px double #B8860B",
+          position: "absolute" as const,
+          inset: 6,
+          pointerEvents: "none" as const,
+        }}
+      />
+      <div
+        style={{
+          border: "1px solid #D4A017",
+          position: "absolute" as const,
+          inset: 12,
+          pointerEvents: "none" as const,
+        }}
+      />
+      {/* Corner ornaments */}
+      {(["tl", "tr", "bl", "br"] as const).map((pos) => {
+        const style: React.CSSProperties = {
+          position: "absolute",
+          fontSize: 18,
+          color: "#B8860B",
+          pointerEvents: "none",
+          lineHeight: 1,
+          ...(pos === "tl"
+            ? { top: 8, left: 10 }
+            : pos === "tr"
+              ? { top: 8, right: 10 }
+              : pos === "bl"
+                ? { bottom: 8, left: 10 }
+                : { bottom: 8, right: 10 }),
+        };
+        return (
+          <span key={pos} style={style}>
+            ✦
+          </span>
+        );
+      })}
+      <div style={{ textAlign: "center", marginBottom: 6, marginTop: 4 }}>
+        <span
+          style={{
+            color: "#B8860B",
+            fontSize: 11,
+            letterSpacing: "0.2em",
+            fontWeight: 500,
+          }}
+        >
+          {getReligionBlessing(data.personal?.religion || "हिंदू", language)}
+        </span>
+      </div>
+      <div
+        style={{
+          textAlign: "center",
+          marginBottom: 16,
+          position: "relative" as const,
+        }}
+      >
+        <div
+          style={{
+            background: "linear-gradient(135deg, #B8860B, #D4A017, #B8860B)",
+            padding: "10px 20px",
+            marginBottom: 6,
+          }}
+        >
+          <h1
+            style={{
+              color: "#FFFDF5",
+              fontSize: 20,
+              fontWeight: 800,
+              margin: 0,
+              letterSpacing: "0.12em",
+              fontFamily: "inherit",
+            }}
+          >
+            ॥ विवाह बायोडाटा ॥
+          </h1>
+        </div>
+        <div
+          style={{
+            height: 2,
+            background:
+              "linear-gradient(90deg, transparent, #B8860B 20%, #D4A017 50%, #B8860B 80%, transparent)",
+          }}
+        />
+      </div>
+      <BiodataContent
+        data={data}
+        hidden={hidden}
+        theme={paramparikTheme}
+        translations={translations}
+        fontFamily={fontFamily}
+        qrDataUrl={qrDataUrl}
+      />
+      <div
+        style={{
+          textAlign: "center",
+          paddingTop: 8,
+          marginTop: 14,
+          borderTop: "2px double #B8860B",
+        }}
+      >
+        <span
+          style={{
+            color: "#B8860B",
+            fontSize: 11,
+            letterSpacing: "0.18em",
+            fontWeight: 500,
+          }}
+        >
+          {getFooterText(data.personal?.religion || "हिंदू", language)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Template 8: मनोहर ────────────────────────────────────────────────────────
+const manoharTheme: ThemeConfig = {
+  bg: "#F0FAF5",
+  textColor: "#0d2b1e",
+  sectionColor: "#1B6B5A",
+  labelColor: "#3a7a65",
+  accentBg: "#D4F0E5",
+  borderColor: "#5BAF96",
+};
+
+function TemplateManohar({
+  data,
+  hidden,
+  translations,
+  fontFamily,
+  qrDataUrl,
+  language = "marathi",
+}: {
+  data: SavedData;
+  hidden: Set<string>;
+  translations?: Record<string, string>;
+  fontFamily?: string;
+  qrDataUrl?: string;
+  language?: string;
+}) {
+  return (
+    <div
+      style={{
+        background: "#F0FAF5",
+        fontFamily: fontFamily
+          ? `'${fontFamily}', 'Noto Sans Devanagari', 'Hind', Arial, sans-serif`
+          : "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
+        maxWidth: 794,
+        margin: "0 auto",
+        padding: "0 0 20px",
+        boxSizing: "border-box" as const,
+        position: "relative" as const,
+        border: "2px solid #5BAF96",
+        borderRadius: 4,
+        overflow: "hidden" as const,
+      }}
+    >
+      {/* Header band */}
+      <div
+        style={{
+          background:
+            "linear-gradient(135deg, #1B6B5A 0%, #2E9B82 60%, #1B6B5A 100%)",
+          padding: "16px 28px 14px",
+          marginBottom: 0,
+          position: "relative" as const,
+        }}
+      >
+        <div style={{ textAlign: "center", marginBottom: 4 }}>
+          <span
+            style={{
+              color: "rgba(255,255,255,0.85)",
+              fontSize: 10,
+              letterSpacing: "0.22em",
+              fontWeight: 500,
+            }}
+          >
+            {getReligionBlessing(data.personal?.religion || "हिंदू", language)}
+          </span>
+        </div>
+        <h1
+          style={{
+            color: "#fff",
+            fontSize: 21,
+            fontWeight: 800,
+            margin: 0,
+            letterSpacing: "0.1em",
+            textAlign: "center",
+            fontFamily: "inherit",
+          }}
+        >
+          🌿 विवाह बायोडाटा 🌿
+        </h1>
+        {/* Wave bottom */}
+        <div
+          style={{
+            position: "absolute" as const,
+            bottom: -1,
+            left: 0,
+            right: 0,
+            height: 12,
+            background: "#F0FAF5",
+            borderRadius: "50% 50% 0 0 / 100% 100% 0 0",
+          }}
+        />
+      </div>
+      <div style={{ padding: "6px 28px 0" }}>
+        <BiodataContent
+          data={data}
+          hidden={hidden}
+          theme={manoharTheme}
+          translations={translations}
+          fontFamily={fontFamily}
+          qrDataUrl={qrDataUrl}
+        />
+      </div>
+      <div
+        style={{
+          textAlign: "center",
+          padding: "8px 28px 4px",
+          borderTop: "2px solid #5BAF96",
+          marginTop: 10,
+        }}
+      >
+        <span
+          style={{
+            color: "#1B6B5A",
+            fontSize: 11,
+            letterSpacing: "0.15em",
+            fontWeight: 600,
+          }}
+        >
+          {getFooterText(data.personal?.religion || "हिंदू", language)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Template 9: सौंदर्य ──────────────────────────────────────────────────────
+const saundaryaTheme: ThemeConfig = {
+  bg: "#FFF5F8",
+  textColor: "#2d0a1a",
+  sectionColor: "#AD1457",
+  labelColor: "#8c3a5a",
+  accentBg: "#FCE4EC",
+  borderColor: "#F48FB1",
+};
+
+function TemplateSaundarya({
+  data,
+  hidden,
+  translations,
+  fontFamily,
+  qrDataUrl,
+  language = "marathi",
+}: {
+  data: SavedData;
+  hidden: Set<string>;
+  translations?: Record<string, string>;
+  fontFamily?: string;
+  qrDataUrl?: string;
+  language?: string;
+}) {
+  return (
+    <div
+      style={{
+        background: "#FFF5F8",
+        fontFamily: fontFamily
+          ? `'${fontFamily}', 'Noto Sans Devanagari', 'Hind', Arial, sans-serif`
+          : "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
+        maxWidth: 794,
+        margin: "0 auto",
+        padding: "24px 30px",
+        boxSizing: "border-box" as const,
+        position: "relative" as const,
+      }}
+    >
+      {/* Outer border with inner accent */}
+      <div
+        style={{
+          border: "2px solid #F48FB1",
+          position: "absolute" as const,
+          inset: 6,
+          pointerEvents: "none" as const,
+          borderRadius: 6,
+        }}
+      />
+      <div
+        style={{
+          border: "1px solid #FCB8D0",
+          position: "absolute" as const,
+          inset: 11,
+          pointerEvents: "none" as const,
+          borderRadius: 4,
+        }}
+      />
+      {/* Corner roses */}
+      {(["tl", "tr", "bl", "br"] as const).map((pos) => {
+        const style: React.CSSProperties = {
+          position: "absolute",
+          fontSize: 20,
+          pointerEvents: "none",
+          lineHeight: 1,
+          opacity: 0.7,
+          ...(pos === "tl"
+            ? { top: 7, left: 9 }
+            : pos === "tr"
+              ? { top: 7, right: 9 }
+              : pos === "bl"
+                ? { bottom: 7, left: 9 }
+                : { bottom: 7, right: 9 }),
+        };
+        return (
+          <span key={pos} style={style}>
+            🌹
+          </span>
+        );
+      })}
+      <div style={{ textAlign: "center", marginBottom: 4, marginTop: 2 }}>
+        <span
+          style={{
+            color: "#AD1457",
+            fontSize: 10.5,
+            letterSpacing: "0.2em",
+            fontWeight: 500,
+          }}
+        >
+          {getReligionBlessing(data.personal?.religion || "हिंदू", language)}
+        </span>
+      </div>
+      <div style={{ textAlign: "center", marginBottom: 14 }}>
+        <div
+          style={{
+            display: "inline-block",
+            padding: "8px 30px",
+            background: "linear-gradient(135deg, #FCE4EC, #F8BBD0, #FCE4EC)",
+            border: "1px solid #F48FB1",
+            borderRadius: 30,
+          }}
+        >
+          <h1
+            style={{
+              color: "#AD1457",
+              fontSize: 19,
+              fontWeight: 800,
+              margin: 0,
+              letterSpacing: "0.09em",
+              fontFamily: "inherit",
+            }}
+          >
+            ❀ विवाह बायोडाटा ❀
+          </h1>
+        </div>
+        <div
+          style={{
+            height: 1.5,
+            background:
+              "linear-gradient(90deg, transparent, #F48FB1, transparent)",
+            marginTop: 8,
+          }}
+        />
+      </div>
+      <BiodataContent
+        data={data}
+        hidden={hidden}
+        theme={saundaryaTheme}
+        translations={translations}
+        fontFamily={fontFamily}
+        qrDataUrl={qrDataUrl}
+      />
+      <div
+        style={{
+          textAlign: "center",
+          paddingTop: 8,
+          marginTop: 12,
+          borderTop: "1px solid #F48FB1",
+        }}
+      >
+        <span
+          style={{
+            color: "#AD1457",
+            fontSize: 11,
+            letterSpacing: "0.18em",
+            fontWeight: 500,
+          }}
+        >
+          {getFooterText(data.personal?.religion || "हिंदू", language)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 // ─── Template map ─────────────────────────────────────────────────────────────
 const templateMap: Record<
   string,
@@ -1985,6 +2419,9 @@ const templateMap: Record<
   aadhunik: TemplateAadhunik,
   shreshtha: TemplateShreshtha,
   daivi: TemplateDaivi,
+  paramparik: TemplateParamparik,
+  manohar: TemplateManohar,
+  saundarya: TemplateSaundarya,
   // backward compat
   single: TemplateClassic,
 };
@@ -2021,6 +2458,9 @@ const _TEMPLATE_LIST = [
     color: "#8B6914",
   },
   { id: "daivi", name: "दैवी", emoji: "🕉️", color: "#0A1628" },
+  { id: "paramparik", name: "पारंपारिक", emoji: "✦", color: "#B8860B" },
+  { id: "manohar", name: "मनोहर", emoji: "🌿", color: "#1B6B5A" },
+  { id: "saundarya", name: "सौंदर्य", emoji: "🌹", color: "#AD1457" },
 ];
 
 // ─── Main Component ───────────────────────────────────────────────────────────

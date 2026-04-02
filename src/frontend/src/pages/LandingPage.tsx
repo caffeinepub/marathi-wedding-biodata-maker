@@ -100,6 +100,36 @@ export default function LandingPage() {
       headerText: "#ffd700",
       accent: "#112240",
     },
+    {
+      id: "paramparik",
+      name: T.tpl_paramparik_name,
+      desc: T.tpl_paramparik_desc,
+      bg: "#FFFDF5",
+      border: "#B8860B",
+      header: "#B8860B",
+      headerText: "#FFFDF5",
+      accent: "#FFF8DC",
+    },
+    {
+      id: "manohar",
+      name: T.tpl_manohar_name,
+      desc: T.tpl_manohar_desc,
+      bg: "#F0FAF5",
+      border: "#1B6B5A",
+      header: "#1B6B5A",
+      headerText: "#ffffff",
+      accent: "#D4F0E5",
+    },
+    {
+      id: "saundarya",
+      name: T.tpl_saundarya_name,
+      desc: T.tpl_saundarya_desc,
+      bg: "#FFF5F8",
+      border: "#AD1457",
+      header: "#AD1457",
+      headerText: "#FFF5F8",
+      accent: "#FCE4EC",
+    },
   ];
 
   const PRICING_FEATURES = [

@@ -97,6 +97,30 @@ const TEMPLATES_CONFIG = [
     plan: "basic",
     desc: "दैवी नील",
   },
+  {
+    id: "paramparik",
+    name: "पारंपारिक",
+    emoji: "✦",
+    color: "#B8860B",
+    plan: "basic",
+    desc: "सोनेरी परंपरा",
+  },
+  {
+    id: "manohar",
+    name: "मनोहर",
+    emoji: "🌿",
+    color: "#1B6B5A",
+    plan: "basic",
+    desc: "हिरवागार",
+  },
+  {
+    id: "saundarya",
+    name: "सौंदर्य",
+    emoji: "🌹",
+    color: "#AD1457",
+    plan: "basic",
+    desc: "गुलाबी",
+  },
 ];
 
 const RASHIS = [
