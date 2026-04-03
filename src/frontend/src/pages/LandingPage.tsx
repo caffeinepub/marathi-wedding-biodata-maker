@@ -5,12 +5,29 @@ import { SITE_T } from "@/i18n/siteTranslations";
 import { Link } from "@tanstack/react-router";
 import { CheckCircle, ChevronRight, Download, Edit3, Star } from "lucide-react";
 import { motion } from "motion/react";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 export default function LandingPage() {
   const { language } = useSiteLang();
   const T = SITE_T[language];
   // const isRtl = language === "urdu"; // TODO: re-enable Muslim/Urdu
   const isRtl = false;
+
+  // Handle referral query param
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref) {
+      const msg =
+        language === "english"
+          ? "Your friend suggested LagnaSetu! Let's create your biodata."
+          : language === "hindi"
+            ? "आपके मित्र ने लग्नसेतू suggest किया! बायोडेटा बनाना शुरू करें।"
+            : "आपल्या मित्रांनी तुम्हाला suggest केले! बायोडाटा बनवायला सुरुवात करूया.";
+      toast(msg, { duration: 5000 });
+    }
+  }, [language]);
 
   const STEPS = [
     {
@@ -129,6 +146,46 @@ export default function LandingPage() {
       header: "#AD1457",
       headerText: "#FFF5F8",
       accent: "#FCE4EC",
+    },
+    {
+      id: "mayur",
+      name: (T as any).tpl_mayur_name || "मयूर",
+      desc: (T as any).tpl_mayur_desc || "मोराचा",
+      bg: "#E0F7FA",
+      border: "#006064",
+      header: "#006064",
+      headerText: "#ffffff",
+      accent: "#B2EBF2",
+    },
+    {
+      id: "ugawatya",
+      name: (T as any).tpl_ugawatya_name || "उगवत्या सूर्याचा",
+      desc: (T as any).tpl_ugawatya_desc || "केशरी",
+      bg: "#FFF3E0",
+      border: "#E65100",
+      header: "#E65100",
+      headerText: "#fff8f0",
+      accent: "#FFE0B2",
+    },
+    {
+      id: "kamal",
+      name: (T as any).tpl_kamal_name || "कमळ",
+      desc: (T as any).tpl_kamal_desc || "गुलाबी कमळ",
+      bg: "#FFF5F8",
+      border: "#C2185B",
+      header: "#C2185B",
+      headerText: "#FFF5F8",
+      accent: "#FCE4EC",
+    },
+    {
+      id: "rajat",
+      name: (T as any).tpl_rajat_name || "रजत",
+      desc: (T as any).tpl_rajat_desc || "रुपेरी",
+      bg: "#F5F5F5",
+      border: "#424242",
+      header: "#424242",
+      headerText: "#ffffff",
+      accent: "#EEEEEE",
     },
   ];
 

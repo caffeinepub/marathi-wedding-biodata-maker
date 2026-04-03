@@ -2401,6 +2401,474 @@ function TemplateSaundarya({
   );
 }
 
+// ─── Template 10: मयूर (Peacock) ─────────────────────────────────────────────
+const mayurTheme: ThemeConfig = {
+  bg: "#E0F7FA",
+  textColor: "#001F3F",
+  sectionColor: "#006064",
+  labelColor: "#00838F",
+  accentBg: "#E0F7FA",
+  borderColor: "#006064",
+};
+
+function TemplateMayur({
+  data,
+  hidden,
+  translations,
+  fontFamily,
+  qrDataUrl,
+  language = "marathi",
+  colorOverride,
+}: {
+  data: SavedData;
+  hidden: Set<string>;
+  translations?: Record<string, string>;
+  fontFamily?: string;
+  qrDataUrl?: string;
+  language?: string;
+  colorOverride?: string;
+}) {
+  const theme = colorOverride
+    ? { ...mayurTheme, sectionColor: colorOverride, borderColor: colorOverride }
+    : mayurTheme;
+  return (
+    <div
+      style={{
+        background: "#f0fafc",
+        fontFamily: fontFamily
+          ? `'${fontFamily}', 'Noto Sans Devanagari', 'Hind', Arial, sans-serif`
+          : "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
+        maxWidth: 794,
+        margin: "0 auto",
+        padding: "0 0 24px",
+        boxSizing: "border-box" as const,
+        position: "relative" as const,
+      }}
+    >
+      <div
+        style={{
+          background: `linear-gradient(135deg, ${theme.sectionColor}, ${theme.labelColor})`,
+          padding: "20px 30px 16px",
+          textAlign: "center",
+          position: "relative",
+        }}
+      >
+        <div
+          style={{
+            color: "rgba(255,255,255,0.85)",
+            fontSize: 11,
+            letterSpacing: "0.2em",
+            marginBottom: 6,
+            position: "relative",
+          }}
+        >
+          {getReligionBlessing(data.personal?.religion || "हिंदू", language)}
+        </div>
+        <h1
+          style={{
+            color: "#ffffff",
+            fontSize: 21,
+            fontWeight: 800,
+            margin: 0,
+            letterSpacing: "0.06em",
+            fontFamily: "inherit",
+            position: "relative",
+          }}
+        >
+          🦚 विवाह बायोडाटा 🦚
+        </h1>
+      </div>
+      <div style={{ padding: "16px 30px 0" }}>
+        <BiodataContent
+          data={data}
+          hidden={hidden}
+          theme={theme}
+          translations={translations}
+          fontFamily={fontFamily}
+          qrDataUrl={qrDataUrl}
+        />
+      </div>
+      <div
+        style={{
+          textAlign: "center",
+          paddingTop: 8,
+          marginTop: 12,
+          borderTop: `1px solid ${theme.borderColor}`,
+          marginLeft: 30,
+          marginRight: 30,
+        }}
+      >
+        <span
+          style={{
+            color: theme.sectionColor,
+            fontSize: 11,
+            letterSpacing: "0.15em",
+            fontWeight: 500,
+          }}
+        >
+          {getFooterText(data.personal?.religion || "हिंदू", language)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Template 11: उगवत्या सूर्याचा (Sunrise) ──────────────────────────────────
+const ugawatayaTheme: ThemeConfig = {
+  bg: "#FFF3E0",
+  textColor: "#1a1a1a",
+  sectionColor: "#E65100",
+  labelColor: "#FF6D00",
+  accentBg: "#FFF3E0",
+  borderColor: "#FF8F00",
+};
+
+function TemplateUgawatya({
+  data,
+  hidden,
+  translations,
+  fontFamily,
+  qrDataUrl,
+  language = "marathi",
+  colorOverride,
+}: {
+  data: SavedData;
+  hidden: Set<string>;
+  translations?: Record<string, string>;
+  fontFamily?: string;
+  qrDataUrl?: string;
+  language?: string;
+  colorOverride?: string;
+}) {
+  const theme = colorOverride
+    ? {
+        ...ugawatayaTheme,
+        sectionColor: colorOverride,
+        borderColor: colorOverride,
+      }
+    : ugawatayaTheme;
+  return (
+    <div
+      style={{
+        background: "#FFFBF5",
+        fontFamily: fontFamily
+          ? `'${fontFamily}', 'Noto Sans Devanagari', 'Hind', Arial, sans-serif`
+          : "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
+        maxWidth: 794,
+        margin: "0 auto",
+        padding: "0 0 24px",
+        boxSizing: "border-box" as const,
+        position: "relative" as const,
+      }}
+    >
+      <div
+        style={{
+          background: `linear-gradient(180deg, ${theme.sectionColor} 0%, ${theme.labelColor} 100%)`,
+          padding: "20px 30px 28px",
+          textAlign: "center",
+        }}
+      >
+        <div
+          style={{
+            color: "rgba(255,255,255,0.9)",
+            fontSize: 11,
+            letterSpacing: "0.2em",
+            marginBottom: 6,
+          }}
+        >
+          {getReligionBlessing(data.personal?.religion || "हिंदू", language)}
+        </div>
+        <h1
+          style={{
+            color: "#fff8f0",
+            fontSize: 21,
+            fontWeight: 800,
+            margin: 0,
+            letterSpacing: "0.06em",
+            fontFamily: "inherit",
+          }}
+        >
+          ☀️ विवाह बायोडाटा ☀️
+        </h1>
+      </div>
+      <div style={{ padding: "8px 30px 0" }}>
+        <BiodataContent
+          data={data}
+          hidden={hidden}
+          theme={theme}
+          translations={translations}
+          fontFamily={fontFamily}
+          qrDataUrl={qrDataUrl}
+        />
+      </div>
+      <div
+        style={{
+          textAlign: "center",
+          paddingTop: 8,
+          marginTop: 12,
+          borderTop: `1px solid ${theme.borderColor}`,
+          marginLeft: 30,
+          marginRight: 30,
+        }}
+      >
+        <span
+          style={{
+            color: theme.sectionColor,
+            fontSize: 11,
+            letterSpacing: "0.15em",
+            fontWeight: 500,
+          }}
+        >
+          {getFooterText(data.personal?.religion || "हिंदू", language)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Template 12: कमळ (Lotus) ─────────────────────────────────────────────────
+const kamalTheme: ThemeConfig = {
+  bg: "#FCE4EC",
+  textColor: "#1a1a1a",
+  sectionColor: "#C2185B",
+  labelColor: "#E91E63",
+  accentBg: "#FCE4EC",
+  borderColor: "#C2185B",
+};
+
+function TemplateKamal({
+  data,
+  hidden,
+  translations,
+  fontFamily,
+  qrDataUrl,
+  language = "marathi",
+  colorOverride,
+}: {
+  data: SavedData;
+  hidden: Set<string>;
+  translations?: Record<string, string>;
+  fontFamily?: string;
+  qrDataUrl?: string;
+  language?: string;
+  colorOverride?: string;
+}) {
+  const theme = colorOverride
+    ? { ...kamalTheme, sectionColor: colorOverride, borderColor: colorOverride }
+    : kamalTheme;
+  const lotusCorners = ["🪷", "🌸", "🪷", "🌸"];
+  return (
+    <div
+      style={{
+        background: "#FFF5F8",
+        fontFamily: fontFamily
+          ? `'${fontFamily}', 'Noto Sans Devanagari', 'Hind', Arial, sans-serif`
+          : "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
+        maxWidth: 794,
+        margin: "0 auto",
+        padding: "28px 30px 24px",
+        boxSizing: "border-box" as const,
+        position: "relative" as const,
+        border: `2px solid ${theme.borderColor}`,
+      }}
+    >
+      {lotusCorners.map((lc, i) => {
+        const positions = [
+          { top: 4, left: 4 },
+          { top: 4, right: 4 },
+          { bottom: 4, left: 4 },
+          { bottom: 4, right: 4 },
+        ] as const;
+        return (
+          <div
+            // biome-ignore lint/suspicious/noArrayIndexKey: static corner positions
+            key={i}
+            style={{
+              position: "absolute" as const,
+              ...positions[i],
+              fontSize: 20,
+              opacity: 0.6,
+              pointerEvents: "none" as const,
+            }}
+          >
+            {lc}
+          </div>
+        );
+      })}
+      <div style={{ textAlign: "center", marginBottom: 4 }}>
+        <span
+          style={{
+            color: theme.sectionColor,
+            fontSize: 11,
+            letterSpacing: "0.18em",
+            fontWeight: 500,
+          }}
+        >
+          {getReligionBlessing(data.personal?.religion || "हिंदू", language)}
+        </span>
+      </div>
+      <div style={{ textAlign: "center", marginBottom: 16 }}>
+        <h1
+          style={{
+            color: theme.sectionColor,
+            fontSize: 20,
+            fontWeight: 800,
+            margin: 0,
+            letterSpacing: "0.06em",
+            fontFamily: "inherit",
+          }}
+        >
+          🌺 विवाह बायोडाटा 🌺
+        </h1>
+        <div
+          style={{
+            height: 2,
+            background: `linear-gradient(90deg, transparent, ${theme.sectionColor}, transparent)`,
+            marginTop: 6,
+          }}
+        />
+      </div>
+      <BiodataContent
+        data={data}
+        hidden={hidden}
+        theme={theme}
+        translations={translations}
+        fontFamily={fontFamily}
+        qrDataUrl={qrDataUrl}
+      />
+      <div
+        style={{
+          textAlign: "center",
+          paddingTop: 8,
+          marginTop: 12,
+          borderTop: `1px solid ${theme.borderColor}`,
+        }}
+      >
+        <span
+          style={{
+            color: theme.sectionColor,
+            fontSize: 11,
+            letterSpacing: "0.18em",
+            fontWeight: 500,
+          }}
+        >
+          {getFooterText(data.personal?.religion || "हिंदू", language)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Template 13: रजत (Silver) ─────────────────────────────────────────────────
+const rajatTheme: ThemeConfig = {
+  bg: "#F5F5F5",
+  textColor: "#1a1a1a",
+  sectionColor: "#424242",
+  labelColor: "#616161",
+  accentBg: "#F5F5F5",
+  borderColor: "#616161",
+};
+
+function TemplateRajat({
+  data,
+  hidden,
+  translations,
+  fontFamily,
+  qrDataUrl,
+  language = "marathi",
+  colorOverride,
+}: {
+  data: SavedData;
+  hidden: Set<string>;
+  translations?: Record<string, string>;
+  fontFamily?: string;
+  qrDataUrl?: string;
+  language?: string;
+  colorOverride?: string;
+}) {
+  const theme = colorOverride
+    ? { ...rajatTheme, sectionColor: colorOverride, borderColor: colorOverride }
+    : rajatTheme;
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        fontFamily: fontFamily
+          ? `'${fontFamily}', 'Noto Sans Devanagari', 'Hind', Arial, sans-serif`
+          : "'Noto Sans Devanagari', 'Hind', Arial, sans-serif",
+        maxWidth: 794,
+        margin: "0 auto",
+        padding: "0 0 24px",
+        boxSizing: "border-box" as const,
+        position: "relative" as const,
+      }}
+    >
+      <div
+        style={{
+          background: `linear-gradient(135deg, ${theme.sectionColor}, ${theme.labelColor})`,
+          padding: "20px 30px 16px",
+          textAlign: "center",
+          borderBottom: "3px solid #9E9E9E",
+        }}
+      >
+        <div
+          style={{
+            color: "rgba(255,255,255,0.8)",
+            fontSize: 11,
+            letterSpacing: "0.2em",
+            marginBottom: 6,
+          }}
+        >
+          {getReligionBlessing(data.personal?.religion || "हिंदू", language)}
+        </div>
+        <h1
+          style={{
+            color: "#ffffff",
+            fontSize: 21,
+            fontWeight: 800,
+            margin: 0,
+            letterSpacing: "0.06em",
+            fontFamily: "inherit",
+          }}
+        >
+          ✦ विवाह बायोडाटा ✦
+        </h1>
+      </div>
+      <div style={{ padding: "16px 30px 0" }}>
+        <BiodataContent
+          data={data}
+          hidden={hidden}
+          theme={theme}
+          translations={translations}
+          fontFamily={fontFamily}
+          qrDataUrl={qrDataUrl}
+        />
+      </div>
+      <div
+        style={{
+          textAlign: "center",
+          paddingTop: 8,
+          marginTop: 12,
+          borderTop: `1px solid ${theme.borderColor}`,
+          marginLeft: 30,
+          marginRight: 30,
+        }}
+      >
+        <span
+          style={{
+            color: theme.sectionColor,
+            fontSize: 11,
+            letterSpacing: "0.15em",
+            fontWeight: 500,
+          }}
+        >
+          {getFooterText(data.personal?.religion || "हिंदू", language)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 // ─── Template map ─────────────────────────────────────────────────────────────
 const templateMap: Record<
   string,
@@ -2411,6 +2879,7 @@ const templateMap: Record<
     fontFamily?: string;
     qrDataUrl?: string;
     language?: string;
+    colorOverride?: string;
   }>
 > = {
   classic: TemplateClassic,
@@ -2422,6 +2891,10 @@ const templateMap: Record<
   paramparik: TemplateParamparik,
   manohar: TemplateManohar,
   saundarya: TemplateSaundarya,
+  mayur: TemplateMayur,
+  ugawatya: TemplateUgawatya,
+  kamal: TemplateKamal,
+  rajat: TemplateRajat,
   // backward compat
   single: TemplateClassic,
 };
@@ -2461,6 +2934,10 @@ const _TEMPLATE_LIST = [
   { id: "paramparik", name: "पारंपारिक", emoji: "✦", color: "#B8860B" },
   { id: "manohar", name: "मनोहर", emoji: "🌿", color: "#1B6B5A" },
   { id: "saundarya", name: "सौंदर्य", emoji: "🌹", color: "#AD1457" },
+  { id: "mayur", name: "मयूर", emoji: "🦚", color: "#006064" },
+  { id: "ugawatya", name: "उगवत्या सूर्याचा", emoji: "☀️", color: "#E65100" },
+  { id: "kamal", name: "कमळ", emoji: "🌺", color: "#C2185B" },
+  { id: "rajat", name: "रजत", emoji: "✦", color: "#424242" },
 ];
 
 // ─── Main Component ───────────────────────────────────────────────────────────
@@ -2477,6 +2954,9 @@ export default function BiodataPreview() {
   const [language, setLanguage] = useState<string>("marathi");
   const [selectedFont, setSelectedFont] = useState<string>("Laila");
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
+  const [colorOverride, setColorOverride] = useState<string | null>(null);
+  const [showRevisionBanner, setShowRevisionBanner] = useState(false);
+  const [referralCopied, setReferralCopied] = useState(false);
 
   useEffect(() => {
     const stored = sessionStorage.getItem("biodataFormData");
@@ -2566,6 +3046,9 @@ export default function BiodataPreview() {
       if (el2) {
         el2.style.zoom = "";
       }
+      // Show revision upsell banner
+      setShowRevisionBanner(true);
+      setTimeout(() => setShowRevisionBanner(false), 6000);
     }, 500);
   }
 
@@ -2603,6 +3086,31 @@ export default function BiodataPreview() {
             >
               <Download className="w-4 h-4" /> PDF डाउनलोड
             </Button>
+            {isPaid && (
+              <Button
+                onClick={() =>
+                  window.open(
+                    `https://wa.me/?text=${encodeURIComponent(
+                      language === "english"
+                        ? "I created my Marathi wedding biodata on lagnasetu.caffeine.xyz! Create yours too - only ₹49 🙏"
+                        : language === "hindi"
+                          ? "मैंने lagnasetu.caffeine.xyz पर अपना बायोडेटा बनाया! आप भी बनाएं - केवल ₹49 🙏"
+                          : "मी lagnasetu.caffeine.xyz वर माझा मराठी बायोडाटा तयार केला! तुम्हीही बनवा - फक्त ₹49 मध्ये 🙏",
+                    )}`,
+                    "_blank",
+                  )
+                }
+                className="font-devanagari gap-2 bg-green-600 text-white hover:bg-green-700"
+                data-ocid="preview.whatsapp.share.button"
+              >
+                📲{" "}
+                {language === "english"
+                  ? "Share with friends"
+                  : language === "hindi"
+                    ? "दोस्तों को बताएं"
+                    : "मित्रांना सांगा"}
+              </Button>
+            )}
           </div>
         </div>
 
@@ -2630,10 +3138,130 @@ export default function BiodataPreview() {
           </div>
         </div>
 
+        {/* Color Customization */}
+        <div className="no-print max-w-3xl mx-auto mb-4">
+          <p className="text-sm font-devanagari text-muted-foreground mb-2">
+            रंग निवडा:
+          </p>
+          <div className="flex gap-2 flex-wrap items-center">
+            {[
+              { color: null, label: "मूळ" },
+              { color: "#8B1A1A", label: "मरून" },
+              { color: "#1B6B5A", label: "हिरवा" },
+              { color: "#1a1a2e", label: "नेव्ही" },
+              { color: "#AD1457", label: "गुलाबी" },
+              { color: "#B8860B", label: "सोनेरी" },
+              { color: "#4A235A", label: "जांभळा" },
+              { color: "#1A5276", label: "निळा" },
+              { color: "#006064", label: "मोरपंखी" },
+            ].map(({ color, label }) => (
+              <button
+                type="button"
+                key={color ?? "default"}
+                title={label}
+                data-ocid={`preview.color.${color ? color.replace("#", "") : "default"}.toggle`}
+                onClick={() => setColorOverride(color)}
+                className="relative w-7 h-7 rounded-full border-2 transition-transform hover:scale-110"
+                style={{
+                  background: color ?? "#ffffff",
+                  borderColor:
+                    colorOverride === color
+                      ? "#374151"
+                      : color
+                        ? color
+                        : "#d1d5db",
+                  boxShadow:
+                    colorOverride === color
+                      ? "0 0 0 2px rgba(55,65,81,0.4)"
+                      : "none",
+                }}
+              >
+                {!color && (
+                  <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-gray-500">
+                    ✗
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Watermark preview notice */}
         <div className="no-print max-w-3xl mx-auto mb-4 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2 text-sm font-devanagari text-amber-800">
           हे नमुना बायोडाटा आहे. PDF / JPG डाउनलोड करण्यासाठी खालील बटण वापरा.
         </div>
+
+        {/* Revision upsell banner */}
+        {showRevisionBanner && (
+          <div
+            className="no-print max-w-3xl mx-auto mb-4 bg-green-50 border border-green-200 rounded-lg px-4 py-2.5 text-sm font-devanagari text-green-800 flex items-start justify-between gap-2"
+            data-ocid="preview.revision.toast"
+          >
+            <span>
+              ✅{" "}
+              {language === "english"
+                ? "Biodata downloaded! To make changes, click 'Edit Biodata'."
+                : language === "hindi"
+                  ? "बायोडेटा डाउनलोड हुआ! बदलाव के लिए 'बायोडेटा संपादित करें' पर क्लिक करें।"
+                  : "बायोडाटा download झाला! बदल करायचे असल्यास 'बायोडाटा संपादित करा' वर क्लिक करा."}
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowRevisionBanner(false)}
+              className="shrink-0 text-green-600 hover:text-green-800 font-bold text-base leading-none"
+              data-ocid="preview.revision.close_button"
+            >
+              ×
+            </button>
+          </div>
+        )}
+
+        {/* Referral section */}
+        {isPaid && data.personal?.name && (
+          <div className="no-print max-w-3xl mx-auto mb-4 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+            <p className="font-devanagari text-sm font-semibold text-amber-900 mb-2">
+              🎁{" "}
+              {language === "english"
+                ? "Share with friends & family"
+                : language === "hindi"
+                  ? "दोस्तों और रिश्तेदारों को शेयर करें"
+                  : "तुमच्या मित्रांना/नातेवाइकांना हा link पाठवा"}
+            </p>
+            <div className="flex items-center gap-2">
+              <input
+                readOnly
+                value={`https://lagnasetu.caffeine.xyz/?ref=${encodeURIComponent(data.personal?.name || "friend")}`}
+                className="flex-1 text-xs font-mono bg-white border border-amber-200 rounded px-2 py-1.5 text-amber-700 truncate"
+                data-ocid="preview.referral.input"
+              />
+              <Button
+                size="sm"
+                variant="outline"
+                className="shrink-0 font-devanagari text-xs border-amber-300 text-amber-800 hover:bg-amber-100"
+                data-ocid="preview.referral.copy_button"
+                onClick={() => {
+                  navigator.clipboard
+                    .writeText(
+                      `https://lagnasetu.caffeine.xyz/?ref=${encodeURIComponent(data.personal?.name || "friend")}`,
+                    )
+                    .then(() => {
+                      setReferralCopied(true);
+                      setTimeout(() => setReferralCopied(false), 2500);
+                    })
+                    .catch(() => {});
+                }}
+              >
+                {referralCopied
+                  ? language === "english"
+                    ? "Copied!"
+                    : "कॉपी झाले!"
+                  : language === "english"
+                    ? "Copy"
+                    : "कॉपी"}
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Biodata Print Area */}
         <div
@@ -2710,6 +3338,7 @@ export default function BiodataPreview() {
               fontFamily={selectedFont}
               qrDataUrl={qrDataUrl}
               language={language}
+              colorOverride={colorOverride || undefined}
             />
           </div>
         </div>

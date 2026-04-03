@@ -12,7 +12,8 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useSiteLang } from "@/contexts/LanguageContext";
-import { useCreateOrUpdateBiodata } from "@/hooks/useQueries";
+import { useInternetIdentity } from "@/hooks/useInternetIdentity";
+import { useCreateOrUpdateBiodata, useGetBiodata } from "@/hooks/useQueries";
 import { useNavigate } from "@tanstack/react-router";
 import {
   ChevronDown,
@@ -120,6 +121,38 @@ const TEMPLATES_CONFIG = [
     color: "#AD1457",
     plan: "basic",
     desc: "गुलाबी",
+  },
+  {
+    id: "mayur",
+    name: "मयूर",
+    emoji: "🦚",
+    color: "#006064",
+    plan: "basic",
+    desc: "मोराचा",
+  },
+  {
+    id: "ugawatya",
+    name: "उगवत्या सूर्याचा",
+    emoji: "☀️",
+    color: "#E65100",
+    plan: "basic",
+    desc: "केशरी",
+  },
+  {
+    id: "kamal",
+    name: "कमळ",
+    emoji: "🌺",
+    color: "#C2185B",
+    plan: "basic",
+    desc: "गुलाबी कमळ",
+  },
+  {
+    id: "rajat",
+    name: "रजत",
+    emoji: "✦",
+    color: "#424242",
+    plan: "basic",
+    desc: "रुपेरी",
   },
 ];
 
@@ -354,6 +387,8 @@ const FORM_LABELS: Record<string, Record<string, string>> = {
     sibName_placeholder: "नाव",
     sibOcc_placeholder: "व्यवसाय",
     planetaryPositions: "ग्रह स्थिती",
+    yes: "होय",
+    no: "नाही",
   },
   hindi: {
     fullName: "पूरा नाम",
@@ -455,6 +490,8 @@ const FORM_LABELS: Record<string, Record<string, string>> = {
     sibName_placeholder: "नाम",
     sibOcc_placeholder: "व्यवसाय",
     planetaryPositions: "ग्रह स्थिति",
+    yes: "हाँ",
+    no: "नहीं",
   },
   english: {
     fullName: "Full Name",
@@ -556,6 +593,8 @@ const FORM_LABELS: Record<string, Record<string, string>> = {
     sibName_placeholder: "Name",
     sibOcc_placeholder: "Occupation",
     planetaryPositions: "Planetary Positions",
+    yes: "Yes",
+    no: "No",
   },
   kannada: {
     fullName: "ಪೂರ್ಣ ಹೆಸರು",
@@ -656,6 +695,8 @@ const FORM_LABELS: Record<string, Record<string, string>> = {
     sibName_placeholder: "ಹೆಸರು",
     sibOcc_placeholder: "ವೃತ್ತಿ",
     planetaryPositions: "ಗ್ರಹ ಸ್ಥಾನ",
+    yes: "ಹೌದು",
+    no: "ಇಲ್ಲ",
   },
   urdu: {
     fullName: "پورا نام",
@@ -758,6 +799,8 @@ const FORM_LABELS: Record<string, Record<string, string>> = {
     sibName_placeholder: "نام",
     sibOcc_placeholder: "پیشہ",
     planetaryPositions: "گرہوں کی پوزیشن",
+    yes: "ہاں",
+    no: "نہیں",
   },
 };
 
@@ -1514,6 +1557,9 @@ export default function BiodataForm() {
   const [step, setStep] = useState(0);
   const { setLanguage: setSiteLang } = useSiteLang();
   const selectedPlan = "basic";
+  const { login, clear, isLoggingIn, identity } = useInternetIdentity();
+  const isLoggedIn = !!identity && !identity.getPrincipal().isAnonymous();
+  const { data: savedBiodata } = useGetBiodata();
   const [form, setForm] = useState<FormState>(() => ({
     ...defaultState,
     language: "marathi",
@@ -2012,6 +2058,80 @@ export default function BiodataForm() {
                         </div>
                       </div>
 
+                      {/* Internet Identity Login Card */}
+                      <div className="rounded-xl border border-dashed border-border bg-muted/30 p-4">
+                        <p className="font-devanagari font-semibold text-foreground text-sm mb-2">
+                          {form.language === "english"
+                            ? "Save & Restore Biodata"
+                            : form.language === "hindi"
+                              ? "बायोडेटा सेव करें"
+                              : "Login करा आणि बायोडाटा save करा"}
+                          <span className="ml-1.5 text-xs text-muted-foreground font-normal">
+                            (Optional)
+                          </span>
+                        </p>
+                        {!isLoggedIn ? (
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="font-devanagari text-xs text-muted-foreground flex-1">
+                              {form.language === "english"
+                                ? "Login to save your biodata and restore it later."
+                                : form.language === "hindi"
+                                  ? "बायोडेटा सेव करने के लिए लॉगिन करें।"
+                                  : "तुमचा बायोडाटा save होईल आणि नंतर restore करता येईल."}
+                            </p>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              disabled={isLoggingIn}
+                              onClick={login}
+                              className="font-devanagari shrink-0 border-maroon/40 text-maroon hover:bg-maroon/5"
+                              data-ocid="form.ii.login_button"
+                            >
+                              {isLoggingIn
+                                ? "..."
+                                : form.language === "english"
+                                  ? "Login"
+                                  : "Login करा"}
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="font-devanagari text-xs text-green-700 flex-1">
+                              ✅{" "}
+                              {form.language === "english"
+                                ? "Logged in"
+                                : form.language === "hindi"
+                                  ? "लॉगिन हो गए"
+                                  : "Login झाले"}
+                              {savedBiodata && (
+                                <span className="ml-1">
+                                  {" "}
+                                  —{" "}
+                                  {form.language === "english"
+                                    ? "Saved data found"
+                                    : form.language === "hindi"
+                                      ? "सेव डेटा मिला"
+                                      : "saved biodata सापडले"}
+                                </span>
+                              )}
+                            </p>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              onClick={clear}
+                              className="font-devanagari shrink-0 text-xs text-muted-foreground"
+                              data-ocid="form.ii.logout_button"
+                            >
+                              {form.language === "english"
+                                ? "Logout"
+                                : "Logout"}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+
                       {/* Template selector */}
                       <div>
                         <p className="font-devanagari text-center text-maroon font-semibold text-sm mb-4">
@@ -2316,6 +2436,7 @@ export default function BiodataForm() {
                             placeholder={FL_LABELS.income_placeholder}
                             value={form.personal.income}
                             onChange={(e) => upP("income", e.target.value)}
+                            inputMode="numeric"
                             data-ocid="personal.income.input"
                           />
                         </div>
@@ -2364,15 +2485,27 @@ export default function BiodataForm() {
                         !["ख्रिश्चन", "मुस्लीम", "बौद्ध"].includes(
                           form.religion,
                         ) && (
-                          <div className="flex items-center gap-3 p-4 bg-muted rounded-xl">
-                            <Switch
-                              checked={form.personal.manglikStatus}
-                              onCheckedChange={(v) => upP("manglikStatus", v)}
-                              data-ocid="personal.manglik.switch"
-                            />
+                          <div className="flex items-center justify-between p-4 bg-muted rounded-xl">
                             <span className="font-devanagari font-semibold text-sm">
                               {FL_LABELS.manglikStatus}
                             </span>
+                            <div className="flex items-center gap-3">
+                              <span
+                                className={`font-devanagari text-sm font-medium ${!form.personal.manglikStatus ? "text-foreground" : "text-muted-foreground"}`}
+                              >
+                                {FL_LABELS.no || "नाही"}
+                              </span>
+                              <Switch
+                                checked={form.personal.manglikStatus}
+                                onCheckedChange={(v) => upP("manglikStatus", v)}
+                                data-ocid="personal.manglik.switch"
+                              />
+                              <span
+                                className={`font-devanagari text-sm font-medium ${form.personal.manglikStatus ? "text-primary" : "text-muted-foreground"}`}
+                              >
+                                {FL_LABELS.yes || "होय"}
+                              </span>
+                            </div>
                           </div>
                         )}
 
@@ -2906,9 +3039,11 @@ export default function BiodataForm() {
                       <div className="space-y-1.5">
                         <FL label={FL_LABELS.phone} />
                         <Input
+                          type="tel"
                           placeholder={FL_LABELS.phoneNumber}
                           value={form.contact.phone}
                           onChange={(e) => upC("phone", e.target.value)}
+                          inputMode="tel"
                           data-ocid="contact.phone.input"
                         />
                       </div>
