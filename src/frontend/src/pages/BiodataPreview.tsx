@@ -439,11 +439,12 @@ function getRelativeLabels(
       return { mama: "ಮಾವ", kaka: "ಚಿಕ್ಕಪ್ಪ", atya: "ಅತ್ತೆ", pahune: "ಅತಿಥಿ" };
     if (isUrdu)
       return { mama: "ماموں", kaka: "چچا", atya: "خالہ", pahune: "مہمان" };
+    // For marathi, hindi, english — use T (current language translations)
     return {
-      mama: "Maternal Uncle",
-      kaka: "Uncle",
-      atya: "Aunt",
-      pahune: "Guest",
+      mama: T.mama || "मामा",
+      kaka: T.kaka || "काका",
+      atya: T.atya || "आत्या",
+      pahune: T.pahune || "पाहुणे",
     };
   }
   return {
@@ -568,6 +569,7 @@ function BiodataContent({
   const T = translations || TRANSLATIONS.marathi;
   const _religion = (data.personal as any)?.religion || "हिंदू";
   const _noGotra = ["बौद्ध", "ख्रिश्चन", "मुस्लीम"].includes(_religion);
+  const _noManglik = ["बौद्ध", "ख्रिश्चन", "मुस्लीम"].includes(_religion);
   const _relLabels = getRelativeLabels(_religion, T);
   const fontFamilyStr = propFont
     ? `'${propFont}', 'Noto Sans Devanagari', 'Hind', Arial, sans-serif`
@@ -753,6 +755,7 @@ function BiodataContent({
             <R label={T.gotra} value={data.personal.gotra} />
           )}
           {!hidden.has("manglikStatus") &&
+            !_noManglik &&
             getManglikDisplay(data.personal.manglikStatus, T) !== null && (
               <R
                 label={T.manglik}

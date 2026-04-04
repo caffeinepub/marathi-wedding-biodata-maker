@@ -997,12 +997,8 @@ function getRelativeFormLabels(
       return { mama: "ಮಾವ", kaka: "ಚಿಕ್ಕಪ್ಪ", atya: "ಅತ್ತೆ", pahune: "ಅತಿಥಿ" };
     if (language === "urdu")
       return { mama: "ماموں", kaka: "چچا", atya: "خالہ", pahune: "مہمان" };
-    return {
-      mama: "Maternal Uncle",
-      kaka: "Uncle",
-      atya: "Aunt",
-      pahune: "Guest",
-    };
+    // For marathi, hindi, english — use language-specific labels from FORM_LABELS
+    return { mama: L.mama, kaka: L.kaka, atya: L.atya, pahune: L.pahune };
   }
   return { mama: L.mama, kaka: L.kaka, atya: L.atya, pahune: L.pahune };
 }
