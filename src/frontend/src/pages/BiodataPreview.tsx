@@ -115,6 +115,20 @@ interface ExtFamilyInfo extends FamilyInfo {
   pahuneInfo?: string;
 }
 
+interface DesignOptions {
+  colorTheme: string;
+  borderStyle: "single" | "double" | "dotted" | "floral";
+  photoFrame: "square" | "rounded" | "circle" | "decorative";
+  photoPosition: "right" | "left" | "center";
+}
+
+const DEFAULT_DESIGN: DesignOptions = {
+  colorTheme: "default",
+  borderStyle: "single",
+  photoFrame: "square",
+  photoPosition: "right",
+};
+
 interface SavedData {
   personal: PersonalInfo;
   family: ExtFamilyInfo;
@@ -122,6 +136,7 @@ interface SavedData {
   contact: ContactInfo;
   template: string;
   photoPreview: string | null;
+  designOptions?: DesignOptions;
 }
 
 const HOUSES_MR = [
@@ -555,6 +570,8 @@ interface ContentProps {
   translations?: Record<string, string>;
   fontFamily?: string;
   qrDataUrl?: string;
+  photoFrame?: "square" | "rounded" | "circle" | "decorative";
+  photoPosition?: "right" | "left" | "center";
 }
 
 function BiodataContent({
@@ -565,7 +582,14 @@ function BiodataContent({
   translations,
   fontFamily: propFont,
   qrDataUrl,
+  photoFrame: propPhotoFrame,
+  photoPosition: propPhotoPosition,
 }: ContentProps) {
+  // Read design options from data if not passed explicitly
+  const photoFrame =
+    propPhotoFrame ?? data.designOptions?.photoFrame ?? "square";
+  const photoPosition =
+    propPhotoPosition ?? data.designOptions?.photoPosition ?? "right";
   const T = translations || TRANSLATIONS.marathi;
   const _religion = (data.personal as any)?.religion || "हिंदू";
   const _noGotra = ["बौद्ध", "ख्रिश्चन", "मुस्लीम"].includes(_religion);
@@ -580,6 +604,34 @@ function BiodataContent({
   );
   const dob = formatDOB(data.personal.dateOfBirth);
   const { sectionColor, labelColor, textColor, accentBg, borderColor } = theme;
+
+  // Photo frame style helper
+  function getPhotoFrameStyle(): React.CSSProperties {
+    const base: React.CSSProperties = {
+      objectFit: "cover" as const,
+      border: `3px solid ${sectionColor}`,
+    };
+    if (photoFrame === "rounded") return { ...base, borderRadius: 8 };
+    if (photoFrame === "circle")
+      return {
+        ...base,
+        borderRadius: "50%",
+        aspectRatio: "1/1",
+        objectFit: "cover" as const,
+      };
+    if (photoFrame === "decorative")
+      return {
+        ...base,
+        borderRadius: 4,
+        outline: `2px solid ${sectionColor}`,
+        outlineOffset: 3,
+      };
+    return { ...base, borderRadius: 6 }; // square default
+  }
+
+  const photoFrameStyle = getPhotoFrameStyle();
+  const isPhotoCenter = photoPosition === "center";
+  const isPhotoLeft = photoPosition === "left";
 
   function SH({ title }: { title: string }) {
     return (
@@ -633,14 +685,51 @@ function BiodataContent({
           className="print-section"
           style={{
             display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
+            flexDirection: isPhotoCenter ? "column" : "row",
+            justifyContent: isPhotoCenter ? "center" : "space-between",
+            alignItems: isPhotoCenter ? "center" : "center",
             marginBottom: 14,
             paddingBottom: 12,
             borderBottom: `1px solid ${borderColor}`,
+            gap: isPhotoCenter ? 8 : 0,
           }}
         >
-          <div>
+          {/* Photo – shown first if position is left, or after text if right, or center (handled by flex-direction col) */}
+          {(isPhotoCenter || isPhotoLeft) &&
+            (data.photoPreview ? (
+              <img
+                src={data.photoPreview}
+                alt="Profile"
+                style={{
+                  width: isPhotoCenter ? 90 : 85,
+                  height: isPhotoCenter ? 112 : 105,
+                  ...photoFrameStyle,
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  width: isPhotoCenter ? 90 : 85,
+                  height: isPhotoCenter ? 112 : 105,
+                  background: accentBg,
+                  border: `3px solid ${borderColor}`,
+                  borderRadius:
+                    photoFrame === "circle"
+                      ? "50%"
+                      : photoFrame === "rounded"
+                        ? 8
+                        : 6,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 28,
+                  color: "#ccc",
+                }}
+              >
+                👤
+              </div>
+            ))}
+          <div style={isPhotoCenter ? { textAlign: "center" } : {}}>
             <h2
               style={{
                 color: textColor,
@@ -658,6 +747,7 @@ function BiodataContent({
                 gap: 6,
                 marginTop: 5,
                 flexWrap: "wrap" as const,
+                justifyContent: isPhotoCenter ? "center" : "flex-start",
               }}
             >
               {!hidden.has("religion") && data.personal.religion && (
@@ -692,36 +782,42 @@ function BiodataContent({
               )}
             </div>
           </div>
-          {data.photoPreview ? (
-            <img
-              src={data.photoPreview}
-              alt="Profile"
-              style={{
-                width: 85,
-                height: 105,
-                objectFit: "cover" as const,
-                border: `3px solid ${sectionColor}`,
-                borderRadius: 6,
-              }}
-            />
-          ) : (
-            <div
-              style={{
-                width: 85,
-                height: 105,
-                background: accentBg,
-                border: `3px solid ${borderColor}`,
-                borderRadius: 6,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 28,
-                color: "#ccc",
-              }}
-            >
-              👤
-            </div>
-          )}
+          {/* Photo on right (default) */}
+          {!isPhotoCenter &&
+            !isPhotoLeft &&
+            (data.photoPreview ? (
+              <img
+                src={data.photoPreview}
+                alt="Profile"
+                style={{
+                  width: 85,
+                  height: 105,
+                  ...photoFrameStyle,
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  width: 85,
+                  height: 105,
+                  background: accentBg,
+                  border: `3px solid ${borderColor}`,
+                  borderRadius:
+                    photoFrame === "circle"
+                      ? "50%"
+                      : photoFrame === "rounded"
+                        ? 8
+                        : 6,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 28,
+                  color: "#ccc",
+                }}
+              >
+                👤
+              </div>
+            ))}
         </div>
       )}
 
@@ -2960,6 +3056,8 @@ export default function BiodataPreview() {
   const [colorOverride, setColorOverride] = useState<string | null>(null);
   const [showRevisionBanner, setShowRevisionBanner] = useState(false);
   const [referralCopied, setReferralCopied] = useState(false);
+  const [designOptions, setDesignOptions] =
+    useState<DesignOptions>(DEFAULT_DESIGN);
 
   useEffect(() => {
     const stored = sessionStorage.getItem("biodataFormData");
@@ -2968,6 +3066,30 @@ export default function BiodataPreview() {
         const parsed = JSON.parse(stored) as SavedData;
         setData(parsed);
         if (parsed.template) setActiveTemplate(parsed.template);
+        if (parsed.designOptions) {
+          setDesignOptions((prev) => ({ ...prev, ...parsed.designOptions }));
+          // Sync colorOverride from designOptions
+          if (
+            parsed.designOptions.colorTheme &&
+            parsed.designOptions.colorTheme !== "default"
+          ) {
+            const colorMap: Record<string, string> = {
+              saffron: "#FF6B00",
+              rose: "#E91E63",
+              teal: "#009688",
+              purple: "#7B1FA2",
+              blue: "#1976D2",
+              green: "#388E3C",
+              maroon: "#880E4F",
+              gold: "#F9A825",
+              orange: "#F57C00",
+              indigo: "#303F9F",
+              brown: "#5D4037",
+              slate: "#455A64",
+            };
+            setColorOverride(colorMap[parsed.designOptions.colorTheme] || null);
+          }
+        }
       } catch {
         /* use default */
       }
@@ -3280,16 +3402,39 @@ export default function BiodataPreview() {
         >
           <div
             id="biodata-print-area"
-            style={{
-              width: "794px",
-              maxWidth: "100%",
-              margin: "0 auto",
-              background: "#fff",
-              boxShadow: "0 2px 16px rgba(0,0,0,0.10)",
-              borderRadius: 8,
-              position: "relative",
-              userSelect: "none",
-            }}
+            style={(() => {
+              const accentColor = colorOverride || "#8B1A1A";
+              const bStyle = designOptions.borderStyle;
+              let borderStyle: React.CSSProperties = {};
+              if (bStyle === "double") {
+                borderStyle = {
+                  border: `3px double ${accentColor}`,
+                  outline: `2px solid ${accentColor}`,
+                  outlineOffset: "3px",
+                };
+              } else if (bStyle === "dotted") {
+                borderStyle = { border: `3px dotted ${accentColor}` };
+              } else if (bStyle === "floral") {
+                borderStyle = {
+                  border: `3px solid ${accentColor}`,
+                  boxShadow: `0 0 0 6px ${accentColor}22, 0 0 0 7px ${accentColor}44`,
+                };
+              } else {
+                // single (default)
+                borderStyle = { border: `2px solid ${accentColor}20` };
+              }
+              return {
+                width: "794px",
+                maxWidth: "100%",
+                margin: "0 auto",
+                background: "#fff",
+                boxShadow: "0 2px 16px rgba(0,0,0,0.10)",
+                borderRadius: 8,
+                position: "relative" as const,
+                userSelect: "none" as const,
+                ...borderStyle,
+              };
+            })()}
           >
             {/* Tiled Watermark Overlay */}
             <div
@@ -3335,7 +3480,7 @@ export default function BiodataPreview() {
               ))}
             </div>
             <TemplateToRender
-              data={data}
+              data={{ ...data, designOptions: designOptions }}
               hidden={new Set<string>()}
               translations={T}
               fontFamily={selectedFont}

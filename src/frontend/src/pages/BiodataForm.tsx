@@ -227,6 +227,13 @@ interface SiblingEntry {
 type ReligionType = "हिंदू" | "जैन" | "बौद्ध" | "लिंगायत" | "ख्रिश्चन"; // | "मुस्लीम" // TODO: re-enable Muslim/Urdu
 type LanguageType = "marathi" | "hindi" | "english" | "kannada"; // | "urdu" // TODO: re-enable Muslim/Urdu
 
+interface DesignOptions {
+  colorTheme: string;
+  borderStyle: "single" | "double" | "dotted" | "floral";
+  photoFrame: "square" | "rounded" | "circle" | "decorative";
+  photoPosition: "right" | "left" | "center";
+}
+
 interface FormState {
   personal: PersonalInfo;
   family: ExtFamilyInfo;
@@ -238,6 +245,7 @@ interface FormState {
   religion: ReligionType;
   language: LanguageType;
   selectedFont: string;
+  designOptions: DesignOptions;
 }
 
 const defaultState: FormState = {
@@ -284,6 +292,12 @@ const defaultState: FormState = {
   template: "classic",
   photoFile: null,
   photoPreview: null,
+  designOptions: {
+    colorTheme: "default",
+    borderStyle: "single" as const,
+    photoFrame: "square" as const,
+    photoPosition: "right" as const,
+  },
 };
 
 const FORM_LABELS: Record<string, Record<string, string>> = {
@@ -1062,6 +1076,285 @@ function FL({ label }: { label: string }) {
   );
 }
 
+// ─── Design Customize Panel ──────────────────────────────────────────────────
+const COLOR_THEMES = [
+  { value: "default", label: "मूळ", color: null },
+  { value: "saffron", label: "केशरी", color: "#FF6B00" },
+  { value: "rose", label: "गुलाबी", color: "#E91E63" },
+  { value: "teal", label: "हिरवा", color: "#009688" },
+  { value: "purple", label: "जांभळा", color: "#7B1FA2" },
+  { value: "blue", label: "निळा", color: "#1976D2" },
+  { value: "green", label: "हिरव्या रंग", color: "#388E3C" },
+  { value: "maroon", label: "मरून", color: "#880E4F" },
+  { value: "gold", label: "सोनेरी", color: "#F9A825" },
+  { value: "orange", label: "नारंगी", color: "#F57C00" },
+  { value: "indigo", label: "इंडिगो", color: "#303F9F" },
+  { value: "brown", label: "तपकिरी", color: "#5D4037" },
+  { value: "slate", label: "स्लेट", color: "#455A64" },
+];
+
+function DesignCustomizePanel({
+  designOptions,
+  onChange,
+  language,
+}: {
+  designOptions: DesignOptions;
+  onChange: (opts: DesignOptions) => void;
+  language: string;
+}) {
+  const [open, setOpen] = useState(false);
+
+  const labels = {
+    title:
+      language === "english"
+        ? "Design Customize"
+        : language === "hindi"
+          ? "डिज़ाइन कस्टमाइज़"
+          : language === "kannada"
+            ? "ವಿನ್ಯಾಸ ಕಸ್ಟಮೈಸ್"
+            : "डिझाईन सानुकूलित करा",
+    colorTheme:
+      language === "english"
+        ? "Color Theme"
+        : language === "hindi"
+          ? "रंग थीम"
+          : language === "kannada"
+            ? "ಬಣ್ಣ ಥೀಮ್"
+            : "रंग थीम",
+    borderStyle:
+      language === "english"
+        ? "Border Style"
+        : language === "hindi"
+          ? "बॉर्डर स्टाइल"
+          : language === "kannada"
+            ? "ಬಾರ್ಡರ್ ಶೈಲಿ"
+            : "बॉर्डर स्टाईल",
+    photoFrame:
+      language === "english"
+        ? "Photo Frame"
+        : language === "hindi"
+          ? "फोटो फ्रेम"
+          : language === "kannada"
+            ? "ಫೋಟೋ ಫ್ರೇಮ್"
+            : "फोटो फ्रेम",
+    photoPosition:
+      language === "english"
+        ? "Photo Position"
+        : language === "hindi"
+          ? "फोटो स्थान"
+          : language === "kannada"
+            ? "ಫೋಟೋ ಸ್ಥಾನ"
+            : "फोटो स्थान",
+  };
+
+  const upD = (k: keyof DesignOptions, v: string) =>
+    onChange({ ...designOptions, [k]: v });
+
+  return (
+    <div className="mt-4 border border-border rounded-xl overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between px-4 py-3 bg-muted/40 hover:bg-muted/60 transition-colors"
+        data-ocid="design.customize.toggle"
+      >
+        <span className="font-devanagari font-semibold text-sm text-foreground flex items-center gap-2">
+          🎨 {labels.title}
+        </span>
+        {open ? (
+          <ChevronUp className="w-4 h-4 text-muted-foreground" />
+        ) : (
+          <ChevronDown className="w-4 h-4 text-muted-foreground" />
+        )}
+      </button>
+
+      {open && (
+        <div className="p-4 space-y-5 bg-background">
+          {/* Color Theme */}
+          <div className="space-y-2">
+            <p className="font-devanagari font-semibold text-xs text-foreground">
+              {labels.colorTheme}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {COLOR_THEMES.map((theme) => {
+                const isSelected = designOptions.colorTheme === theme.value;
+                return (
+                  <button
+                    key={theme.value}
+                    type="button"
+                    title={theme.label}
+                    onClick={() => upD("colorTheme", theme.value)}
+                    data-ocid={`design.color.${theme.value}.toggle`}
+                    className="relative w-8 h-8 rounded-full border-2 transition-all hover:scale-110"
+                    style={{
+                      background: theme.color ?? "#ffffff",
+                      borderColor: isSelected
+                        ? "#374151"
+                        : theme.color
+                          ? theme.color
+                          : "#d1d5db",
+                      boxShadow: isSelected
+                        ? "0 0 0 2px rgba(55,65,81,0.5)"
+                        : "none",
+                    }}
+                  >
+                    {!theme.color && (
+                      <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-gray-500">
+                        ✗
+                      </span>
+                    )}
+                    {isSelected && theme.color && (
+                      <span className="absolute inset-0 flex items-center justify-center text-white text-[10px] font-bold">
+                        ✓
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Border Style */}
+          <div className="space-y-2">
+            <p className="font-devanagari font-semibold text-xs text-foreground">
+              {labels.borderStyle}
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {(["single", "double", "dotted", "floral"] as const).map(
+                (style) => {
+                  const isSelected = designOptions.borderStyle === style;
+                  const styleLabel = {
+                    single: language === "english" ? "Single" : "एकेरी",
+                    double: language === "english" ? "Double" : "दुहेरी",
+                    dotted: language === "english" ? "Dotted" : "ठिपके",
+                    floral: language === "english" ? "Floral" : "फुलांचा",
+                  }[style];
+                  const preview = {
+                    single: "solid",
+                    double: "double",
+                    dotted: "dotted",
+                    floral: "solid",
+                  }[style];
+                  return (
+                    <button
+                      key={style}
+                      type="button"
+                      onClick={() => upD("borderStyle", style)}
+                      data-ocid={`design.border.${style}.toggle`}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-xs font-devanagari transition-all ${isSelected ? "border-maroon bg-maroon/5 text-maroon" : "border-border text-foreground hover:border-maroon/40"}`}
+                    >
+                      <span
+                        className="w-8 h-4 inline-block rounded-sm flex-shrink-0"
+                        style={{
+                          border: `2px ${preview} ${isSelected ? "#8B1A1A" : "#999"}`,
+                          ...(style === "floral"
+                            ? { borderStyle: "solid", outlineOffset: "2px" }
+                            : {}),
+                        }}
+                      />
+                      {styleLabel}
+                    </button>
+                  );
+                },
+              )}
+            </div>
+          </div>
+
+          {/* Photo Frame */}
+          <div className="space-y-2">
+            <p className="font-devanagari font-semibold text-xs text-foreground">
+              {labels.photoFrame}
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {(["square", "rounded", "circle", "decorative"] as const).map(
+                (frame) => {
+                  const isSelected = designOptions.photoFrame === frame;
+                  const frameLabel = {
+                    square: language === "english" ? "Square" : "चौकोन",
+                    rounded: language === "english" ? "Rounded" : "गोलाकार",
+                    circle: language === "english" ? "Circle" : "वर्तुळ",
+                    decorative:
+                      language === "english" ? "Decorative" : "सजावटी",
+                  }[frame];
+                  const borderRadius = {
+                    square: 0,
+                    rounded: 8,
+                    circle: 99,
+                    decorative: 4,
+                  }[frame];
+                  return (
+                    <button
+                      key={frame}
+                      type="button"
+                      onClick={() => upD("photoFrame", frame)}
+                      data-ocid={`design.photoframe.${frame}.toggle`}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-xs font-devanagari transition-all ${isSelected ? "border-maroon bg-maroon/5 text-maroon" : "border-border text-foreground hover:border-maroon/40"}`}
+                    >
+                      <span
+                        className="w-6 h-7 inline-block bg-muted flex-shrink-0"
+                        style={{
+                          borderRadius,
+                          border: `2px ${isSelected ? "solid #8B1A1A" : "solid #999"}`,
+                          ...(frame === "decorative"
+                            ? {
+                                outline: `1px solid ${isSelected ? "#8B1A1A" : "#999"}`,
+                                outlineOffset: "2px",
+                              }
+                            : {}),
+                        }}
+                      />
+                      {frameLabel}
+                    </button>
+                  );
+                },
+              )}
+            </div>
+          </div>
+
+          {/* Photo Position */}
+          <div className="space-y-2">
+            <p className="font-devanagari font-semibold text-xs text-foreground">
+              {labels.photoPosition}
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              {(["left", "right", "center"] as const).map((pos) => {
+                const isSelected = designOptions.photoPosition === pos;
+                const posLabel = {
+                  left: language === "english" ? "Left" : "डावीकडे",
+                  right: language === "english" ? "Right" : "उजवीकडे",
+                  center: language === "english" ? "Center" : "मध्यभागी",
+                }[pos];
+                return (
+                  <button
+                    key={pos}
+                    type="button"
+                    onClick={() => upD("photoPosition", pos)}
+                    data-ocid={`design.photopos.${pos}.toggle`}
+                    className={`flex flex-col items-center gap-1 px-2 py-2 rounded-lg border-2 text-xs font-devanagari transition-all ${isSelected ? "border-maroon bg-maroon/5 text-maroon" : "border-border text-foreground hover:border-maroon/40"}`}
+                  >
+                    <span className="w-10 h-6 bg-muted rounded flex items-center overflow-hidden flex-shrink-0 relative">
+                      {pos === "left" && (
+                        <span className="absolute left-0 top-0 bottom-0 w-3 bg-foreground/20 rounded-l" />
+                      )}
+                      {pos === "right" && (
+                        <span className="absolute right-0 top-0 bottom-0 w-3 bg-foreground/20 rounded-r" />
+                      )}
+                      {pos === "center" && (
+                        <span className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-3 bg-foreground/20" />
+                      )}
+                    </span>
+                    {posLabel}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function FieldCustomizer({
   step,
   hiddenFields,
@@ -1800,6 +2093,7 @@ export default function BiodataForm() {
         contact: form.contact,
         template: form.template,
         photoPreview: form.photoPreview,
+        designOptions: form.designOptions,
       }),
     );
     try {
@@ -2208,6 +2502,14 @@ export default function BiodataForm() {
                           </div>
                         </div>
                       </div>
+                      {/* ─── Design Customize Panel ─────────────────────────────── */}
+                      <DesignCustomizePanel
+                        designOptions={form.designOptions}
+                        onChange={(opts) =>
+                          setForm((f) => ({ ...f, designOptions: opts }))
+                        }
+                        language={form.language}
+                      />
                     </div>
                   )}
 

@@ -1,30 +1,35 @@
-# lagnasetu
+# lagnasetu - Marathi Wedding Biodata Maker
 
 ## Current State
-- 6 templates exist: क्लासिक, फुलांचा, राजेशाही, आधुनिक, श्रेष्ठ, दैवी
-- Templates defined in BiodataPreview.tsx with a templateMap and _TEMPLATE_LIST
-- All templates share BiodataContent component with ThemeConfig
-- Template list shown in step 0 mini previews (color swatches) and in preview page tabs
+- 13 templates with religion/language-aware headers, footers, labels
+- Form with photo upload/crop, sibling cards, extended family fields
+- Languages: Marathi, Hindi, English, Kannada (Urdu/Muslim hidden)
+- Religions: Hindu, Jain, Buddhist, Lingayat, Christian
+- PDF download with watermark preview, Razorpay payment (₹49)
+- Admin dashboard, coupon codes, QR code in PDF, auto-save, progress bar
 
 ## Requested Changes (Diff)
 
 ### Add
-- **Template 7: पारंपारिक (Paramparik)** — Traditional saffron/turmeric gold style, thick decorative double-border frame, warm ochre/mustard color scheme (#B8860B dark goldenrod), classic Indian motif feel
-- **Template 8: मनोहर (Manohar)** — Elegant teal/green nature-inspired design, two-tone header with name on colored background, clean modern-traditional fusion, (#1B6B5A deep green)
-- **Template 9: सौंदर्य (Saundarya)** — Soft rose/blush pink feminine design with subtle floral accents, elegant typography, pastel rose theme (#C2185B deep rose / #FCE4EC blush bg)
+- **Background color / theme picker**: Panel in preview step with 12 preset color themes (saffron, rose, teal, purple, blue, green, maroon, gold, orange, indigo, brown, slate). Each theme changes the template header background color and accent colors.
+- **Border style selector**: 4 options - single (default), double, dotted, floral (decorative unicode border). Applied to the biodata card outer border in preview and PDF.
+- **Photo frame style**: 4 options - square (default), rounded, circle, decorative (double border frame). Applied to the photo in preview and PDF.
+- **Photo position**: 3 options - right (default), left, top-center. Controls where the photo appears in the biodata layout.
 
 ### Modify
-- `templateMap` — add 3 new entries
-- `_TEMPLATE_LIST` — add 3 new entries with colors and names
-- `LandingPage.tsx` — add new templates to the preview section (if templates are listed there)
+- BiodataForm.tsx: Add a new "Design Customize" panel at Step 0 (template selection step) below the template grid, with color theme picker, border style, photo frame style, photo position selectors.
+- BiodataPreview.tsx: Apply the selected design customizations to the preview rendering and PDF generation.
 
 ### Remove
 - Nothing removed
 
 ## Implementation Plan
-1. Add ThemeConfig constants for each new template
-2. Implement TemplateParmparik, TemplateManohar, TemplateSaundarya as React components (same props interface as existing templates)
-3. Update templateMap and _TEMPLATE_LIST to include the 3 new templates
-4. Each new template uses the shared BiodataContent component but with distinct header/footer/border styling
-5. Check LandingPage.tsx for any hardcoded template list and update if needed
-6. Validate and deploy
+1. Add `designOptions` state to BiodataForm: `{ colorTheme, borderStyle, photoFrame, photoPosition }`
+2. Add Design Customize panel UI in Step 0 below template mini previews
+3. Pass `designOptions` to BiodataPreview via existing data flow
+4. In BiodataPreview, apply:
+   - `colorTheme` to template header background and accent colors
+   - `borderStyle` to the outer card border (CSS classes)
+   - `photoFrame` to the photo element (border-radius, border style)
+   - `photoPosition` to control flex layout of photo vs info columns
+5. Apply same customizations in PDF generation (jsPDF/html2canvas)
