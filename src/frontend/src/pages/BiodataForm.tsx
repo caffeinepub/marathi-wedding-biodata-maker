@@ -232,6 +232,7 @@ interface DesignOptions {
   borderStyle: "single" | "double" | "dotted" | "floral";
   photoFrame: "square" | "rounded" | "circle" | "decorative";
   photoPosition: "right" | "left" | "center";
+  fontSize: "small" | "medium" | "large";
 }
 
 interface FormState {
@@ -297,6 +298,7 @@ const defaultState: FormState = {
     borderStyle: "single" as const,
     photoFrame: "square" as const,
     photoPosition: "right" as const,
+    fontSize: "medium" as const,
   },
 };
 
@@ -1904,7 +1906,14 @@ export default function BiodataForm() {
   };
 
   useEffect(() => {
-    const fonts = ["Laila", "Hind", "Noto+Sans+Devanagari", "Mukta"];
+    const fonts = [
+      "Laila",
+      "Hind",
+      "Noto+Sans+Devanagari",
+      "Mukta",
+      "Baloo+2",
+      "Tiro+Devanagari",
+    ];
     for (const font of fonts) {
       const id = `gfont-${font}`;
       if (!document.getElementById(id)) {
@@ -2082,6 +2091,10 @@ export default function BiodataForm() {
     }
     sessionStorage.setItem("biodataLanguage", form.language);
     sessionStorage.setItem("biodataFont", form.selectedFont);
+    sessionStorage.setItem(
+      "biodataFontSize",
+      form.designOptions.fontSize || "medium",
+    );
     sessionStorage.setItem("biodataReligion", form.religion);
     localStorage.setItem("biodataReligion", form.religion);
     sessionStorage.setItem(
@@ -2318,6 +2331,8 @@ export default function BiodataForm() {
                               "Hind",
                               "Noto Sans Devanagari",
                               "Mukta",
+                              "Baloo 2",
+                              "Tiro Devanagari",
                             ] as string[]
                           ).map((font) => (
                             <button
@@ -2345,6 +2360,80 @@ export default function BiodataForm() {
                               </span>
                             </button>
                           ))}
+                        </div>
+                      </div>
+
+                      {/* Font Size Selector */}
+                      <div className="space-y-2">
+                        <p className="font-devanagari font-semibold text-foreground text-sm">
+                          {form.language === "english"
+                            ? "Font Size"
+                            : form.language === "kannada"
+                              ? "ಅಕ್ಷರ ಗಾತ್ರ"
+                              : "अक्षर आकार"}
+                        </p>
+                        <div className="grid grid-cols-3 gap-2">
+                          {(["small", "medium", "large"] as const).map(
+                            (size) => {
+                              const sizeLabel = {
+                                small:
+                                  form.language === "english"
+                                    ? "Small"
+                                    : form.language === "kannada"
+                                      ? "ಚಿಕ್ಕ"
+                                      : "लहान",
+                                medium:
+                                  form.language === "english"
+                                    ? "Medium"
+                                    : form.language === "kannada"
+                                      ? "ಮಧ್ಯಮ"
+                                      : "मध्यम",
+                                large:
+                                  form.language === "english"
+                                    ? "Large"
+                                    : form.language === "kannada"
+                                      ? "ದೊಡ್ಡ"
+                                      : "मोठा",
+                              }[size];
+                              return (
+                                <button
+                                  key={size}
+                                  type="button"
+                                  onClick={() =>
+                                    setForm((f) => ({
+                                      ...f,
+                                      designOptions: {
+                                        ...f.designOptions,
+                                        fontSize: size,
+                                      },
+                                    }))
+                                  }
+                                  data-ocid={`form.fontsize.${size}.toggle`}
+                                  className={`py-2 px-3 rounded-lg border-2 text-sm transition-all ${
+                                    form.designOptions.fontSize === size
+                                      ? "border-maroon bg-maroon/5 font-semibold"
+                                      : "border-border hover:border-maroon/50"
+                                  }`}
+                                >
+                                  <span
+                                    style={{
+                                      fontSize:
+                                        size === "small"
+                                          ? "11px"
+                                          : size === "large"
+                                            ? "17px"
+                                            : "14px",
+                                    }}
+                                  >
+                                    {sizeLabel}
+                                  </span>
+                                  <div className="text-xs text-muted-foreground mt-0.5">
+                                    अ
+                                  </div>
+                                </button>
+                              );
+                            },
+                          )}
                         </div>
                       </div>
 
@@ -2715,6 +2804,7 @@ export default function BiodataForm() {
                             value={form.personal.education}
                             onChange={(e) => upP("education", e.target.value)}
                             data-ocid="personal.education.input"
+                            list="education-list"
                           />
                         </div>
                         <div className="space-y-1.5">
@@ -2724,6 +2814,7 @@ export default function BiodataForm() {
                             value={form.personal.occupation}
                             onChange={(e) => upP("occupation", e.target.value)}
                             data-ocid="personal.occupation.input"
+                            list="occupation-list"
                           />
                         </div>
                       </div>
@@ -3163,6 +3254,7 @@ export default function BiodataForm() {
                                 upF("nativePlace", e.target.value)
                               }
                               data-ocid="family.native.input"
+                              list="city-list"
                             />
                           </div>
                         )}
@@ -3436,6 +3528,110 @@ export default function BiodataForm() {
           </div>
         </div>
       </div>
+
+      {/* Autocomplete datalists */}
+      <datalist id="city-list">
+        {[
+          "पुणे",
+          "मुंबई",
+          "नागपूर",
+          "औरंगाबाद",
+          "नाशिक",
+          "सोलापूर",
+          "कोल्हापूर",
+          "सातारा",
+          "सांगली",
+          "अकोला",
+          "अमरावती",
+          "नंदुरबार",
+          "धुळे",
+          "जळगाव",
+          "लातूर",
+          "उस्मानाबाद",
+          "बीड",
+          "परभणी",
+          "हिंगोली",
+          "नांदेड",
+          "यवतमाळ",
+          "वर्धा",
+          "गडचिरोली",
+          "चंद्रपूर",
+          "भंडारा",
+          "गोंदिया",
+          "रत्नागिरी",
+          "सिंधुदुर्ग",
+          "रायगड",
+          "ठाणे",
+          "Pune",
+          "Mumbai",
+          "Nagpur",
+          "Aurangabad",
+          "Nashik",
+          "Solapur",
+          "Kolhapur",
+        ].map((c) => (
+          <option key={c} value={c} />
+        ))}
+      </datalist>
+      <datalist id="education-list">
+        {[
+          "B.A.",
+          "B.Com.",
+          "B.Sc.",
+          "B.E.",
+          "B.Tech.",
+          "M.A.",
+          "M.Com.",
+          "M.Sc.",
+          "M.E.",
+          "M.Tech.",
+          "MBA",
+          "MCA",
+          "BCA",
+          "BBA",
+          "LLB",
+          "MBBS",
+          "B.Pharm.",
+          "D.Pharm.",
+          "ITI",
+          "Diploma",
+          "10वी",
+          "12वी",
+          "पदवी",
+          "पदव्युत्तर",
+          "Ph.D.",
+          "CA",
+          "CS",
+        ].map((e) => (
+          <option key={e} value={e} />
+        ))}
+      </datalist>
+      <datalist id="occupation-list">
+        {[
+          "नोकरी",
+          "व्यवसाय",
+          "शेती",
+          "शेती व व्यवसाय",
+          "सरकारी नोकरी",
+          "खाजगी नोकरी",
+          "IT Engineer",
+          "Software Engineer",
+          "Doctor",
+          "Lawyer",
+          "Teacher",
+          "Professor",
+          "Accountant",
+          "CA",
+          "Nurse",
+          "Bank Employee",
+          "Police",
+          "Army",
+          "Farmer",
+          "Business",
+        ].map((o) => (
+          <option key={o} value={o} />
+        ))}
+      </datalist>
     </>
   );
 }

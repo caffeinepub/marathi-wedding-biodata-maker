@@ -1,35 +1,40 @@
-# lagnasetu - Marathi Wedding Biodata Maker
+# lagnasetu - Step 2 Features
 
 ## Current State
-- 13 templates with religion/language-aware headers, footers, labels
-- Form with photo upload/crop, sibling cards, extended family fields
-- Languages: Marathi, Hindi, English, Kannada (Urdu/Muslim hidden)
-- Religions: Hindu, Jain, Buddhist, Lingayat, Christian
-- PDF download with watermark preview, Razorpay payment (₹49)
-- Admin dashboard, coupon codes, QR code in PDF, auto-save, progress bar
+- Font selector has 4 fonts: Laila, Hind, Noto Sans Devanagari, Mukta
+- No font size option exists; all font sizes are hardcoded in templates
+- No auto-complete on any form fields
+- Design customize panel has color, border, photo frame, photo position
 
 ## Requested Changes (Diff)
 
 ### Add
-- **Background color / theme picker**: Panel in preview step with 12 preset color themes (saffron, rose, teal, purple, blue, green, maroon, gold, orange, indigo, brown, slate). Each theme changes the template header background color and accent colors.
-- **Border style selector**: 4 options - single (default), double, dotted, floral (decorative unicode border). Applied to the biodata card outer border in preview and PDF.
-- **Photo frame style**: 4 options - square (default), rounded, circle, decorative (double border frame). Applied to the photo in preview and PDF.
-- **Photo position**: 3 options - right (default), left, top-center. Controls where the photo appears in the biodata layout.
+- Font size selector: Small / Medium / Large (3 options) in Step 0 font panel
+  - Applied to both form preview and PDF output
+  - Small = 0.85x, Medium = 1.0x (default), Large = 1.15x scaling
+- 2 new Marathi fonts: Baloo 2 (Devanagari), Tiro Devanagari
+- Auto-complete for 3 fields in the form:
+  - City/town field (Maharashtra major cities)
+  - Education field (common degrees)
+  - Occupation field (common professions)
+- Font size state in FormState + DesignOptions
+- `fontSize` prop passed to BiodataPreview and templates
 
 ### Modify
-- BiodataForm.tsx: Add a new "Design Customize" panel at Step 0 (template selection step) below the template grid, with color theme picker, border style, photo frame style, photo position selectors.
-- BiodataPreview.tsx: Apply the selected design customizations to the preview rendering and PDF generation.
+- Font selector in Step 0: expand from 4 to 6 fonts, add Baloo 2 and Tiro Devanagari
+- Google Fonts useEffect: add new fonts to load list
+- BiodataPreview: read fontSize from sessionStorage, apply CSS scale multiplier
+- All 13 templates: apply fontSize multiplier at root div level
+- Form contact/personal fields: add datalist/autocomplete suggestions
 
 ### Remove
 - Nothing removed
 
 ## Implementation Plan
-1. Add `designOptions` state to BiodataForm: `{ colorTheme, borderStyle, photoFrame, photoPosition }`
-2. Add Design Customize panel UI in Step 0 below template mini previews
-3. Pass `designOptions` to BiodataPreview via existing data flow
-4. In BiodataPreview, apply:
-   - `colorTheme` to template header background and accent colors
-   - `borderStyle` to the outer card border (CSS classes)
-   - `photoFrame` to the photo element (border-radius, border style)
-   - `photoPosition` to control flex layout of photo vs info columns
-5. Apply same customizations in PDF generation (jsPDF/html2canvas)
+1. Add `fontSize: 'medium'` to DesignOptions interface and defaultState
+2. Add Font Size selector UI in Step 0 (Small/Medium/Large buttons)
+3. Add Baloo 2 and Tiro Devanagari to font list + Google Fonts loader
+4. Save fontSize to sessionStorage when navigating to preview
+5. In BiodataPreview, read fontSize and apply CSS `zoom` or `scale` multiplier to template root
+6. Add auto-complete datalists for city, education, occupation fields in BiodataForm
+7. Add font size labels to FORM_LABELS for all 4 languages

@@ -3052,6 +3052,7 @@ export default function BiodataPreview() {
   );
   const [language, setLanguage] = useState<string>("marathi");
   const [selectedFont, setSelectedFont] = useState<string>("Laila");
+  const [selectedFontSize, setSelectedFontSize] = useState<string>("medium");
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
   const [colorOverride, setColorOverride] = useState<string | null>(null);
   const [showRevisionBanner, setShowRevisionBanner] = useState(false);
@@ -3106,6 +3107,8 @@ export default function BiodataPreview() {
     if (lang) setLanguage(lang);
     const font = sessionStorage.getItem("biodataFont");
     if (font) setSelectedFont(font);
+    const fontSize = sessionStorage.getItem("biodataFontSize");
+    if (fontSize) setSelectedFontSize(fontSize);
   }, []);
 
   // Load selected Google font
@@ -3479,15 +3482,26 @@ export default function BiodataPreview() {
                 </span>
               ))}
             </div>
-            <TemplateToRender
-              data={{ ...data, designOptions: designOptions }}
-              hidden={new Set<string>()}
-              translations={T}
-              fontFamily={selectedFont}
-              qrDataUrl={qrDataUrl}
-              language={language}
-              colorOverride={colorOverride || undefined}
-            />
+            <div
+              style={{
+                fontSize:
+                  selectedFontSize === "small"
+                    ? "88%"
+                    : selectedFontSize === "large"
+                      ? "113%"
+                      : "100%",
+              }}
+            >
+              <TemplateToRender
+                data={{ ...data, designOptions: designOptions }}
+                hidden={new Set<string>()}
+                translations={T}
+                fontFamily={selectedFont}
+                qrDataUrl={qrDataUrl}
+                language={language}
+                colorOverride={colorOverride || undefined}
+              />
+            </div>
           </div>
         </div>
 
